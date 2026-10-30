@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 const EnvSchema = z.object({
   IRRD_GRAPHQL_URL: z.url().default('https://rr.ntt.net/graphql/'),
-  RPKI_VALIDATOR_URL: z.url().default('http://localhost:8323'),
   RIPESTAT_URL: z.url().default('https://stat.ripe.net'),
   RIPESTAT_SOURCEAPP: z.string().min(1).default('irrexplorer-ng'),
   BGPTOOLS_URL: z.url().default('https://bgp.tools'),
@@ -15,7 +14,6 @@ const EnvSchema = z.object({
     .enum(['true', 'false'])
     .default('true')
     .transform((v) => v === 'true'),
-  RPKI_REFRESH_SECONDS: z.coerce.number().int().min(60).default(600),
   RIRSTATS_URL: z
     .url()
     .default('https://ftp.ripe.net/pub/stats/ripencc/nro-stats/latest/nro-delegated-stats'),

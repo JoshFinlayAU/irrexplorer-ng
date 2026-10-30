@@ -8,7 +8,6 @@
 // Paths:  /irrd/graphql/      IRRd GraphQL (POST)
 //         /ripestat/data/...  RIPEstat Data API
 //         /bgptools/...       table.jsonl, asns.csv
-//         /rpki/...           Routinator /csv and /api/v1/status
 //         /rir/nro, /rir/registrobr
 //         /fail/...           always 503, for partial-failure tests
 
@@ -27,7 +26,6 @@ const BULK_SOURCE_DIR =
 const REAL = {
   irrd: process.env.REAL_IRRD_GRAPHQL_URL ?? 'https://rr.ntt.net/graphql/',
   ripestat: 'https://stat.ripe.net',
-  rpki: process.env.REAL_RPKI_VALIDATOR_URL ?? 'http://localhost:8323',
 }
 
 const BULK: Record<string, { fixture: string; source: string }> = {
@@ -130,17 +128,6 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     const real = new URL(p.replace(/^\/ripestat/, '') + url.search, REAL.ripestat)
     real.searchParams.set('sourceapp', 'irrexplorer-ng-fixtures')
     return replayOrRecord(res, 'ripestat', method, url, '', real.toString())
-  }
-  if (p === '/rpki/csv') {
-    const file = path.join(ROOT, 'rpki/vrps.csv')
-    if (RECORD) {
-      const upstream = await fetch(`${REAL.rpki}/csv`)
-      return send(res, upstream.status, 'text/csv', await upstream.text())
-    }
-    return send(res, 200, 'text/csv', await readFile(file, 'utf8'))
-  }
-  if (p === '/rpki/api/v1/status') {
-    return replayOrRecord(res, 'rpki', method, url, '', `${REAL.rpki}/api/v1/status`)
   }
   return send(res, 404, 'text/plain', `mock has no route for ${p}`)
 }

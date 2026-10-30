@@ -6,7 +6,6 @@ import { PrefixIndexBuilder } from '~/lib/prefix-index'
 import { resetEnv } from '~/server/env'
 import { clearCache } from '~/server/cache'
 import { asNames, bgpTable, parseTableLine } from '~/server/sources/bgptools'
-import { parseVrpLine, vrps } from '~/server/sources/rpki'
 import { parseDelegatedLine, rirStats } from '~/server/sources/rirstats'
 import { prefixReport } from '~/server/services/prefix'
 import { asnReport } from '~/server/services/asn'
@@ -25,12 +24,6 @@ function loadDatasets() {
   asNames.set(
     new Map([[3333, 'RIPE-NCC-AS Reseaux IP Europeens Network Coordination Centre (RIPE NCC)']]),
   )
-  const roa = new PrefixIndexBuilder()
-  for (const line of fixtureText('rpki/vrps.csv').split('\n')) {
-    const row = parseVrpLine(line)
-    if (row) roa.add(row.prefix, row.value)
-  }
-  vrps.set(roa.build({ indexByValue: (v) => Math.floor(v / 256) }))
   const rir = new PrefixIndexBuilder()
   for (const line of fixtureText('rirstats/nro-delegated-stats.txt').split('\n')) {
     for (const r of parseDelegatedLine(line)) rir.add(r.prefix, r.value)
@@ -93,8 +86,9 @@ describe('prefix report', () => {
     expect(r.notices.map((n) => n.text).join(' ')).toMatch(/IRRd unavailable: HTTP 503/)
     const row = r.overlaps.find((x) => x.prefix === '193.0.0.0/21')!
     expect(row.messages.map((m) => m.text)).toEqual([
-      'Some checks were skipped because IRR data is unavailable',
+      'Some checks were skipped because IRR, RPKI data is unavailable',
     ])
+    expect(r.sources.rpki.status).toBe('unavailable')
   })
 
   it('falls back to RIS when the bgp.tools table is not loaded', async () => {
@@ -106,8 +100,18 @@ describe('prefix report', () => {
     ).toEqual([3333])
   })
 
-  it('marks RPKI unknown, not not-found, when VRPs are missing', async () => {
-    vrps.set(null)
+  it('marks RPKI unknown, not not-found, when IRRd has no RPKI source', async () => {
+    server.use(
+      http.post(`${MOCK_BASE}/irrd/graphql/`, async ({ request }) => {
+        const body = (await request.clone().json()) as { query: string }
+        if (!body.query.includes('databaseStatus')) return undefined
+        return HttpResponse.json({
+          data: {
+            s: [{ source: 'RIPE', authoritative: false, rpkiRovFilter: true, lastUpdate: null }],
+          },
+        })
+      }),
+    )
     const r = await prefixReport('193.0.0.0/21')
     const row = r.overlaps.find((x) => x.prefix === '193.0.0.0/21')!
     expect(row.bgpOrigins[0]!.rpki.state).toBe('unknown')
@@ -160,10 +164,9 @@ describe('sets and status', () => {
     expect(s.datasets.map((d) => d.name)).toEqual([
       'bgp.tools table',
       'bgp.tools AS names',
-      'RPKI VRPs',
       'RIR delegations',
     ])
     expect(s.irr?.map((i) => i.source)).toContain('RIPE')
-    expect(s.validator?.version).toMatch(/routinator/)
+    expect(s.irr?.map((i) => i.source)).toContain('RPKI')
   })
 })

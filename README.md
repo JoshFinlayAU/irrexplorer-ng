@@ -29,21 +29,23 @@ right view.
 Everything is fetched live or held in memory. There is no database; restarting the app only
 means the bulk datasets are downloaded again.
 
-| Data                                | Source                                   | How                                                   |
-| ----------------------------------- | ---------------------------------------- | ----------------------------------------------------- |
-| Route objects, sets, set membership | IRRd GraphQL (`IRRD_GRAPHQL_URL`)        | Queried per request                                   |
-| BGP origins                         | bgp.tools `table.jsonl`                  | Downloaded every 2 hours, indexed in memory           |
-| AS names                            | bgp.tools `asns.csv`                     | Downloaded daily                                      |
-| RPKI ROAs and validity              | Routinator `/csv` (`RPKI_VALIDATOR_URL`) | Loaded every 10 minutes, validated locally (RFC 6811) |
-| RIR per prefix                      | NRO delegated stats and Registro.BR      | Downloaded daily                                      |
-| RIS visibility, BGP fallback        | RIPEstat Data API                        | Queried per request                                   |
+| Data                                | Source                              | How                                               |
+| ----------------------------------- | ----------------------------------- | ------------------------------------------------- |
+| Route objects, sets, set membership | IRRd GraphQL (`IRRD_GRAPHQL_URL`)   | Queried per request                               |
+| BGP origins                         | bgp.tools `table.jsonl`             | Downloaded every 2 hours, indexed in memory       |
+| AS names                            | bgp.tools `asns.csv`                | Downloaded daily                                  |
+| RPKI ROAs and validity              | IRRd's `RPKI` source                | Queried per request, validated locally (RFC 6811) |
+| RIR per prefix                      | NRO delegated stats and Registro.BR | Downloaded daily                                  |
+| RIS visibility, BGP fallback        | RIPEstat Data API                   | Queried per request                               |
 
 A few notes on these choices:
 
-- The IRRd used here does not serve reliable RPKI data, and Routinator's validity endpoint does
-  not list ROAs for a prefix. Loading the full set of VRPs gives the ROA column, the status of
-  every route object and BGP origin, and the reason a route is invalid (wrong origin or too
-  specific).
+- IRRd imports validated ROAs into a pseudo-source called `RPKI`, the same data the original IRR
+  Explorer used. The route lookup the app already makes returns those ROAs next to the route
+  objects, including every ROA covering each prefix, so one query gives the ROA column, the
+  status of every route object and BGP origin, and the reason a route is invalid (wrong origin or
+  too specific). The IRRd must have RPKI import enabled; if it has no `RPKI` source, RPKI shows
+  as unavailable rather than "not found".
 - IRRd queries always request RPKI-invalid objects explicitly, because IRRd's ROV filter would
   otherwise hide them.
 - If a source is down, the page still renders with a notice saying what is missing. Checks that
@@ -58,22 +60,9 @@ You need Node 26 (current LTS) and pnpm 11.
 
 ```sh
 pnpm install
-cp .env.example .env    # set BGPTOOLS_USER_AGENT and point RPKI_VALIDATOR_URL at a Routinator
+cp .env.example .env    # set BGPTOOLS_USER_AGENT
 pnpm dev                # http://localhost:3000
 ```
-
-For local development a Routinator is easiest in Docker:
-
-```sh
-docker run -d --name routinator -p 127.0.0.1:8323:8323 \
-  -v routinator-cache:/home/routinator/.rpki-cache nlnetlabs/routinator:v0.15.3
-```
-
-Its first validation run takes several minutes. Until it finishes, RPKI shows as unavailable.
-On slower links, give Routinator longer fetch timeouts (`--rrdp-timeout=1800
---rsync-timeout=1800` before the `server` subcommand, as the compose file does). With the
-defaults, ARIN's large repository can time out and its ROAs go missing without any error in
-the app.
 
 Setting `BULK_CACHE_DIR=.cache` in `.env` keeps the raw bulk downloads on disk, so restarting
 the dev server does not download bgp.tools again within 30 minutes.
@@ -85,7 +74,7 @@ pnpm build
 pnpm start              # node .output/server/index.mjs
 ```
 
-Or with Docker, which also starts a Routinator:
+Or with Docker:
 
 ```sh
 cp .env.example .env    # set BGPTOOLS_USER_AGENT at least
@@ -111,7 +100,6 @@ Every setting is documented in `.env.example`. The main ones:
 | Variable                       | Default                                     | Purpose                                    |
 | ------------------------------ | ------------------------------------------- | ------------------------------------------ |
 | `IRRD_GRAPHQL_URL`             | `https://rr.ntt.net/graphql/` | IRRd GraphQL endpoint                      |
-| `RPKI_VALIDATOR_URL`           | `http://localhost:8323`                     | Routinator base URL                        |
 | `RIPESTAT_SOURCEAPP`           | `irrexplorer-ng`                            | Sent on every RIPEstat call                |
 | `BGPTOOLS_USER_AGENT`          | empty                                       | Required for the bgp.tools download        |
 | `PORT`                         | `3000`                                      | HTTP port                                  |

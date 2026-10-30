@@ -1,5 +1,5 @@
-// Partial failure: the degraded instance has IRRd, bgp.tools, the RPKI
-// validator and the RIR stats all failing; only RIPEstat works. Every page
+// Partial failure: the degraded instance has IRRd (and with it RPKI),
+// bgp.tools and the RIR stats all failing; only RIPEstat works. Every page
 // must still render, with a clear notice per missing source.
 import { checkA11y, DEGRADED, expect, hydrated, shot, test } from './helpers'
 
@@ -11,7 +11,7 @@ test('prefix page renders with notices and RIS fallback', async ({ page }) => {
   const notices = page.getByRole('region', { name: 'Data source notices' })
   await expect(notices).toContainText('IRRd unavailable')
   await expect(notices).toContainText('BGP origins come from RIPE RIS instead')
-  await expect(notices).toContainText('RPKI validator unavailable')
+  await expect(notices).toContainText('IRR and RPKI columns and checks are missing')
   await expect(notices).toContainText('RIR delegation data unavailable')
   const row = page
     .getByRole('region', { name: /Directly overlapping/ })
@@ -48,7 +48,6 @@ test('status page shows each failure', async ({ page }) => {
   await page.goto('/status')
   await hydrated(page)
   await expect(page.getByText(/Error: HTTP 503/).first()).toBeVisible()
-  await expect(page.getByText(/Validator unavailable/)).toBeVisible()
   await expect(page.getByText(/IRRd unavailable/)).toBeVisible()
   await checkA11y(page)
   await shot(page, 'degraded-status')

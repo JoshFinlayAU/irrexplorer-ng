@@ -9,7 +9,6 @@ function appEnv(degraded: boolean): Record<string, string> {
   const fail = `${MOCK}/fail`
   return {
     IRRD_GRAPHQL_URL: degraded ? `${fail}/graphql/` : `${MOCK}/irrd/graphql/`,
-    RPKI_VALIDATOR_URL: degraded ? fail : `${MOCK}/rpki`,
     RIPESTAT_URL: `${MOCK}/ripestat`,
     RIPESTAT_SOURCEAPP: 'irrexplorer-ng-e2e',
     BGPTOOLS_URL: degraded ? fail : `${MOCK}/bgptools`,

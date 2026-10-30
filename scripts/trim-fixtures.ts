@@ -13,7 +13,6 @@ import { makePrefix, parseIp, parsePrefixParts, type PrefixParts } from '../src/
 const ROOT = path.resolve(import.meta.dirname, '..')
 const FIXTURES = path.join(ROOT, 'test', 'fixtures')
 const SOURCE = path.resolve(process.argv[2] ?? path.join(ROOT, '.cache'))
-const RPKI_URL = process.env.REAL_RPKI_VALIDATOR_URL ?? 'http://localhost:8323'
 
 // ASNs whose whole footprint the e2e cases rely on.
 const CASE_ASNS = [3333, 1136]
@@ -44,13 +43,17 @@ function overlaps(p: PrefixParts): boolean {
   return false
 }
 
-// Collect every prefix-looking string from recorded exchanges.
+// Collect every prefix-looking string from recorded exchanges, plus every
+// origin ASN in them (IRR objects and IRRd's RPKI ROAs) for the AS names.
 const PREFIX_RE = /[0-9a-fA-F:.]+\/\d{1,3}/g
+const ASN_RE = /\\"asn\\":(\d+)/g
+const recordedAsns = new Set<number>()
 function harvest(dir: string) {
   if (!existsSync(dir)) return
   for (const f of readdirSync(dir)) {
     const text = readFileSync(path.join(dir, f), 'utf8')
     for (const m of text.matchAll(PREFIX_RE)) addInteresting(m[0])
+    for (const m of text.matchAll(ASN_RE)) recordedAsns.add(Number(m[1]))
   }
 }
 harvest(path.join(FIXTURES, 'irrd'))
@@ -70,8 +73,6 @@ for (const p of [
 }
 
 const tableLines = readFileSync(path.join(SOURCE, 'bgptools-table.txt'), 'utf8').split('\n')
-const vrpText = await (await fetch(`${RPKI_URL}/csv`)).text()
-const vrpLines = vrpText.split('\n')
 
 // Everything the case ASNs originate is interesting too.
 for (const line of tableLines) {
@@ -79,13 +80,9 @@ for (const line of tableLines) {
   const row = JSON.parse(line) as { CIDR: string; ASN: number }
   if (CASE_ASNS.includes(row.ASN)) addInteresting(row.CIDR)
 }
-for (const line of vrpLines.slice(1)) {
-  const [asn, prefix] = line.split(',')
-  if (asn && prefix && CASE_ASNS.includes(Number(asn.replace('AS', '')))) addInteresting(prefix)
-}
 console.log(`interesting prefixes: ${interestingCount}`)
 
-const asnsSeen = new Set<number>(CASE_ASNS)
+const asnsSeen = new Set<number>([...CASE_ASNS, ...recordedAsns])
 
 const keptTable = tableLines.filter((line) => {
   if (!line) return false
@@ -95,17 +92,6 @@ const keptTable = tableLines.filter((line) => {
   if (keep) asnsSeen.add(row.ASN)
   return keep
 })
-
-const keptVrps = [vrpLines[0] ?? 'ASN,IP Prefix,Max Length,Trust Anchor'].concat(
-  vrpLines.slice(1).filter((line) => {
-    const [asn, prefix] = line.split(',')
-    const p = prefix ? parsePrefixParts(prefix) : null
-    const n = Number((asn ?? '').replace('AS', ''))
-    const keep = !!p && (CASE_ASNS.includes(n) || overlaps(p))
-    if (keep) asnsSeen.add(n)
-    return keep
-  }),
-)
 
 const asnLines = readFileSync(path.join(SOURCE, 'bgptools-asns.txt'), 'utf8').split('\n')
 const keptAsns = asnLines.filter(
@@ -150,6 +136,5 @@ function write(rel: string, lines: string[]) {
 }
 write('bgptools/table.jsonl', keptTable)
 write('bgptools/asns.csv', keptAsns)
-write('rpki/vrps.csv', keptVrps)
 write('rirstats/nro-delegated-stats.txt', keptNro)
 write('rirstats/registrobr.txt', keptBr)

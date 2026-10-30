@@ -1,8 +1,7 @@
-# IRR Explorer NG with a bundled Routinator. Copy .env.example to .env and
-# set at least BGPTOOLS_USER_AGENT, then: docker compose up -d --build
+# IRR Explorer NG. Copy .env.example to .env and set at least
+# BGPTOOLS_USER_AGENT, then: docker compose up -d --build
 #
-# Routinator needs several minutes for its first validation run; until then
-# the app shows RPKI as unavailable (never as "not found").
+# RPKI data comes from the RPKI source of the IRRd at IRRD_GRAPHQL_URL.
 services:
   app:
     build: .
@@ -15,32 +14,11 @@ services:
         required: false
     environment:
       PORT: '3000'
-      RPKI_VALIDATOR_URL: http://routinator:8323
       # Keeps raw bulk downloads across restarts so bgp.tools is not fetched
       # more than every 30 minutes. Safe to delete at any time.
       BULK_CACHE_DIR: /app/.cache
     volumes:
       - bulk-cache:/app/.cache
-    depends_on:
-      - routinator
-
-  routinator:
-    image: nlnetlabs/routinator:v0.15.3
-    restart: unless-stopped
-    # ARIN's main repository is large; the default RRDP and rsync timeouts were
-    # too short on a slower link, which silently dropped ROAs (8.8.8.0/24).
-    command:
-      - --rrdp-timeout=1800
-      - --rsync-timeout=1800
-      - server
-      - --rtr=0.0.0.0:3323
-      - --http=0.0.0.0:8323
-    # The HTTP API stays on the compose network; publish it only if needed.
-    expose:
-      - '8323'
-    volumes:
-      - rpki-cache:/home/routinator/.rpki-cache
 
 volumes:
-  rpki-cache:
   bulk-cache:

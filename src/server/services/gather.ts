@@ -4,13 +4,13 @@
 import '@tanstack/react-start/server-only'
 
 import type { Prefix } from '~/lib/ip'
-import type { BgpRow, CollectInput, IrrRow } from '~/lib/analysis/collect'
+import type { BgpRow, CollectInput, IrrRow, RoaRow } from '~/lib/analysis/collect'
+import { validatorFrom } from '~/lib/analysis/rpki'
 import type { Notice, SourceStates } from '~/lib/analysis/types'
 import { bgpOverlapping, bgpTable } from '../sources/bgptools'
-import { routesOverlapping } from '../sources/irrd'
+import { routesOverlapping, rpkiSource, type IrrdRoutes } from '../sources/irrd'
 import { bgpRowsFrom, routingStatus, type RoutingStatus } from '../sources/ripestat'
 import { rirOverlapping } from '../sources/rirstats'
-import { roasOverlapping, validator } from '../sources/rpki'
 
 export interface Gathered {
   input: CollectInput
@@ -42,19 +42,38 @@ export async function gather(
   await bgpTable.ready(250)
 
   const wantRipestat = options.ripestat === true && prefixes.length === 1
-  const [irrResult, risResult] = await Promise.allSettled([
-    prefixes.length > 0 ? routesOverlapping(prefixes) : Promise.resolve<IrrRow[]>([]),
+  const [irrResult, risResult, rpkiResult] = await Promise.allSettled([
+    prefixes.length > 0
+      ? routesOverlapping(prefixes)
+      : Promise.resolve<IrrdRoutes>({ irr: [], roas: [] }),
     wantRipestat ? routingStatus(prefixes[0]!) : Promise.resolve(null),
+    rpkiSource(),
   ])
 
+  // ROAs come from IRRd's RPKI source in the same lookup, so they fail together.
   let irr: IrrRow[] | null = null
-  if (irrResult.status === 'fulfilled') irr = irrResult.value
-  else {
+  let roas: RoaRow[] | null = null
+  if (irrResult.status === 'fulfilled') {
+    irr = irrResult.value.irr
+    roas = irrResult.value.roas
+  } else {
     sources.irr = { status: 'unavailable', detail: reason(irrResult.reason) }
+    sources.rpki = { status: 'unavailable', detail: reason(irrResult.reason) }
     notices.push({
       source: 'irr',
       level: 'danger',
-      text: `IRRd unavailable: ${reason(irrResult.reason)}. IRR columns and IRR checks are missing.`,
+      text: `IRRd unavailable: ${reason(irrResult.reason)}. IRR and RPKI columns and checks are missing.`,
+    })
+  }
+  // An IRRd without an RPKI source has no ROAs, which must not read as "not found".
+  // If the status lookup itself fails, trust the route lookup that worked.
+  if (roas !== null && rpkiResult.status === 'fulfilled' && rpkiResult.value === null) {
+    roas = null
+    sources.rpki = { status: 'unavailable', detail: 'IRRd has no RPKI source' }
+    notices.push({
+      source: 'rpki',
+      level: 'danger',
+      text: 'IRRd has no RPKI source configured. RPKI columns show "unknown", which is not the same as "not found".',
     })
   }
 
@@ -99,17 +118,6 @@ export async function gather(
     bgp = [...bgp, ...options.extraBgp]
   }
 
-  const roas = union(prefixes.map((p) => roasOverlapping(p)))
-  const validate = validator()
-  if (roas === null || validate === null) {
-    sources.rpki = { status: 'unavailable', detail: 'RPKI validator data not loaded' }
-    notices.push({
-      source: 'rpki',
-      level: 'danger',
-      text: 'RPKI validator unavailable or still validating. RPKI columns show "unknown", which is not the same as "not found".',
-    })
-  }
-
   const rir = union(prefixes.map((p) => rirOverlapping(p)))
   if (rir === null) {
     sources.rir = { status: 'unavailable', detail: 'RIR delegation data not loaded' }
@@ -120,5 +128,6 @@ export async function gather(
     })
   }
 
+  const validate = roas ? validatorFrom(roas) : null
   return { input: { bgp, irr, roas, rir, validate }, sources, notices, routing }
 }

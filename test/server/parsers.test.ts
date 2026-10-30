@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fixtureText } from '../recorded'
 import { parseTableLine, splitCsvLine } from '~/server/sources/bgptools'
-import { parseVrpLine } from '~/server/sources/rpki'
+import { roaMaxLength, splitRoutes } from '~/server/sources/irrd'
 import { parseDelegatedLine, parseRegistroBrLine, rangeToCidrs } from '~/server/sources/rirstats'
 import { parseIp } from '~/lib/ip'
 
@@ -35,16 +35,26 @@ describe('bgp.tools table lines', () => {
   })
 })
 
-describe('Routinator VRP lines', () => {
-  it('parses and validates', () => {
-    expect(parseVrpLine('AS3333,193.0.0.0/21,21,ripe')?.value).toBe(3333 * 256 + 21)
-    expect(parseVrpLine('ASN,IP Prefix,Max Length,Trust Anchor')).toBeNull()
-    expect(parseVrpLine('AS3333,193.0.0.0/21,20,ripe')).toBeNull()
-    expect(parseVrpLine('AS3333,193.0.0.0/21,33,ripe')).toBeNull()
+describe('IRRd RPKI pseudo-objects', () => {
+  it('reads the max length from the key', () => {
+    expect(roaMaxLength('1.1.1.0/24AS13335/ML24', '1.1.1.0/24')).toBe(24)
+    expect(roaMaxLength('2606:4700::/44AS13335/ML48', '2606:4700::/44')).toBe(48)
+    expect(roaMaxLength('193.0.0.0/21AS3333', '193.0.0.0/21')).toBe(21)
   })
-  it('parses the recorded fixture', () => {
-    const rows = fixtureText('rpki/vrps.csv').split('\n').map(parseVrpLine).filter(Boolean)
-    expect(rows.length).toBeGreaterThan(100)
+  it('splits ROAs from IRR route objects', () => {
+    expect(
+      splitRoutes([
+        { rpslPk: '1.1.1.0/24AS13335/ML24', source: 'RPKI', prefix: '1.1.1.0/24', asn: 13335 },
+        { rpslPk: '1.1.1.0/24AS13335', source: 'APNIC', prefix: '1.1.1.0/24', asn: 13335 },
+        { rpslPk: '1.1.1.0/24AS0/ML24', source: 'RPKI', prefix: '1.1.1.0/24', asn: null },
+      ]),
+    ).toEqual({
+      irr: [{ prefix: '1.1.1.0/24', asn: 13335, source: 'APNIC', rpslPk: '1.1.1.0/24AS13335' }],
+      roas: [
+        { prefix: '1.1.1.0/24', asn: 13335, maxLength: 24 },
+        { prefix: '1.1.1.0/24', asn: 0, maxLength: 24 },
+      ],
+    })
   })
 })
 

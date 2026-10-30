@@ -1,7 +1,7 @@
 // Tracks the last success and failure per upstream so /healthz can report
 // without calling the upstreams on every probe.
 
-export type SourceName = 'irrd' | 'ripestat' | 'bgptools' | 'rpki' | 'rirstats'
+export type SourceName = 'irrd' | 'ripestat' | 'bgptools' | 'rirstats'
 
 export interface SourceHealth {
   lastSuccess: string | null
@@ -31,7 +31,7 @@ export function recordFailure(source: SourceName, error: unknown): void {
 }
 
 export function healthSnapshot(): Record<SourceName, SourceHealth> {
-  const sources: SourceName[] = ['irrd', 'ripestat', 'bgptools', 'rpki', 'rirstats']
+  const sources: SourceName[] = ['irrd', 'ripestat', 'bgptools', 'rirstats']
   return Object.fromEntries(sources.map((s) => [s, { ...entry(s) }])) as Record<
     SourceName,
     SourceHealth

@@ -415,13 +415,7 @@ test.describe('other routes', () => {
     await page.goto('/status')
     await hydrated(page)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Data status')
-    for (const text of [
-      'bgp.tools',
-      'RPKI validated ROA payloads',
-      'NRO delegated stats',
-      'RIPE',
-      'RADB',
-    ]) {
+    for (const text of ['bgp.tools', 'RPKI', 'NRO delegated stats', 'RIPE', 'RADB']) {
       await expect(page.getByText(text).first()).toBeVisible()
     }
     await expect(page.getByText('OK', { exact: true }).first()).toBeVisible()

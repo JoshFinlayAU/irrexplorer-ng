@@ -5,7 +5,7 @@ import '@tanstack/react-start/server-only'
 
 import { z } from 'zod'
 import type { Prefix } from '~/lib/ip'
-import type { IrrRow } from '~/lib/analysis/collect'
+import type { IrrRow, RoaRow } from '~/lib/analysis/collect'
 import type { SetLevelResult } from '~/lib/analysis/sets'
 import { cached } from '../cache'
 import { env } from '../env'
@@ -45,26 +45,55 @@ export const RouteObjectSchema = z.object({
   asn: z.number().int().nullable().optional(),
 })
 const RouteList = z.array(RouteObjectSchema)
+type RouteObject = z.infer<typeof RouteObjectSchema>
 
 /**
- * IRRd serves ROAs as route objects in a pseudo-source "RPKI". ROAs come
- * from the validator here, so those are dropped (the original also never
- * showed RPKI as an IRR column).
+ * IRRd serves the ROAs from its RPKI import as route objects in a
+ * pseudo-source "RPKI", with primary keys like "1.1.1.0/24AS13335/ML24". They
+ * are the app's only RPKI data: split out as ROAs, never shown as an IRR.
  */
 export const RPKI_PSEUDO_SOURCE = 'RPKI'
 
-const toIrrRows = (list: z.infer<typeof RouteList>): IrrRow[] =>
-  list.flatMap((o) =>
-    o.prefix && o.source.toUpperCase() !== RPKI_PSEUDO_SOURCE
-      ? [{ prefix: o.prefix, asn: o.asn ?? 0, source: o.source, rpslPk: o.rpslPk }]
-      : [],
-  )
+/** IRR route objects and ROAs from one IRRd lookup. */
+export interface IrrdRoutes {
+  irr: IrrRow[]
+  roas: RoaRow[]
+}
+
+const isRpki = (source: string) => source.toUpperCase() === RPKI_PSEUDO_SOURCE
+
+/** Max length from an RPKI pseudo-object's key, defaulting to the prefix length. */
+export function roaMaxLength(rpslPk: string, prefix: string): number | null {
+  const ml = /\/ML(\d+)$/i.exec(rpslPk)
+  if (ml) return Number(ml[1])
+  const len = /\/(\d+)$/.exec(prefix)
+  return len ? Number(len[1]) : null
+}
+
+export function splitRoutes(list: z.infer<typeof RouteList>): IrrdRoutes {
+  const irr: IrrRow[] = []
+  const roas: RoaRow[] = []
+  for (const o of list) {
+    if (!o.prefix) continue
+    if (isRpki(o.source)) {
+      const maxLength = roaMaxLength(o.rpslPk, o.prefix)
+      if (maxLength !== null) roas.push({ prefix: o.prefix, asn: o.asn ?? 0, maxLength })
+    } else {
+      irr.push({ prefix: o.prefix, asn: o.asn ?? 0, source: o.source, rpslPk: o.rpslPk })
+    }
+  }
+  return { irr, roas }
+}
 
 const ROUTE_FIELDS =
   '{ rpslPk source ... on RPSLRoute { prefix asn } ... on RPSLRoute6 { prefix asn } }'
 
-/** route/route6 objects exact, less and more specific of each prefix. */
-export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<IrrRow[]> {
+/**
+ * route/route6 objects and ROAs exact, less and more specific of each prefix.
+ * That includes every ROA covering any returned prefix, so the ROAs are
+ * enough to validate every row.
+ */
+export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<IrrdRoutes> {
   const batches: Prefix[][] = []
   for (let i = 0; i < prefixes.length; i += BATCH) batches.push(prefixes.slice(i, i + BATCH))
   const query = (batch: Prefix[]) =>
@@ -82,12 +111,12 @@ export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<Ir
         vars,
         env().IRRD_BULK_TIMEOUT_MS,
       )
-      return batch.flatMap((_, j) => toIrrRows(RouteList.parse(data[`q${j}`] ?? [])))
+      return batch.flatMap((_, j) => RouteList.parse(data[`q${j}`] ?? []))
     })
   // A batch with one heavy aggregate can be slow. On a timeout, retry once as
   // two halves; going further would only pile more load onto a slow IRRd and
   // keep the page waiting through a chain of timeouts.
-  const runBatch = async (batch: Prefix[], retry = true): Promise<IrrRow[]> => {
+  const runBatch = async (batch: Prefix[], retry = true): Promise<RouteObject[]> => {
     try {
       return await query(batch)
     } catch (err) {
@@ -103,7 +132,7 @@ export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<Ir
     }
   }
   // A few batches in flight at once; large ASNs can need dozens.
-  const results: IrrRow[][] = new Array<IrrRow[]>(batches.length)
+  const results: RouteObject[][] = new Array<RouteObject[]>(batches.length)
   let next = 0
   const worker = async () => {
     while (next < batches.length) {
@@ -114,23 +143,25 @@ export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<Ir
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, batches.length) }, worker))
   // Covering objects come back once per query prefix; keep one of each.
   const seen = new Set<string>()
-  return results.flat().filter((r) => {
-    const key = `${r.source}|${r.rpslPk}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+  return splitRoutes(
+    results.flat().filter((r) => {
+      const key = `${r.source}|${r.rpslPk}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    }),
+  )
 }
 
-/** Every route/route6 object with this origin. */
-export async function routesByOrigin(asn: number): Promise<IrrRow[]> {
+/** Every route/route6 object and ROA with this origin. */
+export async function routesByOrigin(asn: number): Promise<IrrdRoutes> {
   return cached(`irrd:origin:${asn}`, async () => {
     const data = await graphql(
       `query($asn: [ASN!]) { r: rpslObjects(asn: $asn, objectClass: ["route", "route6"], rpkiStatus: ${ALL_RPKI}) ${ROUTE_FIELDS} }`,
       { asn: [asn] },
       env().IRRD_BULK_TIMEOUT_MS,
     )
-    return toIrrRows(RouteList.parse(data['r'] ?? []))
+    return splitRoutes(RouteList.parse(data['r'] ?? []))
   })
 }
 
@@ -258,6 +289,15 @@ export const DatabaseStatusSchema = z.array(
     lastUpdate: z.string().nullable().optional(),
   }),
 )
+
+/**
+ * When IRRd last refreshed its RPKI import, or null when this IRRd has no
+ * RPKI source, in which case it has no ROAs to give.
+ */
+export async function rpkiSource(): Promise<{ lastUpdate: string | null } | null> {
+  const s = (await databaseStatus()).find((d) => isRpki(d.source))
+  return s ? { lastUpdate: s.lastUpdate ?? null } : null
+}
 
 export async function databaseStatus(): Promise<z.infer<typeof DatabaseStatusSchema>> {
   return cached(

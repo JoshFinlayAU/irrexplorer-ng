@@ -3,7 +3,6 @@ import { json } from '~/server/api/compat'
 import { healthSnapshot } from '~/server/health'
 import { asNames, bgpTable } from '~/server/sources/bgptools'
 import { rirStats } from '~/server/sources/rirstats'
-import { vrps } from '~/server/sources/rpki'
 import { startDatasets } from '~/server/services/status'
 
 const started = new Date().toISOString()
@@ -21,7 +20,7 @@ export const Route = createFileRoute('/healthz')({
           uptimeSeconds: Math.round(process.uptime()),
           memoryMB: Math.round(process.memoryUsage().rss / 1048576),
           upstreams: healthSnapshot(),
-          datasets: [bgpTable.status(), asNames.status(), vrps.status(), rirStats.status()],
+          datasets: [bgpTable.status(), asNames.status(), rirStats.status()],
         })
       },
     },

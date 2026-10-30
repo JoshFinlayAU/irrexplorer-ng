@@ -75,7 +75,7 @@ describe('Dataset', () => {
     resetHealth()
     const ds = new Dataset<number[]>({
       name: 'f',
-      source: 'rpki',
+      source: 'rirstats',
       refreshSeconds: 3600,
       retrySeconds: 3600,
       enabled: () => true,
@@ -83,13 +83,13 @@ describe('Dataset', () => {
     })
     expect(await ds.ready(1000)).toBeNull()
     expect(ds.status().lastError).toBe('down')
-    expect(healthSnapshot().rpki.lastError).toBe('down')
+    expect(healthSnapshot().rirstats.lastError).toBe('down')
   })
 
   it('does nothing when disabled', () => {
     const ds = new Dataset<number>({
       name: 'd',
-      source: 'rpki',
+      source: 'rirstats',
       refreshSeconds: 1,
       retrySeconds: 1,
       enabled: () => false,

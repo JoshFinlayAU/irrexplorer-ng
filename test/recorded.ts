@@ -36,9 +36,6 @@ export const recordedHandlers = [
   http.get(`${MOCK_BASE}/ripestat/*`, ({ request }) =>
     recorded('ripestat', 'GET', new URL(request.url), ''),
   ),
-  http.get(`${MOCK_BASE}/rpki/api/v1/status`, ({ request }) =>
-    recorded('rpki', 'GET', new URL(request.url), ''),
-  ),
 ]
 
 export function fixtureText(rel: string): string {
@@ -49,7 +46,6 @@ export function fixtureText(rel: string): string {
 export function useRecordedEnv() {
   process.env.IRRD_GRAPHQL_URL = `${MOCK_BASE}/irrd/graphql/`
   process.env.RIPESTAT_URL = `${MOCK_BASE}/ripestat`
-  process.env.RPKI_VALIDATOR_URL = `${MOCK_BASE}/rpki`
   process.env.BGPTOOLS_URL = `${MOCK_BASE}/bgptools`
   process.env.BULK_DATASETS_ENABLED = 'false'
   process.env.CACHE_TTL_SECONDS = '0'

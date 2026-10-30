@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { describeValidity, validateOrigin } from './rpki'
+import { parsePrefix } from '../ip'
+import { describeValidity, validateOrigin, validatorFrom } from './rpki'
 
 describe('validateOrigin (RFC 6811)', () => {
   it('is not-found without covering VRPs', () => {
@@ -33,5 +34,21 @@ describe('validateOrigin (RFC 6811)', () => {
   it('describes each state', () => {
     expect(describeValidity({ state: 'unknown' })).toMatch(/unavailable/)
     expect(describeValidity({ state: 'invalid', reason: 'length' })).toMatch(/max length/)
+  })
+})
+
+describe('validatorFrom', () => {
+  const P = (c: string) => parsePrefix(c)!
+  const validate = validatorFrom([
+    { prefix: '2606:4700::/44', asn: 13335, maxLength: 44 },
+    { prefix: '192.0.2.0/24', asn: 64500, maxLength: 24 },
+    { prefix: '192.0.0.0/16', asn: 64501, maxLength: 16 },
+  ])
+  it('uses every covering ROA and ignores more specific ones', () => {
+    expect(validate(P('192.0.2.0/24'), 64500)).toEqual({ state: 'valid' })
+    expect(validate(P('192.0.2.0/25'), 64500)).toEqual({ state: 'invalid', reason: 'length' })
+    expect(validate(P('192.0.3.0/24'), 64500)).toEqual({ state: 'invalid', reason: 'as' })
+    expect(validate(P('2606:4700::/32'), 13335)).toEqual({ state: 'not-found' })
+    expect(validate(P('2606:4700::/44'), 13335)).toEqual({ state: 'valid' })
   })
 })

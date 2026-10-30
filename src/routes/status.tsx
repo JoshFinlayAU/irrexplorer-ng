@@ -18,10 +18,6 @@ const DATASET_INFO: Record<string, { label: string; href: string }> = {
     href: 'https://bgp.tools/',
   },
   'bgp.tools AS names': { label: 'AS names from bgp.tools', href: 'https://bgp.tools/' },
-  'RPKI VRPs': {
-    label: 'RPKI validated ROA payloads from the RPKI validator',
-    href: 'https://routinator.docs.nlnetlabs.nl/',
-  },
   'RIR delegations': {
     label: 'Prefix to RIR mapping from NRO delegated stats and Registro.BR',
     href: 'https://www.nro.net/about/rirs/statistics/',
@@ -32,7 +28,6 @@ const UPSTREAM_LABEL: Record<string, string> = {
   irrd: 'IRRd GraphQL',
   ripestat: 'RIPEstat',
   bgptools: 'bgp.tools',
-  rpki: 'RPKI validator',
   rirstats: 'RIR delegated stats',
 }
 
@@ -101,23 +96,12 @@ function StatusPage() {
         </table>
       </div>
 
-      <h2 className="mb-2 text-lg font-semibold">RPKI validator</h2>
-      {data.validator ? (
-        <p className="mb-8 text-sm">
-          {data.validator.version ?? 'Validator'}, last validation run finished{' '}
-          <Timestamp iso={data.validator.lastUpdateDone} />.
-        </p>
-      ) : (
-        <p role="alert" className={`mb-8 rounded-md px-3 py-2 text-sm ${badgeClass.danger}`}>
-          Validator unavailable: {data.validatorError}
-        </p>
-      )}
-
       <h2 className="mb-2 text-lg font-semibold">IRR sources</h2>
       <p className="mb-2 text-sm text-[var(--muted)]">
         IRRs mirrored by <a href="https://irrd.readthedocs.io/en/stable/">IRRd v4</a> and queried
         live. The last update is when IRRd last processed a change for the source, not when it last
-        checked, so rarely changing sources can look old.
+        checked, so rarely changing sources can look old. The RPKI source is IRRd&apos;s import of
+        validated ROAs, which IRR Explorer uses for every RPKI column and check.
       </p>
       {data.irr ? (
         <div className="surface mb-8 overflow-x-auto rounded-md">

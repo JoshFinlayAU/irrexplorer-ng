@@ -8,7 +8,6 @@ import { env } from '../env'
 import { asName, bgpByOrigin } from '../sources/bgptools'
 import { routesByOrigin } from '../sources/irrd'
 import { originatedByAsn } from '../sources/ripestat'
-import { roasByOrigin } from '../sources/rpki'
 import { gather } from './gather'
 import { minLengthFor } from './prefix'
 import { namesFor } from './names'
@@ -28,7 +27,7 @@ const reason = (err: unknown) => (err instanceof Error ? err.message : String(er
 export async function asnReport(asn: number): Promise<AsnReport> {
   const notices: Notice[] = []
   const [irrResult] = await Promise.allSettled([routesByOrigin(asn)])
-  const irr = irrResult.status === 'fulfilled' ? irrResult.value : []
+  const { irr, roas } = irrResult.status === 'fulfilled' ? irrResult.value : { irr: [], roas: [] }
 
   let bgp: BgpRow[] | null = bgpByOrigin(asn)
   let fallbackBgp: BgpRow[] | null = null
@@ -44,7 +43,6 @@ export async function asnReport(asn: number): Promise<AsnReport> {
       })
     }
   }
-  const roas = roasByOrigin(asn) ?? []
 
   const seeds: Prefix[] = []
   for (const cidr of [
@@ -68,6 +66,7 @@ export async function asnReport(asn: number): Promise<AsnReport> {
       level: 'danger',
       text: `IRRd unavailable: ${reason(irrResult.reason)}.`,
     })
+    g.sources.rpki = g.sources.irr
   }
   const rows = collect(g.input)
 

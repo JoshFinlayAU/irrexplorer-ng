@@ -17,9 +17,8 @@ test('healthz reports process and per-upstream state', async ({ request }) => {
     'irrd',
     'ripestat',
     'rirstats',
-    'rpki',
   ])
-  expect(body.datasets).toHaveLength(4)
+  expect(body.datasets).toHaveLength(3)
 })
 
 test('clean_query classifies like the original', async ({ request }) => {

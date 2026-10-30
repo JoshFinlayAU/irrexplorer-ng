@@ -34,8 +34,9 @@ afterAll(() => server.close())
 const P = (s: string) => parsePrefix(s)!
 
 describe('irrd', () => {
-  it('finds overlapping route objects and drops the RPKI pseudo-source', async () => {
-    const rows = await routesOverlapping([P('193.0.0.0/21')])
+  it('finds overlapping route objects and splits out the RPKI pseudo-source', async () => {
+    const { irr: rows, roas } = await routesOverlapping([P('193.0.0.0/21')])
+    expect(roas).toContainEqual({ prefix: '193.0.0.0/21', asn: 3333, maxLength: 21 })
     expect(rows).toContainEqual({
       prefix: '193.0.0.0/21',
       asn: 3333,
@@ -47,7 +48,7 @@ describe('irrd', () => {
   })
 
   it('looks up objects by origin', async () => {
-    const rows = await routesByOrigin(3333)
+    const { irr: rows } = await routesByOrigin(3333)
     expect(rows.map((r) => r.prefix)).toContain('193.0.0.0/21')
   })
 
@@ -98,7 +99,7 @@ describe('irrd', () => {
         return HttpResponse.json({ data })
       }),
     )
-    const rows = await routesOverlapping([
+    const { irr: rows } = await routesOverlapping([
       P('192.0.2.0/24'),
       P('198.51.100.0/24'),
       P('203.0.113.0/24'),
