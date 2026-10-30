@@ -2,13 +2,14 @@ import '@tanstack/react-start/server-only'
 
 import { expandSet } from '~/lib/analysis/sets'
 import type { MemberOf, SetExpansion } from '~/lib/analysis/types'
+import { env } from '../env'
 import { memberOf, setLevel } from '../sources/irrd'
 
 export async function setExpansion(
   name: string,
   category: 'as-set' | 'route-set',
 ): Promise<SetExpansion> {
-  return expandSet(name, category, setLevel)
+  return expandSet(name, category, setLevel, env().SET_SIZE_LIMIT)
 }
 
 export async function memberOfReport(

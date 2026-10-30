@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS8283:AS-COLOCLUE"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS8283:AS-COLOCLUE\",\"rootSource\":\"RIPE\",\"members\":[\"AS-AANETWORKS\",\"AS-ARTIKEL10\",\"AS-BAJANSEN\",\"AS-BZ2\",\"AS-DEVPLAYER0\",\"AS-ENOX\",\"AS-HOSTIN\",\"AS-KLAVER\",\"AS-ORTGIES\",\"AS-PEERING-TESTBED\",\"AS-RVDM\",\"AS-RVDMEIJDEN\",\"AS-SET-DNET\",\"AS-SNIJDERS\",\"AS-VRIS\",\"AS-WUSEL-FULL\",\"AS-XINDI\",\"AS197754:AS-CHRGNL\",\"AS198378:AS-REVERZE\",\"AS198834\",\"AS200998\",\"AS201616\",\"AS201623\",\"AS204082\",\"AS205079\",\"AS206218\",\"AS206292:AS-GHCMNET\",\"AS207487:AS-SNEK\",\"AS209845:AS-CNPR\",\"AS209990:AS-KARMUZ\",\"AS210225:AS-DINGSTECH\",\"AS210320\",\"AS211321\",\"AS212855:AS-LUJE\",\"AS213052\",\"AS213333:AS-CNPR\",\"AS213576\",\"AS214380:AS-TIM427\",\"AS214445\",\"AS214810:AS-MVDVELDEN\",\"AS214958:AS-PILZ\",\"AS215131:AS-AS215131\",\"AS215248\",\"AS215296:AS-RAOULBROUNS\",\"AS215737\",\"AS215842:AS-ALL\",\"AS218506:AS-SIEKMAN\",\"AS218634:AS-THOMASDEBIE\",\"AS218772\",\"AS218836:AS-EXPED\",\"AS219265\",\"AS219279\",\"AS2613\",\"AS45009:AS-BYTEPARK\",\"AS47816\",\"AS61421:AS-VNODE\",\"AS8283\",\"AS8298:AS-IPNG\"]}]},\"extensions\":{\"execution\":0.012052109000251221}}"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS202585:AS-CUSTOMERS",
+          "AS202585:AS-CUSTOMERS-MANUAL"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS202585:AS-CUSTOMERS-MANUAL\",\"rootSource\":\"RIPE\",\"members\":[\"AS207682\",\"AS213959\",\"AS218506\",\"AS218836\"]},{\"rpslPk\":\"AS202585:AS-CUSTOMERS\",\"rootSource\":\"RIPE\",\"members\":[\"AS197754\",\"AS205079\",\"AS207682\",\"AS213959\",\"AS215842\",\"AS218369\",\"AS218617\"]}]},\"extensions\":{\"execution\":0.01407100799951877}}"
+  }
+}

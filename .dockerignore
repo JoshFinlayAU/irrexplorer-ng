@@ -1,0 +1,16 @@
+node_modules
+.output
+.cache
+.env
+.env.*
+!.env.example
+.git
+.claude
+.agents
+memory
+test-results
+playwright-report
+e2e/screenshots
+e2e/zz-*
+coverage
+*.log

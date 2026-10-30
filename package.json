@@ -17,9 +17,9 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test --project=chromium --project=firefox --project=webkit --project=mobile-chromium --project=mobile-webkit",
-    "test:live": "playwright test --project=live",
-    "fixtures:record": "node --experimental-strip-types scripts/record-fixtures.ts"
+    "test:e2e": "pnpm build && playwright test --project=chromium --project=firefox --project=webkit --project=mobile-chromium --project=mobile-webkit",
+    "test:live": "LIVE_ONLY=1 playwright test --project=live",
+    "fixtures:record": "pnpm build && rm -rf test/fixtures && MOCK_RECORD=1 playwright test --project=chromium && node scripts/trim-fixtures.ts"
   },
   "dependencies": {
     "@tanstack/react-form": "^1.33.5",

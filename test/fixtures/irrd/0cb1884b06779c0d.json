@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }",
+      "variables": {
+        "m": [
+          "AS3333"
+        ],
+        "cls": [
+          "as-set"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"d\":[{\"rpslPk\":\"AS-ATTUKEMEA\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-ATTVAS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-SCHERINGNRNS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-CARRIERONEPEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-BBNED-AMSIX1\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-SURFNET\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS16243:AS-PEERS-AMSIX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-TITANAMSIX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-PSINETEU\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS28747:AS-AMS-IX-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-RIPENCC\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-FINECOM-PEERS-AMSIX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NEOT6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS25151:AS-AMS-IX-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-OPENPEERINGPEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-BSVE:AS-AMSIX-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-TELECOMPLETE\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NOBSURF\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-IO6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-TAIPAN-CPOC-9\",\"source\":\"RADB\"},{\"rpslPk\":\"AS-HURRICANEV6\",\"source\":\"RADB\"},{\"rpslPk\":\"AS61568:AS-TESTE-AL\",\"source\":\"RADB\"},{\"rpslPk\":\"AS-GREEN-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS20932:AS-PEERING\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-SIDN-PEERS-AMSIX-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-SIDN-PEERS-AMSIX-V4\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-MANDA-AMSIX-PEERS-V4\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-MANDA-AMSIX-PEERS-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS8218:AS-AMSIX-RS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-RIS-RRC00\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS1200:AS-AMS-IX-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS6777:AS-AMS-IX-RS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS6777:AS-AMS-IX-RS-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS3303:AS-SWCMPEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS9150:AS-PEERS-AMSIX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS20847:AS-PREVIDER-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS1103:AS-SURF\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS30781:AS-JAGUAR-PEERING-AMS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS30781:AS-JAGUAR-PEERING-V6-AMS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS44103:AS-BAKKER-IT-CUSTOMERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS680:AS-AMSIX-RS-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS8218:AS-CUSTOMERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-XO-B\",\"source\":\"ARIN\"}]},\"extensions\":{\"execution\":0.08243374100038636}}"
+  }
+}

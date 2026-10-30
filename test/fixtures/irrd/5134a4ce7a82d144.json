@@ -1,0 +1,56 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS-AANETWORKS",
+          "AS-ARTIKEL10",
+          "AS-BAJANSEN",
+          "AS-BZ2",
+          "AS-DEVPLAYER0",
+          "AS-ENOX",
+          "AS-HOSTIN",
+          "AS-KLAVER",
+          "AS-ORTGIES",
+          "AS-PEERING-TESTBED",
+          "AS-RVDM",
+          "AS-RVDMEIJDEN",
+          "AS-SET-DNET",
+          "AS-SNIJDERS",
+          "AS-VRIS",
+          "AS-WUSEL-FULL",
+          "AS-XINDI",
+          "AS197754:AS-CHRGNL",
+          "AS198378:AS-REVERZE",
+          "AS206292:AS-GHCMNET",
+          "AS207487:AS-SNEK",
+          "AS209845:AS-CNPR",
+          "AS209990:AS-KARMUZ",
+          "AS210225:AS-DINGSTECH",
+          "AS212855:AS-LUJE",
+          "AS213333:AS-CNPR",
+          "AS214380:AS-TIM427",
+          "AS214810:AS-MVDVELDEN",
+          "AS214958:AS-PILZ",
+          "AS215131:AS-AS215131",
+          "AS215296:AS-RAOULBROUNS",
+          "AS215842:AS-ALL",
+          "AS218506:AS-SIEKMAN",
+          "AS218634:AS-THOMASDEBIE",
+          "AS218836:AS-EXPED",
+          "AS45009:AS-BYTEPARK",
+          "AS61421:AS-VNODE",
+          "AS8298:AS-IPNG"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS-RVDM\",\"rootSource\":\"RIPE\",\"members\":[\"AS57048\"]},{\"rpslPk\":\"AS-SNIJDERS\",\"rootSource\":\"RIPE\",\"members\":[\"AS15562:AS-SNIJDERS\"]},{\"rpslPk\":\"AS212855:AS-LUJE\",\"rootSource\":\"RIPE\",\"members\":[\"AS212855\"]},{\"rpslPk\":\"AS-RVDMEIJDEN\",\"rootSource\":\"RIPE\",\"members\":[\"AS201723:AS-RVDMEIJDEN\"]},{\"rpslPk\":\"AS218634:AS-THOMASDEBIE\",\"rootSource\":\"RIPE\",\"members\":[\"AS218634\"]},{\"rpslPk\":\"AS-XINDI\",\"rootSource\":\"RIPE\",\"members\":[\"AS112\",\"AS206763\",\"AS39002\",\"AS48112\",\"AS57984\"]},{\"rpslPk\":\"AS-SET-DNET\",\"rootSource\":\"RIPE\",\"members\":[\"AS4601:AS-DNET\"]},{\"rpslPk\":\"AS210225:AS-DINGSTECH\",\"rootSource\":\"RIPE\",\"members\":[\"AS210225\"]},{\"rpslPk\":\"AS218836:AS-EXPED\",\"rootSource\":\"RIPE\",\"members\":[\"AS218836\"]},{\"rpslPk\":\"AS206292:AS-GHCMNET\",\"rootSource\":\"RIPE\",\"members\":[\"AS206292\"]},{\"rpslPk\":\"AS61421:AS-VNODE\",\"rootSource\":\"RIPE\",\"members\":[\"AS61421\"]},{\"rpslPk\":\"AS-PEERING-TESTBED\",\"rootSource\":\"RADB\",\"members\":[\"AS263842\",\"AS263843\",\"AS263844\",\"AS33207\",\"AS47065\",\"AS61574\",\"AS61575\",\"AS61576\"]},{\"rpslPk\":\"AS-PEERING-TESTBED\",\"rootSource\":\"RIPE\",\"members\":[\"AS263842\",\"AS263843\",\"AS263844\",\"AS33207\",\"AS47065\",\"AS61574\",\"AS61575\",\"AS61576\"]},{\"rpslPk\":\"AS-PEERING-TESTBED\",\"rootSource\":\"ARIN\",\"members\":[\"AS263842\",\"AS263843\",\"AS263844\",\"AS33207\",\"AS47065\",\"AS61574\",\"AS61575\",\"AS61576\"]},{\"rpslPk\":\"AS197754:AS-CHRGNL\",\"rootSource\":\"RIPE\",\"members\":[\"AS197754\"]},{\"rpslPk\":\"AS218506:AS-SIEKMAN\",\"rootSource\":\"RIPE\",\"members\":[\"AS218506\"]},{\"rpslPk\":\"AS215296:AS-RAOULBROUNS\",\"rootSource\":\"RIPE\",\"members\":[\"AS197191\",\"AS197806\",\"AS200236\",\"AS202119\",\"AS207530\",\"AS210578\",\"AS210825:AS-TEIGTASCHERLFABRIK\",\"AS210880:AS-ARDADAGLIOGLU\",\"AS211635\",\"AS213409:AS-LYNQIA\",\"AS214806\",\"AS215296\",\"AS218569\",\"AS218705\",\"AS219092\",\"AS275732\",\"AS399992\",\"AS401066\",\"AS403001\"]},{\"rpslPk\":\"AS-DEVPLAYER0\",\"rootSource\":\"RIPE\",\"members\":[\"AS211024:AS-DEVPLAYER0\"]},{\"rpslPk\":\"AS-KLAVER\",\"rootSource\":\"RIPE\",\"members\":[\"AS38970\"]},{\"rpslPk\":\"AS214380:AS-TIM427\",\"rootSource\":\"RIPE\",\"members\":[\"AS214380\"]},{\"rpslPk\":\"AS-ARTIKEL10\",\"rootSource\":\"RIPE\",\"members\":[\"AS208169\"]},{\"rpslPk\":\"AS-ENOX\",\"rootSource\":\"RIPE\",\"members\":[\"AS-MSBV\",\"AS213100\"]},{\"rpslPk\":\"AS214958:AS-PILZ\",\"rootSource\":\"RIPE\",\"members\":[\"AS214958\",\"AS215681\"]},{\"rpslPk\":\"AS207487:AS-SNEK\",\"rootSource\":\"RIPE\",\"members\":[\"AS18607:AS-SNEK\",\"AS207487\"]},{\"rpslPk\":\"AS215842:AS-ALL\",\"rootSource\":\"RIPE\",\"members\":[\"AS215842\"]},{\"rpslPk\":\"AS-AANETWORKS\",\"rootSource\":\"RIPE\",\"members\":[\"AS-AANET-MEMBERS\",\"AS207036\"]},{\"rpslPk\":\"AS-HOSTIN\",\"rootSource\":\"RIPE\",\"members\":[\"AS38965\"]},{\"rpslPk\":\"AS213333:AS-CNPR\",\"rootSource\":\"RIPE\",\"members\":[\"AS206218\",\"AS209845\",\"AS213333\"]},{\"rpslPk\":\"AS214810:AS-MVDVELDEN\",\"rootSource\":\"RIPE\",\"members\":[\"AS214810\"]},{\"rpslPk\":\"AS8298:AS-IPNG\",\"rootSource\":\"RIPE\",\"members\":[\"AS-UNIVERSAL-EXPORTS\",\"AS112\",\"AS200232\",\"AS201723\",\"AS210036\",\"AS212323\",\"AS214237:AS-SETAIGA\",\"AS4601:AS-DNET\",\"AS50869\",\"AS51345:AS-CUSTOMERS\",\"AS57777\",\"AS58280:AS-STUCCHI\",\"AS8298\",\"AS8561\"]},{\"rpslPk\":\"AS209845:AS-CNPR\",\"rootSource\":\"RIPE\",\"members\":[\"AS209845\"]},{\"rpslPk\":\"AS-BAJANSEN\",\"rootSource\":\"RIPE\",\"members\":[\"AS211840\"]},{\"rpslPk\":\"AS-VRIS\",\"rootSource\":\"RIPE\",\"members\":[\"AS30875\"]},{\"rpslPk\":\"AS215131:AS-AS215131\",\"rootSource\":\"RIPE\",\"members\":[\"AS215131\"]},{\"rpslPk\":\"AS-ORTGIES\",\"rootSource\":\"RIPE\",\"members\":[\"AS204003\"]},{\"rpslPk\":\"AS198378:AS-REVERZE\",\"rootSource\":\"RIPE\",\"members\":[\"AS198378\"]},{\"rpslPk\":\"AS-WUSEL-FULL\",\"rootSource\":\"RIPE\",\"members\":[\"AS-FFGT\",\"AS-WUSEL-BASE\",\"AS205423\",\"AS49745\"]},{\"rpslPk\":\"AS209990:AS-KARMUZ\",\"rootSource\":\"RIPE\",\"members\":[\"AS207740\",\"AS209990\"]},{\"rpslPk\":\"AS45009:AS-BYTEPARK\",\"rootSource\":\"RIPE\",\"members\":[\"AS-BYTEPARK-CUST4\",\"AS-BYTEPARK-CUST6\",\"AS45009\"]},{\"rpslPk\":\"AS-BZ2\",\"rootSource\":\"RIPE\",\"members\":[\"AS48603\"]}]},\"extensions\":{\"execution\":0.11590179999984684}}"
+  }
+}

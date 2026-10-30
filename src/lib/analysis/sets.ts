@@ -3,7 +3,7 @@
 // missing sets and truncation are reported instead of silently dropped.
 
 import { parsePrefix } from '../ip'
-import type { SetExpansion, SetRow } from './types'
+import { setKey, type SetExpansion, type SetInfo, type SetRow } from './types'
 
 export interface SetLevelResult {
   name: string
@@ -15,7 +15,7 @@ export type ResolveLevel = (names: string[]) => Promise<SetLevelResult[]>
 
 export const SET_SIZE_LIMIT = 1000
 /** Rows are one per distinct path, which can grow quickly in meshed sets. */
-export const ROW_LIMIT = 20000
+export const ROW_LIMIT = 5000
 
 /** Strip a route-set range operator ("^+", "^-", "^24", "^24-32") from a member. */
 export function stripRangeOperator(member: string): string {
@@ -68,6 +68,19 @@ export async function expandSet(
     pending = [...next].sort()
   }
 
+  const sets: Record<string, SetInfo> = {}
+  for (const [name, entries] of resolved) {
+    for (const entry of entries) {
+      const members = [...new Set(entry.members)].sort()
+      const missing = members.filter((m) => {
+        if (!isSetMember(m)) return false
+        const child = stripRangeOperator(m).toUpperCase()
+        return !resolved.has(child) && queried.has(child)
+      })
+      sets[setKey(name, entry.source)] = { members, missing }
+    }
+  }
+
   const rows: SetRow[] = []
   const walk = (name: string, path: string[]) => {
     // Children are the union over every IRR the set exists in, walked once.
@@ -77,31 +90,29 @@ export async function expandSet(
         truncated = true
         return
       }
-      const members = [...new Set(entry.members)].sort()
       const loops: string[] = []
-      const missing: string[] = []
-      for (const member of members) {
+      for (const member of sets[setKey(name, entry.source)]?.members ?? []) {
         if (!isSetMember(member)) continue
         const child = stripRangeOperator(member).toUpperCase()
         if (path.includes(child)) loops.push(member)
         else if (resolved.has(child)) children.add(child)
-        else if (queried.has(child)) missing.push(member)
       }
-      rows.push({ name, source: entry.source, depth: path.length, path, members, missing, loops })
+      rows.push({ name, source: entry.source, depth: path.length, path, loops })
     }
     for (const child of [...children].sort()) walk(child, [...path, child])
   }
-  walk(root.toUpperCase(), [root.toUpperCase()])
+  walk(root, [root])
 
   rows.sort(
     (a, b) => a.depth - b.depth || a.name.localeCompare(b.name) || a.source.localeCompare(b.source),
   )
 
   return {
-    root: root.toUpperCase(),
+    root,
     category,
     rows,
-    found: resolved.has(root.toUpperCase()),
+    sets,
+    found: resolved.has(root),
     truncated,
     depthReached,
     limit,

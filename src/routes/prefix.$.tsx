@@ -8,6 +8,8 @@ import { classifyQuery } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
 import { prefixQuery } from '~/lib/queries'
 import { reportSearchSchema } from '~/lib/search'
+import { parsePrefix } from '~/lib/ip'
+import { specialUseOverlaps } from '~/lib/analysis/special-use'
 import type { PrefixReport } from '~/server/services/prefix'
 import type { ReactNode } from 'react'
 
@@ -127,6 +129,14 @@ function Summary({ data }: { data: PrefixReport }) {
     )
   } else if (data.isHost && !data.tooLarge) {
     facts.push(<>No announced prefix covers this address.</>)
+  }
+  const prefix = parsePrefix(data.query)
+  for (const s of prefix ? specialUseOverlaps(prefix) : []) {
+    facts.push(
+      <span className="font-medium text-[var(--danger-fg)]">
+        Overlaps with {s.name} special use prefix {s.prefix.cidr}
+      </span>,
+    )
   }
   if (v && v.total > 0) {
     facts.push(

@@ -114,7 +114,11 @@ export function WhoisDialog({ target, onClose }: { target: WhoisTarget; onClose:
             Could not load the object from IRRd: {query.data.error}
           </p>
         ) : query.data?.ok && query.data.text ? (
-          <pre className="max-h-[50vh] overflow-auto rounded-md bg-[#11151a] p-3 font-mono text-xs leading-relaxed text-[#e6e9ed]">
+          <pre
+            tabIndex={0}
+            aria-label="RPSL object text"
+            className="max-h-[50vh] overflow-auto rounded-md bg-[#11151a] p-3 font-mono text-xs leading-relaxed text-[#e6e9ed]"
+          >
             {query.data.text}
           </pre>
         ) : (

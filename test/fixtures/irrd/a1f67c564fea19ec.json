@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS-FORMICIDAE",
+          "AS-PEERING-TESTBED",
+          "AS-RIPENCC",
+          "AS-ZXCS",
+          "AS200132:AS-NETONE-NL",
+          "AS30132:AS-SET"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS-PEERING-TESTBED\",\"rootSource\":\"RADB\",\"members\":[\"AS263842\",\"AS263843\",\"AS263844\",\"AS33207\",\"AS47065\",\"AS61574\",\"AS61575\",\"AS61576\"]},{\"rpslPk\":\"AS-PEERING-TESTBED\",\"rootSource\":\"RIPE\",\"members\":[\"AS263842\",\"AS263843\",\"AS263844\",\"AS33207\",\"AS47065\",\"AS61574\",\"AS61575\",\"AS61576\"]},{\"rpslPk\":\"AS-PEERING-TESTBED\",\"rootSource\":\"ARIN\",\"members\":[\"AS263842\",\"AS263843\",\"AS263844\",\"AS33207\",\"AS47065\",\"AS61574\",\"AS61575\",\"AS61576\"]},{\"rpslPk\":\"AS-RIPENCC\",\"rootSource\":\"RIPE\",\"members\":[\"AS12654\",\"AS2121\",\"AS3333\"]},{\"rpslPk\":\"AS30132:AS-SET\",\"rootSource\":\"RADB\",\"members\":[\"AS1280\",\"AS30132\",\"AS3557\"]},{\"rpslPk\":\"AS-ZXCS\",\"rootSource\":\"RIPE\",\"members\":[\"AS206281\",\"AS60775\"]},{\"rpslPk\":\"AS200132:AS-NETONE-NL\",\"rootSource\":\"RIPE\",\"members\":[\"AS-ICHILTON\",\"AS-NICK\",\"AS-RVDM\",\"AS198834:AS-NLVB\",\"AS200132\",\"AS200232:AS-CYBNET\",\"AS201723:AS-RVDMEIJDEN\",\"AS207487:AS-SNEK\",\"AS210320:AS-FEXXIO\",\"AS211358\",\"AS212855:AS-LUJE\",\"AS213052:AS-BITTENBYTES\",\"AS213409:AS-LYNQIA\",\"AS214380:AS-TIM427\",\"AS214999\",\"AS215248:AS-BASTIAANBRINK\",\"AS215495\",\"AS215512:AS-ELIVELDICT-NL\",\"AS215536\",\"AS215577:AS-LUCAS\",\"AS215685\",\"AS216005:AS-ELIVELD-ICT\",\"AS216455:AS-STING\",\"AS218506\",\"AS218772:AS-BARBONETWORKS\",\"AS218836:AS-EXPED\",\"AS219092\",\"AS219265\",\"AS401066:AS-LOWPINGLLC\",\"AS60326\"]},{\"rpslPk\":\"AS-FORMICIDAE\",\"rootSource\":\"RIPE\",\"members\":[\"AS199700\",\"AS203071\",\"AS208164\",\"AS214011\"]}]},\"extensions\":{\"execution\":0.03399264499967103}}"
+  }
+}

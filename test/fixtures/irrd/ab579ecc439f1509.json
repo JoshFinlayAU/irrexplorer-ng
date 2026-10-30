@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "{ s: databaseStatus { source authoritative rpkiRovFilter lastUpdate } }",
+      "variables": {}
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"source\":\"APNIC\",\"authoritative\":false,\"rpkiRovFilter\":true,\"lastUpdate\":\"2026-10-30T01:24:50.074702+00:00\"},{\"source\":\"RIPE\",\"authoritative\":false,\"rpkiRovFilter\":true,\"lastUpdate\":\"2026-10-30T01:24:53.007601+00:00\"},{\"source\":\"ARIN\",\"authoritative\":false,\"rpkiRovFilter\":true,\"lastUpdate\":\"2026-10-30T05:58:46.534932+00:00\"},{\"source\":\"AFRINIC\",\"authoritative\":false,\"rpkiRovFilter\":true,\"lastUpdate\":\"2026-10-30T05:58:49.420973+00:00\"},{\"source\":\"LACNIC\",\"authoritative\":false,\"rpkiRovFilter\":true,\"lastUpdate\":\"2026-10-30T06:17:28.341835+00:00\"},{\"source\":\"RADB\",\"authoritative\":false,\"rpkiRovFilter\":true,\"lastUpdate\":\"2026-10-30T06:17:31.350113+00:00\"},{\"source\":\"RPKI\",\"authoritative\":false,\"rpkiRovFilter\":true,\"lastUpdate\":\"2026-10-30T06:17:16.324224+00:00\"}]},\"extensions\":{\"execution\":0.024186899000596895}}"
+  }
+}

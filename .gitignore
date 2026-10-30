@@ -18,3 +18,4 @@ skills-lock.json
 *.log
 .DS_Store
 .cache/
+e2e/zz-*

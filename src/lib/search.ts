@@ -24,3 +24,11 @@ export function cleanSearch(s: ReportSearch): ReportSearch {
     hide: s.hide && s.hide.length > 0 ? s.hide : undefined,
   }
 }
+
+export const setSearchSchema = z.object({
+  sort: z.string().max(40).optional().catch(undefined),
+  filter: z.string().max(100).optional().catch(undefined),
+  problems: z.boolean().optional().catch(undefined),
+})
+
+export type SetSearch = z.infer<typeof setSearchSchema>

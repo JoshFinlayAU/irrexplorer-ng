@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS-RIPENCC"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS-RIPENCC\",\"rootSource\":\"RIPE\",\"members\":[\"AS12654\",\"AS2121\",\"AS3333\"]}]},\"extensions\":{\"execution\":0.012135505000514968}}"
+  }
+}

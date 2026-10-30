@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS12859:AS-BIT"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS12859:AS-BIT\",\"rootSource\":\"RIPE\",\"members\":[\"AS-FORMICIDAE\",\"AS-PEERING-TESTBED\",\"AS-RIPENCC\",\"AS-ZXCS\",\"AS1200\",\"AS12654\",\"AS12859\",\"AS197000\",\"AS200132:AS-NETONE-NL\",\"AS200995\",\"AS203762\",\"AS209590\",\"AS210789\",\"AS211993\",\"AS216048\",\"AS25152\",\"AS30132:AS-SET\",\"AS31537\",\"AS34942\",\"AS47065\",\"AS61212\"]}]},\"extensions\":{\"execution\":0.010924617999990005}}"
+  }
+}

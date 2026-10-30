@@ -1,0 +1,36 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS-AANET-MEMBERS",
+          "AS-BYTEPARK-CUST4",
+          "AS-BYTEPARK-CUST6",
+          "AS-FFGT",
+          "AS-MSBV",
+          "AS-UNIVERSAL-EXPORTS",
+          "AS-WUSEL-BASE",
+          "AS15562:AS-SNIJDERS",
+          "AS18607:AS-SNEK",
+          "AS201723:AS-RVDMEIJDEN",
+          "AS210825:AS-TEIGTASCHERLFABRIK",
+          "AS210880:AS-ARDADAGLIOGLU",
+          "AS211024:AS-DEVPLAYER0",
+          "AS213409:AS-LYNQIA",
+          "AS214237:AS-SETAIGA",
+          "AS4601:AS-DNET",
+          "AS51345:AS-CUSTOMERS",
+          "AS58280:AS-STUCCHI"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS213409:AS-LYNQIA\",\"rootSource\":\"RIPE\",\"members\":[\"AS112\",\"AS206586\",\"AS206586:AS-CUSTOMERS\",\"AS213409\"]},{\"rpslPk\":\"AS-AANET-MEMBERS\",\"rootSource\":\"RIPE\",\"members\":[\"AS28045\"]},{\"rpslPk\":\"AS-BYTEPARK-CUST6\",\"rootSource\":\"RIPE\",\"members\":[\"AS61421\"]},{\"rpslPk\":\"AS214237:AS-SETAIGA\",\"rootSource\":\"RIPE\",\"members\":[\"AS214237\"]},{\"rpslPk\":\"AS15562:AS-SNIJDERS\",\"rootSource\":\"RIPE\",\"members\":[\"AS-KING\",\"AS-NETHER\",\"AS12654\",\"AS15562\",\"AS199036\",\"AS205956\",\"AS212121\",\"AS215198\",\"AS43997\",\"AS44854\",\"AS48603\",\"AS57782:AS-CMR\",\"AS60927:AS-MARLINC\",\"AS8952\"]},{\"rpslPk\":\"AS18607:AS-SNEK\",\"rootSource\":\"RIPE\",\"members\":[\"AS18607\"]},{\"rpslPk\":\"AS58280:AS-STUCCHI\",\"rootSource\":\"RIPE\",\"members\":[\"AS5608\",\"AS58280\",\"AS64467\",\"AS938\"]},{\"rpslPk\":\"AS201723:AS-RVDMEIJDEN\",\"rootSource\":\"RIPE\",\"members\":[\"AS-RVDMEIJDEN\",\"AS201723\"]},{\"rpslPk\":\"AS4601:AS-DNET\",\"rootSource\":\"RIPE\",\"members\":[\"AS203704\",\"AS210312\",\"AS4492\",\"AS4601\",\"AS50414\",\"AS57483\"]},{\"rpslPk\":\"AS-WUSEL-BASE\",\"rootSource\":\"RIPE\",\"members\":[\"AS206740\",\"AS206946\",\"AS49745\"]},{\"rpslPk\":\"AS-UNIVERSAL-EXPORTS\",\"rootSource\":\"RIPE\",\"members\":[\"AS34615\"]},{\"rpslPk\":\"AS-FFGT\",\"rootSource\":\"RIPE\",\"members\":[\"AS-FFLIP\",\"AS-WUSEL-BASE\",\"AS206813\"]},{\"rpslPk\":\"AS51345:AS-CUSTOMERS\",\"rootSource\":\"RIPE\",\"members\":[\"AS51345:AS-CONE-V4\",\"AS51345:AS-CONE-V6\"]},{\"rpslPk\":\"AS-MSBV\",\"rootSource\":\"RIPE\",\"members\":[\"AS212535\"]},{\"rpslPk\":\"AS-BYTEPARK-CUST4\",\"rootSource\":\"RIPE\",\"members\":[\"AS61421\"]},{\"rpslPk\":\"AS210825:AS-TEIGTASCHERLFABRIK\",\"rootSource\":\"RIPE\",\"members\":[\"AS210825\"]},{\"rpslPk\":\"AS210880:AS-ARDADAGLIOGLU\",\"rootSource\":\"RIPE\",\"members\":[\"AS112\",\"AS210880\"]},{\"rpslPk\":\"AS211024:AS-DEVPLAYER0\",\"rootSource\":\"RIPE\",\"members\":[\"AS211024\"]}]},\"extensions\":{\"execution\":0.06334004000018467}}"
+  }
+}

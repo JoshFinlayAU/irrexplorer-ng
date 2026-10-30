@@ -5,6 +5,7 @@ import '@tanstack/react-start/server-only'
 
 import { classifyQuery, formatAsn, setType } from '~/lib/parse'
 import { parsePrefix, prefixSortKey } from '~/lib/ip'
+import { env } from '../env'
 import type { PrefixSummary, RpkiValidity } from '~/lib/analysis/types'
 
 const RPKI_STATUS: Record<RpkiValidity['state'], string> = {
@@ -77,8 +78,12 @@ export function cleanQuery(
       return { error: q.reason }
     case 'asn':
       return { category: 'asn', cleanedValue: formatAsn(q.asn) }
-    case 'prefix':
+    case 'prefix': {
+      const min = q.prefix.version === 4 ? env().MIN_PREFIX_LENGTH_V4 : env().MIN_PREFIX_LENGTH_V6
+      if (q.prefix.length < min)
+        return { error: `Query too large: the minimum prefix length is ${min}.` }
       return { category: 'prefix', cleanedValue: q.isHost ? q.cidr.replace(/\/\d+$/, '') : q.cidr }
+    }
     case 'set':
       return { category: setType(q.name), cleanedValue: q.name }
   }

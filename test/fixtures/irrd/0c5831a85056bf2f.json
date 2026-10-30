@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }",
+      "variables": {
+        "m": [
+          "AS-COLOCLUE"
+        ],
+        "cls": [
+          "as-set"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"d\":[{\"rpslPk\":\"AS-TRUE\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-OPENPEERINGPEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-HIBERNIA-IV\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS5580:AS-HIBERNIA-IV\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS30781:AS-JAGUAR-PEERING-AMS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS30781:AS-JAGUAR-PEERING-V6-AMS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS56584:AS-INTERIX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS56584:AS-SET-INTERIX-CONNECTED\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS56584:AS-SET-INTERIX-RS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS212635:AS-INTERIX-RS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NOTSURFNET-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NL-IX-RS\",\"source\":\"RIPE\"}]},\"extensions\":{\"execution\":0.030375434000234236}}"
+  }
+}

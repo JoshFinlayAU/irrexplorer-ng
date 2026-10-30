@@ -28,6 +28,14 @@ const DATASET_INFO: Record<string, { label: string; href: string }> = {
   },
 }
 
+const UPSTREAM_LABEL: Record<string, string> = {
+  irrd: 'IRRd GraphQL',
+  ripestat: 'RIPEstat',
+  bgptools: 'bgp.tools',
+  rpki: 'RPKI validator',
+  rirstats: 'RIR delegated stats',
+}
+
 function StatusPage() {
   const { data } = useSuspenseQuery(statusQuery())
   return (
@@ -145,6 +153,42 @@ function StatusPage() {
           IRRd unavailable: {data.irrError}
         </p>
       )}
+
+      <h2 className="mb-2 text-lg font-semibold">Upstream calls</h2>
+      <p className="mb-2 text-sm text-[var(--muted)]">
+        The last successful and failed call this server made to each upstream, from real traffic.
+      </p>
+      <div className="surface mb-8 overflow-x-auto rounded-md">
+        <table className="w-full border-collapse text-sm">
+          <thead className="bg-[var(--surface-2)]">
+            <tr>
+              {['Upstream', 'Last success', 'Last failure', 'Last error'].map((h) => (
+                <th
+                  key={h}
+                  scope="col"
+                  className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold"
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(data.health).map(([name, h]) => (
+              <tr key={name} className="border-b border-[var(--border)] last:border-b-0">
+                <td className="px-3 py-2">{UPSTREAM_LABEL[name] ?? name}</td>
+                <td className="px-3 py-2">
+                  <Timestamp iso={h.lastSuccess} />
+                </td>
+                <td className="px-3 py-2">
+                  <Timestamp iso={h.lastFailure} />
+                </td>
+                <td className="px-3 py-2 text-[var(--muted)]">{h.lastError ?? ''}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <p className="text-right text-xs">
         <a href="/api/metadata/">Source data as JSON</a>
       </p>

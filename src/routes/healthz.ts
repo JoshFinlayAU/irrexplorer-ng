@@ -19,6 +19,7 @@ export const Route = createFileRoute('/healthz')({
           status: 'ok',
           startedAt: started,
           uptimeSeconds: Math.round(process.uptime()),
+          memoryMB: Math.round(process.memoryUsage().rss / 1048576),
           upstreams: healthSnapshot(),
           datasets: [bgpTable.status(), asNames.status(), vrps.status(), rirStats.status()],
         })

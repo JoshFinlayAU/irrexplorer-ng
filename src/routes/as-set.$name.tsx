@@ -4,8 +4,11 @@ import { SetPage } from '~/components/set-page'
 import { classifyQuery, setType } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
 import { memberOfQuery, setQuery } from '~/lib/queries'
+import { setSearchSchema } from '~/lib/search'
+import { formatSort, parseSort } from '~/components/prefix-table'
 
 export const Route = createFileRoute('/as-set/$name')({
+  validateSearch: setSearchSchema,
   beforeLoad: ({ params }) => {
     const q = classifyQuery(params.name)
     if (q.kind === 'invalid') return { name: null, error: q.reason }
@@ -17,8 +20,13 @@ export const Route = createFileRoute('/as-set/$name')({
   },
   loader: async ({ context, params }) => {
     if (context.name) {
-      void context.queryClient.query(memberOfQuery(context.name, 'as-set')).catch(() => undefined)
-      await context.queryClient.query({ ...setQuery(context.name, 'as-set'), staleTime: 'static' })
+      await Promise.all([
+        context.queryClient.query({ ...setQuery(context.name, 'as-set'), staleTime: 'static' }),
+        context.queryClient.query({
+          ...memberOfQuery(context.name, 'as-set'),
+          staleTime: 'static',
+        }),
+      ])
     }
     return { name: context.name, error: context.error, raw: params.name }
   },
@@ -31,6 +39,23 @@ export const Route = createFileRoute('/as-set/$name')({
 
 function Page() {
   const { name, error, raw } = Route.useLoaderData()
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const state = {
+    sort: parseSort(search.sort, 'depth'),
+    filter: search.filter ?? '',
+    problems: !!search.problems,
+  }
+  const update = (next: Partial<typeof state>) =>
+    void navigate({
+      search: (prev) => ({
+        sort: next.sort ? formatSort(next.sort) : prev.sort,
+        filter: next.filter !== undefined ? next.filter || undefined : prev.filter,
+        problems: next.problems !== undefined ? next.problems || undefined : prev.problems,
+      }),
+      replace: true,
+      resetScroll: false,
+    })
   if (!name) {
     return (
       <div className="py-8">
@@ -41,5 +66,5 @@ function Page() {
       </div>
     )
   }
-  return <SetPage name={name} category="as-set" />
+  return <SetPage name={name} category="as-set" state={state} onChange={update} />
 }

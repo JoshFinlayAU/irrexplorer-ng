@@ -10,13 +10,11 @@ import {
   useTable,
   type SortingState,
 } from '@tanstack/react-table'
-import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { Link } from '@tanstack/react-router'
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { useHydrated } from '~/lib/use-client'
+import { useMemo, useState, type ReactNode } from 'react'
+import { VirtualRows } from './virtual-rows'
 import { compareCidr, parsePrefix } from '~/lib/ip'
 import { lookingGlassUrl } from '~/lib/links'
-import { describeValidity } from '~/lib/analysis/rpki'
 import type { IrrRoute, PrefixSummary } from '~/lib/analysis/types'
 import { CaretRightIcon, SortIcon } from './icons'
 import { CategoryIcon, MessageList, RpkiMark, rowClass } from './status'
@@ -95,10 +93,10 @@ export function PrefixTable(props: PrefixTableProps) {
                 className={`inline-flex items-center gap-0.5 text-[var(--accent)] hover:underline ${
                   r.rpki.state === 'invalid' ? 'line-through' : ''
                 }`}
-                aria-label={`AS${r.asn} route object in ${source}, ${describeValidity(r.rpki)}. Show object`}
               >
                 <AsnText asn={r.asn} names={asNames} />
                 <RpkiMark validity={r.rpki} />
+                <span className="sr-only">, route object in {source}. Show object</span>
               </button>
             </li>
           ))}
@@ -150,7 +148,7 @@ export function PrefixTable(props: PrefixTableProps) {
               target="_blank"
               rel="noreferrer"
               className="inline-flex flex-wrap gap-x-2 font-mono"
-              aria-label={`BGP origins ${r.bgpOrigins.map((o) => `AS${o.asn} (${describeValidity(o.rpki)})`).join(', ')}. Open in the NLNOG RING looking glass`}
+              title="Open in the NLNOG RING looking glass"
             >
               {r.bgpOrigins.map((o) => (
                 <span key={o.asn} className="inline-flex items-center gap-0.5">
@@ -299,7 +297,8 @@ export function PrefixTable(props: PrefixTableProps) {
         </div>
       </div>
 
-      <div className="surface overflow-x-auto rounded-md">
+      {/* Scroll sideways on small screens; on large screens let the header stick to the page. */}
+      <div className="surface overflow-x-auto rounded-md lg:overflow-visible">
         <table className="w-full border-collapse text-sm" aria-describedby={`${props.id}-count`}>
           <thead className="sticky top-0 z-10 bg-[var(--surface-2)]">
             {headerGroups.map((group) => (
@@ -372,63 +371,26 @@ export function PrefixTable(props: PrefixTableProps) {
 type AppTable = ReturnType<typeof useTable<typeof features, PrefixSummary>>
 type AppRow = ReturnType<AppTable['getRowModel']>['rows'][number]
 
-const VIRTUALIZE_FROM = 250
-
 function Body({ table, rows, reduced }: { table: AppTable; rows: AppRow[]; reduced: boolean }) {
-  const ref = useRef<HTMLTableSectionElement>(null)
-  const [margin, setMargin] = useState(0)
-  const mounted = useHydrated()
-  const large = rows.length >= VIRTUALIZE_FROM
-  // SSR and the first client render show a fixed slice so hydration matches;
-  // the virtualizer takes over once mounted.
-  const virtual = large && mounted
-  useLayoutEffect(() => {
-    if (ref.current) setMargin(ref.current.getBoundingClientRect().top + window.scrollY)
-  }, [virtual])
-
-  const virtualizer = useWindowVirtualizer({
-    count: virtual ? rows.length : 0,
-    estimateSize: () => 52,
-    overscan: 12,
-    scrollMargin: margin,
-  })
-
-  const renderRow = (row: AppRow, index?: number) => (
-    <tr
-      key={row.id}
-      data-index={index}
-      ref={virtual ? virtualizer.measureElement : undefined}
-      className={`border-b border-[var(--border)] align-top last:border-b-0 ${reduced ? '' : rowClass[row.original.categoryOverall]}`}
-    >
-      {row.getVisibleCells().map((cell) => (
-        <td key={cell.id} className="px-3 py-2">
-          <table.FlexRender cell={cell} />
-        </td>
-      ))}
-    </tr>
-  )
-
-  if (!virtual) {
-    return <tbody ref={ref}>{(large ? rows.slice(0, 60) : rows).map((r) => renderRow(r))}</tbody>
-  }
-
-  const items = virtualizer.getVirtualItems()
-  const colSpan = rows[0]?.getVisibleCells().length ?? 1
-  const top = items[0] ? items[0].start - virtualizer.options.scrollMargin : 0
-  const bottom = items.length > 0 ? virtualizer.getTotalSize() - items[items.length - 1]!.end : 0
   return (
-    <tbody ref={ref}>
-      {top > 0 ? (
-        <tr aria-hidden="true">
-          <td colSpan={colSpan} style={{ height: top, padding: 0 }} />
+    <VirtualRows
+      rows={rows}
+      colSpan={rows[0]?.getVisibleCells().length ?? 1}
+      estimateSize={52}
+      renderRow={(row, index, measure) => (
+        <tr
+          key={row.id}
+          data-index={index}
+          ref={measure}
+          className={`border-b border-[var(--border)] align-top last:border-b-0 ${reduced ? '' : rowClass[row.original.categoryOverall]}`}
+        >
+          {row.getVisibleCells().map((cell) => (
+            <td key={cell.id} className="px-3 py-2">
+              <table.FlexRender cell={cell} />
+            </td>
+          ))}
         </tr>
-      ) : null}
-      {items.map((item) => renderRow(rows[item.index]!, item.index))}
-      {bottom > 0 ? (
-        <tr aria-hidden="true">
-          <td colSpan={colSpan} style={{ height: bottom, padding: 0 }} />
-        </tr>
-      ) : null}
-    </tbody>
+      )}
+    />
   )
 }

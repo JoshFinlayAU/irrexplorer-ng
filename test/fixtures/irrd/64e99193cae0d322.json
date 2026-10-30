@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "RS-KROOT"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"RS-KROOT\",\"rootSource\":\"RIPE\",\"members\":[\"193.0.14.0/23\",\"193.0.14.0/24\",\"193.0.15.0/24\"]}]},\"extensions\":{\"execution\":0.013813589000164939}}"
+  }
+}

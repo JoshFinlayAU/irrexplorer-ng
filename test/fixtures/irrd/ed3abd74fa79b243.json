@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($pk: [String!], $src: [String!], $cls: [String!]) { o: rpslObjects(rpslPk: $pk, sources: $src, objectClass: $cls, rpkiStatus: [valid, invalid, not_found]) { rpslPk source objectText } }",
+      "variables": {
+        "pk": [
+          "193.0.0.0/21AS3333"
+        ],
+        "src": [
+          "RIPE"
+        ],
+        "cls": [
+          "route"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"o\":[{\"rpslPk\":\"193.0.0.0/21AS3333\",\"source\":\"RIPE\",\"objectText\":\"route:          193.0.0.0/21\\ndescr:          RIPE-NCC\\norigin:         AS3333\\nmnt-by:         RIPE-NCC-MNT\\ncreated:        1970-01-01T00:00:00Z\\nlast-modified:  2008-09-10T14:27:53Z\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"}]},\"extensions\":{\"execution\":0.01983284099969751}}"
+  }
+}

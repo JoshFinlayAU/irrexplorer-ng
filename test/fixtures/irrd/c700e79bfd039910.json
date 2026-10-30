@@ -1,0 +1,38 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS-ICHILTON",
+          "AS-NICK",
+          "AS-RVDM",
+          "AS198834:AS-NLVB",
+          "AS200232:AS-CYBNET",
+          "AS201723:AS-RVDMEIJDEN",
+          "AS207487:AS-SNEK",
+          "AS210320:AS-FEXXIO",
+          "AS212855:AS-LUJE",
+          "AS213052:AS-BITTENBYTES",
+          "AS213409:AS-LYNQIA",
+          "AS214380:AS-TIM427",
+          "AS215248:AS-BASTIAANBRINK",
+          "AS215512:AS-ELIVELDICT-NL",
+          "AS215577:AS-LUCAS",
+          "AS216005:AS-ELIVELD-ICT",
+          "AS216455:AS-STING",
+          "AS218772:AS-BARBONETWORKS",
+          "AS218836:AS-EXPED",
+          "AS401066:AS-LOWPINGLLC"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS198834:AS-NLVB\",\"rootSource\":\"RIPE\",\"members\":[\"AS198834\"]},{\"rpslPk\":\"AS-RVDM\",\"rootSource\":\"RIPE\",\"members\":[\"AS57048\"]},{\"rpslPk\":\"AS200232:AS-CYBNET\",\"rootSource\":\"RIPE\",\"members\":[\"AS200232\"]},{\"rpslPk\":\"AS213409:AS-LYNQIA\",\"rootSource\":\"RIPE\",\"members\":[\"AS112\",\"AS206586\",\"AS206586:AS-CUSTOMERS\",\"AS213409\"]},{\"rpslPk\":\"AS212855:AS-LUJE\",\"rootSource\":\"RIPE\",\"members\":[\"AS212855\"]},{\"rpslPk\":\"AS218836:AS-EXPED\",\"rootSource\":\"RIPE\",\"members\":[\"AS218836\"]},{\"rpslPk\":\"AS215248:AS-BASTIAANBRINK\",\"rootSource\":\"RIPE\",\"members\":[\"AS215248\",\"AS396064\"]},{\"rpslPk\":\"AS201723:AS-RVDMEIJDEN\",\"rootSource\":\"RIPE\",\"members\":[\"AS-RVDMEIJDEN\",\"AS201723\"]},{\"rpslPk\":\"AS214380:AS-TIM427\",\"rootSource\":\"RIPE\",\"members\":[\"AS214380\"]},{\"rpslPk\":\"AS-ICHILTON\",\"rootSource\":\"RIPE\",\"members\":[\"AS57483\"]},{\"rpslPk\":\"AS401066:AS-LOWPINGLLC\",\"rootSource\":\"ARIN\",\"members\":[\"AS215296\",\"AS215685\",\"AS218500\",\"AS218705\",\"AS401066\"]},{\"rpslPk\":\"AS213052:AS-BITTENBYTES\",\"rootSource\":\"RIPE\",\"members\":[\"AS213052\"]},{\"rpslPk\":\"AS210320:AS-FEXXIO\",\"rootSource\":\"RIPE\",\"members\":[\"AS197754\",\"AS197754:AS-CHRGNL\",\"AS210320\"]},{\"rpslPk\":\"AS207487:AS-SNEK\",\"rootSource\":\"RIPE\",\"members\":[\"AS18607:AS-SNEK\",\"AS207487\"]},{\"rpslPk\":\"AS-NICK\",\"rootSource\":\"RIPE\",\"members\":[\"AS202585:AS-RODEO\"]},{\"rpslPk\":\"AS215512:AS-ELIVELDICT-NL\",\"rootSource\":\"RIPE\",\"members\":[\"AS215512\"]},{\"rpslPk\":\"AS218772:AS-BARBONETWORKS\",\"rootSource\":\"RIPE\",\"members\":[\"AS218772\"]},{\"rpslPk\":\"AS216455:AS-STING\",\"rootSource\":\"RIPE\",\"members\":[\"AS215577:AS-LUCAS\",\"AS216455\"]},{\"rpslPk\":\"AS215577:AS-LUCAS\",\"rootSource\":\"RIPE\",\"members\":[\"AS197919\",\"AS215577\"]}]},\"extensions\":{\"execution\":0.08504889599953458}}"
+  }
+}

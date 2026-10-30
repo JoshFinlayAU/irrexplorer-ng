@@ -13,6 +13,8 @@ export default tseslint.config(
       'test-results',
       '.claude',
       '.agents',
+      'e2e/zz-*',
+      '.cache',
     ],
   },
   js.configs.recommended,

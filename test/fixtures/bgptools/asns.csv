@@ -1,0 +1,661 @@
+asn,name,class,cc
+AS1008,GANJINGWORLD CORPORATION,Unknown,US
+AS1019,Sotera Health,Unknown,US
+AS103,Northwestern University,Unknown,US
+AS10397,"Momentum Telecom, Inc.",Unknown,US
+AS10753,"Level 3 Parent, LLC",Unknown,US
+AS10786,Chartway Federal Credit Union,Unknown,US
+AS10979,INSURANCE COMPANY OF THE WEST,Unknown,US
+AS1101,SURF (Thunderlab),Unknown,NL
+AS1103,SURF B.V.,Unknown,NL
+AS1104,Nikhef - Dutch National Institute for Sub-atomic Physics,Eyeball,NL
+AS11071,InfoWest,Eyeball,US
+AS11167,Gogo Business Aviation LLC,Unknown,US
+AS11168,"SMART CHOICE COMMUNICATIONS, LLC",Unknown,US
+AS11178,AccessPlus,Unknown,US
+AS11272,C Spire Fiber,Unknown,US
+AS11278,Nintendo Of America inc.,Unknown,US
+AS1136,KPN B.V.,Eyeball,NL
+AS11361,"Boscov's Department Store, LLC",Unknown,US
+AS11414,Nvidia Corporation,Unknown,US
+AS11466,Andrews Federal Credit Union,Unknown,US
+AS11475,"1Wire Communications, LLC",Unknown,US
+AS11483,"Conviva, Inc.",Unknown,US
+AS1149,SURF B.V.,Unknown,NL
+AS1162,SURF B.V.,Unknown,NL
+AS11734,Connectria,Unknown,US
+AS11769,RJ Schinner Co,Unknown,US
+AS11825,"BLUEFIBER.COM, INC.",Unknown,US
+AS11940,"Direct Supply, Inc.",Unknown,US
+AS1199,SURF B.V.,Unknown,NL
+AS12025,Iron Mountain Data Centers,Unknown,US
+AS12134,Manufacturers and Traders Trust Company,Unknown,US
+AS12144,Cloud Grid Networks,Unknown,US
+AS12169,Kyndryl,Unknown,US
+AS12185,"Thompson, Siegel & Walmsley LLC",Unknown,US
+AS12209,"Girosol, Corp.",Unknown,US
+AS1286,Altay Corporation,Unknown,US
+AS12871,KPN B.V.,Eyeball,NL
+AS12912,T-Mobile Polska S.A.,Eyeball,PL
+AS131833,Kia Corporation,Unknown,KR
+AS13335,"Cloudflare, Inc.",Content,US
+AS13380,Zix Corporation,Unknown,US
+AS1340,Verizon Business,Unknown,US
+AS13450,"Touchnet Information Systems, Inc.",Unknown,US
+AS13454,PENNSYLVANIA TURNPIKE COMMISSION,Unknown,US
+AS13458,DAVIDSON KEMPNER CAPITAL MANAGEMENT LP,Unknown,US
+AS13461,The Options Clearing Corporation,Unknown,US
+AS13464,"Centerbridge Partners, L.P.",Unknown,US
+AS13475,UNIFY Financial Credit Union,Unknown,US
+AS13535,"Ning Interactive, Inc.",Unknown,US
+AS13602,I-Evolve Technology Services,Unknown,US
+AS13615,Heritage Valley Health System,Unknown,US
+AS13617,"Syntax Systems USA, LP",Unknown,US
+AS13724,Massachusetts Financial Services,Unknown,US
+AS13727,NEXT DIMENSION INC,Unknown,CA
+AS13750,"Transaction Network Services, Inc.",Unknown,US
+AS13767,"DataBank Holdings, Ltd.",Unknown,US
+AS13781,Hopkinsville Electric System energynet,Eyeball,US
+AS13817,"Cantillon Capital Management, LLC",Unknown,US
+AS13824,AireBeam,Unknown,US
+AS13886,Cloud South,Unknown,US
+AS13904,Cherryland Services Inc,Unknown,US
+AS13938,"SS&C Technologies, Inc.",Unknown,US
+AS13955,Echostar Broadcasting Corporation,Unknown,US
+AS13984,SD Data Center,Unknown,US
+AS1407,Quotemedia,Unknown,US
+AS14127,Iland Internet Solutions Corporation,Unknown,US
+AS14136,"PC Connection, Inc.",Unknown,US
+AS14155,"Rural Telephone Service Co, Inc.",Unknown,US
+AS14184,"FOX TELEVISION STATIONS, LLC",Unknown,US
+AS14239,Rich Products Corporation,Unknown,US
+AS14404,City of Wichita,Unknown,US
+AS14554,FirstHop,Unknown,US
+AS14567,Springs Hosting,Unknown,US
+AS14590,Desert Schools Federal Credit Union,Unknown,US
+AS14602,"Teliax, Inc.",Unknown,US
+AS14610,Integral Development Corp.,Unknown,US
+AS14618,"Amazon.com, Inc.",Content,US
+AS14627,No-IP,Unknown,US
+AS14652,COSTAR GROUP Inc.,Unknown,US
+AS14784,SPOKANE TEACHERS CREDIT UNION,Unknown,US
+AS14821,Vlan24,Unknown,US
+AS14828,"Hiawatha Broadband Communications, Inc",Unknown,US
+AS14878,KwiKom Communications,Unknown,US
+AS14911,"Taylor Made Golf Company, Inc.",Unknown,US
+AS15070,"Edgestream Partners, L.P.",Unknown,US
+AS15083,Infolink Global Corporation,Unknown,US
+AS15169,Google LLC,Content,US
+AS15229,"EDF Trading North America, LLC",Unknown,US
+AS15284,"Digital Service Consultants, Inc.",Unknown,US
+AS15343,"AMERIPRISE FINANCIAL SERVICES, LLC",Unknown,US
+AS15347,IBEX Global Solutions,Unknown,US
+AS15359,"Datto, LLC",Unknown,US
+AS1605,Allegiant Travel Company,Unknown,US
+AS16276,OVH SAS,Content,FR
+AS16491,"ViaSat, Inc.",Unknown,US
+AS16493,Abercrombie & Fitch,Unknown,US
+AS16504,Granite Telecommunications LLC,Unknown,US
+AS16509,"Amazon.com, Inc.",Content,US
+AS16567,Netrix LLC,Unknown,US
+AS16574,Gtek Computers LLC,Unknown,US
+AS16641,"ACBB-BITS, LLC",Unknown,US
+AS16676,"Barchart.com, Inc.",Unknown,US
+AS16743,FTS Broadband,Unknown,US
+AS16744,THE WESTERN UNION COMPANY,Unknown,US
+AS16774,Mercury Insurance Group,Unknown,US
+AS16998,"Zeus Industrial Products, Inc.",Unknown,US
+AS17033,CSL Behring L.L.C,Unknown,US
+AS17035,NBCUniversal,Unknown,US
+AS17054,Expedient,Unknown,US
+AS17076,Stone Ridge Asset Management LLC,Unknown,US
+AS17098,"Brownrice Internet, Inc.",Unknown,US
+AS17139,Corporate Colocation Inc.,Eyeball,US
+AS17151,"Vonage Holdings, Inc.",Unknown,US
+AS17271,"SPS Commerce, Inc.",Unknown,US
+AS17348,"FULL SPECTRUM COMMUNICATIONS, INC.",Unknown,US
+AS17378,"TierPoint, LLC",Unknown,US
+AS174,"Cogent Communications, LLC",T1,US
+AS17405,"Fiserv Solutions, LLC",Unknown,US
+AS17466,Genpact India Private Limited,Unknown,IN
+AS17639,Converge ICT Solutions Inc.,Eyeball,PH
+AS17903,"Cognizant Technology Solutions India Pvt Ltd,",Unknown,IN
+AS1821,Network Innovations Inc.,Unknown,US
+AS18447,"HDC/HW Enterprise, LLC",Unknown,US
+AS18518,Ares Management LLC,Unknown,US
+AS18539,DAYTON SUPERIOR CORPORATION,Unknown,US
+AS18540,Recovery Point Systems Inc.,Carrier,US
+AS18570,EchoStar Broadcasting Corperation,Unknown,US
+AS18624,Greenlight,Eyeball,US
+AS18756,"Level 3 Parent, LLC",Unknown,US
+AS18826,1966,Unknown,US
+AS19021,BTC Broadband Inc.,Unknown,US
+AS19067,"Vail Systems, Inc.",Unknown,US
+AS19188,Armanino LLP,Unknown,US
+AS19224,"Quantum Services Group, LLC.",Unknown,US
+AS19251,"NEP Group, Inc.",Unknown,US
+AS19256,COMMNET WIRELESS LLC,Eyeball,US
+AS19452,"Oaktree Capital Management, LP",Unknown,US
+AS197000,RIPE NCC - Anycast DNS,Unknown,NL
+AS19724,United One,Unknown,US
+AS19745,"Okta, Inc.",Unknown,US
+AS19768,SCAN Health Plan,Unknown,US
+AS19844,"SBA Edge, LLC",Unknown,US
+AS200020,Stichting NBIP-NaWas,Unknown,NL
+AS20003,Members 1st Federal Credit Union,Unknown,US
+AS20035,Broadway National Bank,Unknown,US
+AS20053,The Descartes Systems Group Inc,Unknown,CA
+AS20129,Mizuho Americas Services LLC,Unknown,US
+AS20166,1st Financial Bank USA,Unknown,US
+AS20188,Gwynedd Mercy College,Unknown,US
+AS201935,Skylogic Mediterraneo s.r.l,Unknown,IT
+AS202,"Level 3 Parent, LLC",Unknown,US
+AS20262,Data Innovations LLC,Unknown,US
+AS203,"Level 3 Parent, LLC",Unknown,US
+AS203107,"GEMINI PAYMENTS UK, LTD",Unknown,GB
+AS20353,"Adage Capital Partners, LLC",Unknown,US
+AS20381,"Cable Television Laboratories, Inc.",Unknown,US
+AS203952,NS Groep N.V.,Unknown,NL
+AS20429,Guitar Center,Unknown,US
+AS20454,SECURED SERVERS LLC,Content,US
+AS20473,"The Constant Company, LLC",Content,US
+AS20479,Monmouth County Sheriff's Office,Unknown,US
+AS209,Lumen (ex. Qwest),Eyeball,US
+AS21162,Valantic Digital Experience Solutions (DXS) B.V.,Unknown,NL
+AS21646,Fisher Investments Inc.,Unknown,US
+AS21691,Toyota Motor Credit Corporation,Unknown,US
+AS21754,Markel Corporation,Unknown,US
+AS21859,Zenlayer Inc,Eyeball,US
+AS21970,PCE Systems,Unknown,US
+AS22003,PALANTIR TECHNOLOGIES INC.,Unknown,US
+AS22065,LPL Financial,Unknown,US
+AS22084,John Hagee Ministries,Unknown,US
+AS22115,Youmaker Corporation,Unknown,US
+AS22134,PetSmart LLC,Unknown,US
+AS22147,"Open Contributors Corporation for Advanced Internet Development, Inc.",Unknown,US
+AS22156,"Dana Consulting, Inc.",Unknown,US
+AS22266,KNIGHT TRANSPORTATION,Unknown,US
+AS22294,"ROTECH HEALTHCARE, INC",Unknown,US
+AS22326,"D.R.Horton, Inc",Unknown,US
+AS22334,"Ferguson Enterprises, LLC",Unknown,US
+AS22469,"PRIMEDIA, INC.",Unknown,US
+AS22474,Saint Luke's Health System,Unknown,US
+AS22482,"Station Casinos, LLC.",Unknown,US
+AS22511,Presidio Networked Solutions LLC,Unknown,US
+AS22542,GRAEB,Unknown,US
+AS22616,"ZSCALER, INC.",Unknown,US
+AS22688,Dollar General Corporation,Unknown,US
+AS22709,"North State Telephone, LLC",Eyeball,US
+AS22796,"Campus Crusade for Christ, Inc.",Unknown,US
+AS22898,"ATLINK SERVICES, LLC",Unknown,US
+AS22952,Chaparral CableVision,Unknown,US
+AS23019,BANK OF HAWAII,Unknown,US
+AS23089,Hotwire Communications,Eyeball,US
+AS23118,Skyline Telephone,Eyeball,US
+AS23124,VEEAM SOFTWARE CORPORATION,Unknown,US
+AS23160,Heilind Electronics,Unknown,US
+AS23233,"Fenwick & West, LLP.",Unknown,US
+AS23286,"Hulu, LLC",Unknown,US
+AS23304,"Datotel LLC, a NetLabs LLC Company",Unknown,US
+AS23338,"DCS Pacific Star, LLC",Eyeball,US
+AS23371,"CAE USA, Inc",Unknown,US
+AS23384,"Reed Technology and Information Services, Inc.",Unknown,US
+AS23393,NuCDN LLC,Carrier,US
+AS24429,Alibaba Cloud,Content,CN
+AS25152,RIPE NCC - K-root,Unknown,NL
+AS25611,North Shore Long Island Jewish Health System,Unknown,US
+AS25623,"TowardEX Technologies International, Inc.",Unknown,US
+AS25674,"Lingo Telecom, LLC",Unknown,US
+AS25693,Virtual Machine Solutions LLC,Unknown,US
+AS25751,"Conversant, Inc.",Unknown,US
+AS25806,Raley's,Unknown,US
+AS25871,Willkie Farr & Gallagher LLP,Unknown,US
+AS25931,"Sodexo, Inc.",Unknown,US
+AS26004,"NTT Global Data Centers Americas, INC.",Unknown,US
+AS26028,Panduit Corp.,Unknown,US
+AS26038,Elevate Technology Group,Unknown,US
+AS26074,"Fresh Direct, LLC",Unknown,US
+AS26075,Municipal Credit Union of NY,Unknown,US
+AS26102,CALIBRE Systems Inc.,Unknown,US
+AS26114,"Anaplan, Inc.",Unknown,US
+AS26120,"RhythmOne, LLC",Unknown,US
+AS26143,"ProSites, Inc.",Unknown,US
+AS26153,Blue Cross Blue Shield of South Carolina,Unknown,US
+AS26283,SchoolsFirst Federal Credit Union,Unknown,US
+AS26344,"Real Page, Inc.",Unknown,US
+AS26375,"AIRESPRING, INC.",Unknown,US
+AS26378,ADORAMA,Unknown,US
+AS2639,ZOHO,Unknown,US
+AS26405,"HORIZON DATA SOLUTIONS, LLC",Unknown,US
+AS26471,"Stifel, Nicolaus & C",Unknown,US
+AS26524,"Qualfon Data Services Group, LLC",Unknown,US
+AS26573,Luxoft USA Inc,Unknown,US
+AS26584,"VERTAFORE, INC",Unknown,US
+AS26630,"Black Knight IP Holding Company, LLC",Unknown,US
+AS26762,"Conversant, LLC",Unknown,US
+AS26845,"Fleetcor Technologies Operating Company, LLC",Unknown,US
+AS26852,F&A Federal Credit Union,Unknown,US
+AS26876,chico's fas inc,Unknown,US
+AS26903,"City of Salisbury, North Carolina",Unknown,US
+AS26959,"Cognizant Trizetto Software Group, INC.",Unknown,US
+AS26967,Sangoma US Inc.,Unknown,US
+AS26975,Texas Health Resources,Unknown,US
+AS27162,USF FEDERAL CREDIT UNION,Unknown,US
+AS27195,"EPIC Alliance, Inc.",Unknown,US
+AS27205,S&P Global Inc.,Unknown,US
+AS27306,Dartmouth Hitchcock Medical Center,Unknown,US
+AS2731,Infinity Fiber LLC,Unknown,US
+AS27381,Index Exchange Inc.,Unknown,CA
+AS27386,PSEG Long Island LLC,Unknown,US
+AS27425,"IdeaTek Telcom, LLC",Unknown,US
+AS27447,Schulte Roth & Zabel LLP,Unknown,US
+AS27548,United States Advanced Network Inc.,Unknown,US
+AS27559,Peets Coffee & Tea,Unknown,US
+AS27614,"Elderhostel, Inc.",Unknown,US
+AS27632,Tractor Supply Company,Unknown,US
+AS28469,AT&T COMUNICACIONES DIGITALES S DE RL,Eyeball,MX
+AS28685,Routit BV,Eyeball,NL
+AS29152,Decknet SARL,Unknown,FR
+AS29762,Presidio Networked Solutions LLC,Unknown,US
+AS30016,North American Telecommunications Corporation,Unknown,US
+AS30027,S & T COMMUNICATIONS LLC,Unknown,US
+AS30056,Avail Media,Unknown,US
+AS30118,Mizuho Americas Services LLC,Unknown,US
+AS30244,Amherst Pierpont Securities,Unknown,US
+AS30262,"High 5 Games, LLC",Unknown,US
+AS30305,"Black Knight IP Holding Company, LLC",Unknown,US
+AS30363,Global Response Corporation,Unknown,US
+AS30372,Zayo Bandwidth,Unknown,US
+AS30536,"Circle Computer Resources, Inc.",Unknown,US
+AS3064,"HDC/HW Enterprise, LLC",Unknown,US
+AS30647,"U.S.NEXT, Inc.",Unknown,US
+AS31775,"Greenlight Networks, LLC",Unknown,US
+AS31776,Business Wire,Unknown,US
+AS31793,Hotwire Communications,Unknown,US
+AS31853,"Express Messenger Systems, Inc.",Unknown,US
+AS31874,"Black Knight IP Holding Company, LLC",Unknown,US
+AS31898,Oracle Cloud,Content,US
+AS31922,"Datto, LLC",Unknown,US
+AS32059,"TradeStation Securities, Inc",Unknown,US
+AS32182,Grange Mutual Casualty Co.,Unknown,US
+AS32197,"Meridian Cooperative, Inc.",Unknown,US
+AS32208,SKL Services Inc,Unknown,US
+AS32224,Empire Southwest,Unknown,US
+AS32226,"Menard, Inc.",Unknown,US
+AS32256,CYBERLINK USA,Unknown,US
+AS32278,Getwireless.net,Unknown,US
+AS32297,Tucson Electric Power,Unknown,US
+AS32306,"Falck USA, Inc.",Unknown,US
+AS32308,"8x8, Inc.",Content,US
+AS32309,ASHS,Unknown,US
+AS32378,"OptumServe Health Services, Inc.",Unknown,US
+AS32385,"IntelePeer, Inc.",Unknown,US
+AS32419,Protective Insurance Corporation,Unknown,US
+AS32541,CCI Networks Services,Unknown,US
+AS3257,GTT Communications Inc.,T1,US
+AS32578,"Euronet Worldwide, Inc.",Unknown,US
+AS32692,Chaminade University of Honolulu,Unknown,US
+AS32696,"Tri State Voice & Data, LLC",Unknown,US
+AS32746,Computer Design & Integration LLC,Unknown,US
+AS32752,"Young Conaway Stargatt & Taylor, LLP",Unknown,US
+AS32787,Akamai (Prolexic),Content,US
+AS32798,"Highline Services, LLC",Unknown,US
+AS32834,Children's Medical Center of Dallas,Unknown,US
+AS32932,"Covius Shared Services, LLC",Unknown,US
+AS32969,Everi Payments Inc.,Unknown,US
+AS32999,ECRI,Unknown,US
+AS33054,McCracken Financial Software,Unknown,US
+AS33099,DTS Fiber,Unknown,US
+AS33127,Integrated Systems Corp,Unknown,US
+AS33182,"HostDime.com, Inc.",Eyeball,US
+AS33222,"Ashley Furniture Industries, Inc.",Unknown,US
+AS33302,Data102,Unknown,US
+AS33313,Zayo Bandwidth,Unknown,US
+AS3333,Reseaux IP Europeens Network Coordination Centre (RIPE NCC),Content,NL
+AS33428,The New-York Historical Society,Unknown,US
+AS33492,EvergreenHealth,Unknown,US
+AS3356,Lumen (Level 3),T1,US
+AS33561,"Lunavi, Inc.",Unknown,US
+AS33570,Cloudpath,Unknown,US
+AS33616,Co-Mo Comm Inc,Unknown,US
+AS33633,"USG Corporation, Inc.",Unknown,US
+AS33695,ScaleMatrix,Unknown,US
+AS33724,VOLICO,Unknown,US
+AS33740,"TMG Health, Inc",Unknown,US
+AS33915,Vodafone Libertel B.V.,Eyeball,NL
+AS3455,Liberty Mutual Group,Unknown,US
+AS35872,"FreedomPay, Inc.",Unknown,US
+AS35921,Cottage Health,Unknown,US
+AS35963,Greenville-Spartanburg Airport Commission,Unknown,US
+AS35986,Vyve Broadband,Unknown,US
+AS35995,Twitter Inc.,Content,US
+AS36047,CBS Corporation,Unknown,US
+AS36134,Pool Corporation,Unknown,US
+AS36154,THE WESTERN UNION COMPANY,Unknown,US
+AS36234,"CoreDial, LLC",Unknown,US
+AS36236,"NetActuate, Inc",Carrier,US
+AS36394,"Grid4 Communications, Inc",Unknown,US
+AS36444,"Liquid Web, L.L.C",Unknown,US
+AS36636,First Service Credit Union,Unknown,US
+AS36671,"TWO SIGMA INVESTMENTS, LP",Unknown,US
+AS36730,"Transformyx, Inc.",Unknown,US
+AS36734,Paxio Inc.,Unknown,US
+AS3685,State University of New York at Buffalo,Unknown,US
+AS36851,"DialAmerica Marketing, Inc",Unknown,US
+AS3909,"CenturyLink Communications, LLC",Unknown,US
+AS393233,Ventiv Technology Inc.,Unknown,US
+AS393254,"DTG Las Vegas Manager, LLC",Unknown,US
+AS393339,Consilio,Unknown,US
+AS393362,Central Dynamics,Unknown,US
+AS393436,"San Luis Valley Rural Electric Cooperative, Inc.",Unknown,US
+AS393552,Longmont Power & Communications,Eyeball,US
+AS393602,"Cree, Inc.",Unknown,US
+AS393625,OPTIV SECURITY INC,Unknown,US
+AS393687,Delaware River and Bay Authority,Unknown,US
+AS393748,LBMC,Unknown,US
+AS393762,"Restaurant Supply Chain Solutions, LLC",Unknown,US
+AS393789,"CenturyLink Communications, LLC",Unknown,US
+AS393792,"2600hz, Inc",Unknown,US
+AS393795,"PTC Therapeutics, Inc",Unknown,US
+AS393796,Golden Belt Telephone,Unknown,US
+AS393819,Lackawanna County Government,Unknown,US
+AS393852,"Hollywood Park Management Co, LLC",Unknown,US
+AS393856,City of Westfield (Gas & Electric Light Department),Unknown,US
+AS393880,Hawaiian Airlines,Unknown,US
+AS393971,"Martin Luther King Jr., Healthcare Corporation",Unknown,US
+AS393995,Police and Fire Federal Credit Union,Unknown,US
+AS394009,A10 Networks Inc.,Unknown,US
+AS394041,HEARTFLOW INC,Unknown,US
+AS394053,National Association of Insurance Commissioners,Unknown,US
+AS394117,"Encore Communications, Inc",Unknown,US
+AS394118,"Sigmund Software, LLC",Unknown,US
+AS394133,"T5 @ ATLANTA, LLC",Unknown,US
+AS394161,"Tesla Motors, Inc.",Unknown,US
+AS394170,Susquehanna University,Unknown,US
+AS394171,OnPoint Community Credit Union,Unknown,US
+AS394265,Box.com,Content,US
+AS394272,"Servpro Industries, Inc.",Unknown,US
+AS394287,"FourPoint Energy, LLC",Unknown,US
+AS394301,"Dexcom, INC.",Unknown,US
+AS394314,"Akliz, Inc.",Unknown,US
+AS394326,Route 66 Broadband LLC,Unknown,US
+AS394437,PS Lightwave,Carrier,US
+AS394526,"AdvoCare International, L.P.",Unknown,US
+AS394558,"Sumitomo Pharma America, Inc.",Unknown,US
+AS394562,"Stripe, Inc.",Unknown,US
+AS394736,"The Day & Zimmermann Group, Inc.",Unknown,US
+AS394756,Convo,Unknown,US
+AS394828,"VALTECH ENTERPRISES, LLC",Unknown,US
+AS394856,Infinity Insurance Company,Unknown,US
+AS394861,La Jolla Institute for Immunology,Unknown,US
+AS394928,ORORA PACKAGING SOLUTIONS,Unknown,US
+AS394945,Expeditors International of Wa Inc.,Unknown,US
+AS394973,"Aarki, Inc.",Unknown,US
+AS394976,"Abacus Data Systems, Inc.",Unknown,US
+AS395056,"PLS Financial Services, Inc.",Unknown,US
+AS395070,AllSouth Federal Credit Union,Unknown,US
+AS395105,"Blue Yonder, Inc",Unknown,US
+AS395120,"Ashley Furniture Industries, Inc.",Unknown,US
+AS395148,"PACIFIC LIGHTWAVE, A CALIFORNIA CORPORATION",Unknown,US
+AS395218,GATES CORPORATION,Unknown,US
+AS395230,ABM Industries,Unknown,US
+AS395257,"Singularis IT, LLC",Unknown,US
+AS395290,Port of Portland,Unknown,US
+AS395354,"Starry, Inc.",Unknown,US
+AS395362,"8x8, Inc.",Unknown,US
+AS395368,"NTT Global Data Centers Americas, INC.",Unknown,US
+AS395387,Grand and Toy,Unknown,CA
+AS395389,"LEGACY LIFEPOINT HEALTH, LLC",Unknown,US
+AS395415,Quiktrip Corporation,Unknown,US
+AS395420,"JAS Worldwide Management, Inc.",Unknown,US
+AS395435,Gaia,Unknown,US
+AS395463,"Murfreesboro Data, LLC",Unknown,US
+AS395483,"Advisors Asset Management, Inc.",Unknown,US
+AS395505,"iManage, LLC",Unknown,US
+AS395528,International Registries,Unknown,US
+AS395547,WABC-TV/EABC-TV,Unknown,US
+AS395584,Data Management,Unknown,US
+AS395630,Legacy Community Health Services,Unknown,US
+AS395726,"Trulite Glass & Aluminum Solutions, LLC",Unknown,US
+AS395747,"Cloudflare, Inc.",Unknown,US
+AS395753,KKR,Unknown,US
+AS395782,Finisar Corp,Unknown,US
+AS395783,HYPERTEC CLOUD INC.,Unknown,CA
+AS395788,Kellogg Company,Unknown,US
+AS395809,84.51 LLC,Unknown,US
+AS395866,"Fort Mojave Television, Inc.",Unknown,US
+AS395890,Broadview Federal Credit Union,Unknown,US
+AS395891,"Century Communities, Inc.",Unknown,US
+AS395922,GCET,Unknown,US
+AS396037,"Solstice Advanced Materials US, Inc.",Unknown,US
+AS396104,"Karma Automotive, LLC",Unknown,US
+AS396146,Therap Services,Unknown,US
+AS396157,Fisher Scientific,Unknown,US
+AS396238,City of Fairlawn DBA FairlawnGig,Eyeball,US
+AS396243,Convergence Communications,Unknown,US
+AS396246,"WHITEFIBER HPC, INC.",Unknown,US
+AS396267,"Taft, Stettinius & Hollister, LLP",Unknown,US
+AS396395,"Alliant Insurance Services, Inc.",Unknown,US
+AS396431,T38Fax Incorporated,Unknown,US
+AS396506,BEVERAGE AIR CORPORATION,Unknown,US
+AS396835,"The Charles Stark Draper Laboratory, Inc.",Unknown,US
+AS39686,Eurofiber Nederland BV,Carrier,NL
+AS396957,"New Directions Behavioral Health, LLC",Unknown,US
+AS396980,"Absolute Performance, Inc.",Unknown,US
+AS396982,Google Cloud Platform,Content,US
+AS397007,Stratacache Inc.,Unknown,US
+AS397105,"United Health Services Hospitals, Inc.",Unknown,US
+AS397107,"eCU Technology, LLC",Unknown,US
+AS397158,Resurgent Capital Services LP,Unknown,US
+AS397174,"Applied Predictive Technologies, Inc.",Unknown,US
+AS397274,GALAXE.SOLUTIONS INC,Unknown,US
+AS397290,Honda Federal Credit Union,Unknown,US
+AS397336,Virtual Sprout,Unknown,US
+AS397423,Tier.Net Technologies LLC,Content,US
+AS397425,Masonicare Corporation,Unknown,US
+AS397440,"Tavant Technologies, Inc.",Unknown,US
+AS397465,Skynet Broadband,Unknown,US
+AS397590,"Milwaukee Brewers Baseball Club, LP",Unknown,US
+AS397690,1A Smart Start LLC,Unknown,US
+AS397756,PowerSchool,Unknown,US
+AS397818,Lumentum Operations LLC,Unknown,US
+AS397849,ZOHO,Unknown,US
+AS397880,Mitec Solutions,Unknown,US
+AS397892,Rexel,Unknown,US
+AS398029,Aquatic Group LLC,Unknown,US
+AS398035,SkyNet Communications LLC,Unknown,US
+AS398037,NVIDIA Corporation,Unknown,US
+AS398074,City National Bank,Unknown,US
+AS398080,"Television City Studios, LLC",Unknown,US
+AS398322,Educational Systems Federal Credit Union,Unknown,US
+AS398432,"WANRack, LLC",Unknown,US
+AS398571,CLEVELAND COUNTY TELEPHONE CO. INC.,Unknown,US
+AS398665,COUNTY OF SAN BERNARDINO,Unknown,US
+AS398699,Cisco Systems Inc,Unknown,US
+AS398728,Teravity Networks,Unknown,US
+AS398808,Arch Capital Services LLC,Unknown,US
+AS398863,White Cap Construction Supply,Unknown,US
+AS398997,Aperia,Unknown,US
+AS399054,"K.A.S. Cable T.V., Inc.",Unknown,US
+AS399183,"DeepIntent, Inc.",Unknown,US
+AS399303,"Volli Communications, Inc",Unknown,US
+AS399313,"TUFTS ASSOCIATED HEALTH PLANS, INC.",Unknown,US
+AS399433,Blue Cross Blue Shield of Illinois or Blue Cross Blue Shield of Texas,Unknown,US
+AS399539,Cottage Health,Unknown,US
+AS399654,360 Networks,Unknown,US
+AS399734,Clarivate Analytics (US) LLC,Unknown,US
+AS399749,"Restaurant Technologies, Inc.",Unknown,US
+AS399773,Castle & Cooke,Unknown,US
+AS399782,Western Alliance Bank,Unknown,US
+AS39985,Rack Room Shoes,Unknown,US
+AS399869,Visionary Communications LLC,Unknown,US
+AS399882,"WORKPLACE OPTIONS, LLC",Unknown,US
+AS399929,"Mid-America Apartments, L.P.",Unknown,US
+AS399937,Cisco Webex LLC,Unknown,US
+AS399990,"NTT Global Data Centers Americas, INC.",Unknown,US
+AS40000,"Noblis, Inc.",Unknown,US
+AS400036,"Seattle Arena Company, LLC",Unknown,US
+AS40026,DICK'S SPORTING GOODS INC,Unknown,US
+AS400273,"Johnstone Supply, LLC",Unknown,US
+AS400494,Cirrascale Cloud Services LLC,Unknown,US
+AS40056,Westgate Resorts Ltd,Unknown,US
+AS400567,"Christian Care Ministries, Inc.",Unknown,US
+AS400571,CDNS,Unknown,US
+AS400608,Bhp Billiton Petroleum (deepwater) Inc.,Unknown,US
+AS400733,Pari Data Systems Inc.,Unknown,US
+AS400835,Middleby Corp,Unknown,US
+AS400862,Castle & Cooke Hawaii,Unknown,US
+AS400895,"Samsung Electronics America, Inc.",Unknown,US
+AS400900,SK Hynix Memory Solutions America Inc.,Unknown,US
+AS400966,"CloudQuant, LLC",Unknown,US
+AS401506,"Together Computer, Inc.",Unknown,US
+AS401718,Haulers Insurance Company Inc.,Unknown,US
+AS401775,KnightVision,Unknown,US
+AS402035,"Sergeant Laboratories, Inc",Unknown,US
+AS402183,"BEAZER GENERAL SERVICES, INC.",Unknown,US
+AS40222,Credit One Bank,Unknown,US
+AS402287,PGAL,Unknown,US
+AS402347,Cavnue LLC,Unknown,US
+AS402542,"Cloudflare, Inc.",Unknown,US
+AS402553,Cavnue LLC,Unknown,US
+AS402606,CHRISTIE'S INC.,Unknown,US
+AS40274,"Palisade Capital Management, LP",Unknown,US
+AS402827,"Natrona County, Wyoming",Unknown,US
+AS40311,"ViaSat,Inc.",Unknown,US
+AS40342,"Early Warning Services, LLC",Unknown,US
+AS40367,Harbor Regional Health Community Hospital,Unknown,US
+AS40371,"PROS, Inc.",Unknown,US
+AS40393,Crosslink Networks LLC,Unknown,US
+AS40410,FRIT ,Unknown,US
+AS40412,PA House of Representatives - Democratic Caucus,Unknown,US
+AS40525,CHILDRENS HOSPITAL OF ORANGE COUNTY,Unknown,US
+AS40526,"Gap, Inc. Direct",Unknown,US
+AS40548,Nokia of America Corporation,Unknown,US
+AS40614,Talos Energy LLC,Unknown,US
+AS40617,HEWLETT PACKARD ENTERPRISE COMPANY,Unknown,US
+AS40636,ROCKWELL AUTOMATION Inc.,Unknown,US
+AS40675,"PROQUEST, LLC",Unknown,US
+AS40711,Interactive Brokers LLC,Unknown,US
+AS40749,CLARKSVILLE DEPARTMENT OF ELECTRICITY,Eyeball,US
+AS40866,San Diego Broadband,Unknown,US
+AS40885,E2open LLC,Unknown,US
+AS44521,Jagex Limited,Unknown,GB
+AS4455,IX Reach Ltd,Carrier,GB
+AS46186,Gilead Sciences,Unknown,US
+AS46198,"Trilogy Dominicana, S.A.",Unknown,DO
+AS46203,"Fidelity National Information Services, Inc.",Unknown,US
+AS46213,"LS Power Development, LLC",Unknown,US
+AS46282,"Boeing Distribution, Inc.",Unknown,US
+AS46347,Carolina West Wireless,Unknown,US
+AS46378,"FSX HOLDINGS, LLC",Unknown,US
+AS46435,IRON,Unknown,US
+AS46601,CCI Communications LLC,Unknown,US
+AS46610,Warren County Board of Commissioners,Unknown,US
+AS46636,NatCoWeb Corp.,Unknown,US
+AS46639,Verizon Business,Unknown,US
+AS46746,"NTT Managed Services Americas, LLC",Unknown,US
+AS46754,"Fortex Technologies, Inc.",Unknown,US
+AS46864,"Workday, Inc.",Unknown,US
+AS46887,Zayo (fka. Crown Castle),Carrier,US
+AS46990,Arcserve,Unknown,US
+AS47016,Extron Electronics,Unknown,US
+AS47040,Delta Products Corporation,Unknown,US
+AS47054,"JetWire, INC",Unknown,US
+AS47631,SIP COMMUNICATIONS LIMITED,Unknown,GB
+AS4922,Shenandoah Cable Television LLC,Eyeball,US
+AS4966,Casella Waste System Inc,Unknown,US
+AS5088,FOX CORPORATION,Unknown,US
+AS51647,Gemeente Amsterdam,Unknown,NL
+AS53285,Evolve Cellular Inc.,Unknown,US
+AS53316,CHEETAHMAIL,Unknown,US
+AS53340,FiberHub (VegasNAP),Content,US
+AS53393,LG CNS America Inc.,Unknown,US
+AS53407,UTOPIA Fiber,Eyeball,US
+AS53444,"ZSCALER, INC.",Unknown,US
+AS53476,"New Directions Behavioral Health, LLC",Unknown,US
+AS53560,Endo Pharmaceuticals Inc,Unknown,US
+AS53602,Milwaukee Electric Tool Corporation,Unknown,US
+AS53621,Rady Children's Hospital - San Diego,Unknown,US
+AS53670,Prescient Worldwide,Unknown,US
+AS53675,Hancock Whitney Bank,Unknown,US
+AS53719,"Mainstream Technologies, Inc.",Unknown,US
+AS53720,Superior Technology Solutions LLC,Unknown,US
+AS53775,"Sekisui KYDEX, LLC",Unknown,US
+AS53780,APPRIVER LLC,Unknown,US
+AS53831,"Squarespace, Inc.",Unknown,US
+AS53845,"Broadband Dynamics, LLC",Unknown,US
+AS53851,"The Pampered Chef, Ltd.",Unknown,US
+AS53943,Paylocity Corporation,Unknown,US
+AS53983,"CorKat Data Solutions, LLC",Unknown,US
+AS53985,DODGE & COX,Unknown,US
+AS54025,Capella University,Unknown,US
+AS54338,"TECHNIP ENERGIES USA, INC.",Unknown,US
+AS54396,Microsoft Corporation,Unknown,US
+AS54514,"Jewish Federations of North America, Inc.",Unknown,US
+AS54623,"One Internet America, LLC",Unknown,US
+AS54761,"Sambreel Services, LLC",Unknown,US
+AS54798,Oddbytes LLC,Unknown,US
+AS54819,"NetDiverse, LLC",Unknown,US
+AS54906,Benco Dental Company,Unknown,US
+AS54976,Convo,Unknown,US
+AS54994,Meteverse Limited,Unknown,CA
+AS55136,"CARLTON FIELDS, P.A.",Unknown,US
+AS55155,"Black Knight IP Holding Company, LLC",Unknown,US
+AS55209,Hackensack University Medical Center,Unknown,US
+AS55234,ROCKWELL AUTOMATION Inc.,Unknown,US
+AS55256,Netskope Inc,Unknown,US
+AS55270,"Quik, LLC",Unknown,US
+AS55281,Echo Global Logistics,Unknown,US
+AS5588,T-Mobile Czech Republic a.s.,Eyeball,CZ
+AS5694,Blue Cross Blue Shield Association,Unknown,US
+AS59542,KPN B.V.,Unknown,NL
+AS59599,NCCW B.V.,Unknown,NL
+AS60653,"FEEDLY, INC.",Unknown,US
+AS6086,"MagicNET, Inc",Unknown,US
+AS61357,Koninklijke Ahold Delhaize N.V.,Unknown,NL
+AS62,CyrusOne LLC,Unknown,US
+AS62478,Cradlepoint Inc.,Unknown,US
+AS62613,Pereless Systems,Unknown,US
+AS62614,NetWolves Network Services LLC,Unknown,US
+AS62713,"PubMatic, Inc.",Unknown,US
+AS62728,"VELOCITY, A MANAGED SERVICES COMPANY",Unknown,US
+AS62738,"Wi-Fiber, Inc.",Unknown,US
+AS62783,Hot Topic Inc.,Unknown,US
+AS62802,"Macy's Systems and Technology, Inc.",Unknown,US
+AS62821,MNX Solutions LLC,Unknown,US
+AS62949,Kelly Services Inc.,Unknown,US
+AS62955,"eBay, Inc",Content,US
+AS62957,"HOSPITALITY NETWORK, LLC",Unknown,US
+AS62988,Art Center College of Design,Unknown,US
+AS62994,LITE CLOUD INC,Unknown,US
+AS63107,"Bijou Telephone Co-op Association, Inc.",Unknown,US
+AS63168,"T. Rowe Price Associates, INC.",Unknown,US
+AS63264,"Alternative Choice Wireless, LLC",Unknown,US
+AS63283,Red Lobster,Unknown,US
+AS63340,"Systems Planning and Analysis, Inc.",Unknown,US
+AS63402,Universal Orlando,Unknown,US
+AS63405,"CANON BUSINESS PROCESS SERVICES, Inc.",Unknown,US
+AS63427,Computer Design & Integration LLC,Unknown,US
+AS63460,"Digital Simplistics, Inc.",Unknown,US
+AS63474,"Sirius Computer Solutions, Inc.",Unknown,US
+AS6352,E*TRADE Financial Corporation,Unknown,US
+AS6356,University of Florida,Unknown,US
+AS64224,ATI Solutions,Unknown,US
+AS6461,Zayo Bandwidth,T1,US
+AS6619,SamsungSDS Inc.,Unknown,KR
+AS6900,EntServ Deutschland GmbH,Unknown,DE
+AS6955,D&H Distributing Company,Unknown,US
+AS702,Verizon Business - EMEA,Unknown,US
+AS7131,PTI Pacifica Inc.,Eyeball,GU
+AS7310,Gartner Group,Unknown,US
+AS7324,"iFAX Solutions, Inc.",Unknown,US
+AS7921,Adtrav Corporation,Unknown,US
+AS80,GE Vernova,Unknown,US
+AS8075,Microsoft Corporation,Content,US
+AS845,"SBA Connect, LLC",Unknown,US
+AS8737,KPN B.V.,Eyeball,NL
+AS902,SPACE COAST CREDIT UNION,Unknown,US
+AS936,Weichert Co,Unknown,US
+AS9751,AMERICAN SAMOA TELECOMMUNICATIONS AUTHORITY,Unknown,AS
+AS989,ASPnix,Unknown,US
+AS994,Viirtue INC.,Unknown,US

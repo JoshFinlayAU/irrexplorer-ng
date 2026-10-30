@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }",
+      "variables": {
+        "m": [
+          "AS1136"
+        ],
+        "cls": [
+          "as-set"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"d\":[{\"rpslPk\":\"AS-OPENTRANSIT\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-BSVE:AS-LINX-PEERS-1\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-BSVE:AS-AMSIX-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-SIDN-PEERS-NLIX-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-SIDN-PEERS-NLIX-V4\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS1200:AS-AMS-IX-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS1136:AS-KPNNL\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS204464:AS-BLACKLIST\",\"source\":\"RIPE\"}]},\"extensions\":{\"execution\":0.06187911899996834}}"
+  }
+}

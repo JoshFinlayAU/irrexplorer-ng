@@ -55,8 +55,9 @@ describe('expandSet', () => {
       'AS-B': [{ source: 'RIPE', members: ['AS-A'] }],
     })
     const r = await expandSet('AS-A', 'as-set', fn)
-    expect(r.rows[0]!.missing).toEqual(['AS-GONE'])
+    expect(r.sets['AS-A|RIPE']!.missing).toEqual(['AS-GONE'])
     expect(r.rows[1]!.loops).toEqual(['AS-A'])
+    expect(r.rows[0]!.loops).toEqual([])
   })
 
   it('reports not found', async () => {

@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($pk: [String!]) { a: rpslObjects(rpslPk: $pk, objectClass: [\"aut-num\"]) { source ... on RPSLAutNum { memberOf mntBy } } }",
+      "variables": {
+        "pk": [
+          "AS3333"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"a\":[{\"source\":\"RIPE\",\"memberOf\":null,\"mntBy\":[\"RIPE-NCC-END-MNT\",\"RIPE-NCC-MNT\"]}]},\"extensions\":{\"execution\":0.016102691000014602}}"
+  }
+}

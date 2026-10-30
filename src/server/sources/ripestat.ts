@@ -9,7 +9,7 @@ import type { Prefix } from '~/lib/ip'
 import type { BgpRow } from '~/lib/analysis/collect'
 import { cached } from '../cache'
 import { env } from '../env'
-import { fetchJson, UpstreamError } from '../http'
+import { failed, fetchJson } from '../http'
 
 const Envelope = z.object({
   status: z.string(),
@@ -23,20 +23,20 @@ async function call<T extends z.ZodType>(
   params: Record<string, string>,
   schema: T,
 ): Promise<z.infer<T>> {
-  const url = new URL(`/data/${name}/data.json`, env().RIPESTAT_URL)
+  // Keep any path in the base URL (a proxy prefix, or the e2e mock).
+  const url = new URL(`${env().RIPESTAT_URL.replace(/\/+$/, '')}/data/${name}/data.json`)
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v)
   url.searchParams.set('sourceapp', env().RIPESTAT_SOURCEAPP)
   const res = await fetchJson('ripestat', url.toString(), Envelope)
-  if (res.status !== 'ok')
-    throw new UpstreamError('ripestat', `${name} returned status ${res.status}`)
+  if (res.status !== 'ok') throw failed('ripestat', `${name} returned status ${res.status}`)
   if (res.data_call_status && !res.data_call_status.startsWith('supported')) {
-    throw new UpstreamError('ripestat', `${name} is ${res.data_call_status}`)
+    throw failed('ripestat', `${name} is ${res.data_call_status}`)
   }
   const errors = (res.messages ?? []).filter(([level]) => level === 'error')
-  if (errors.length > 0) throw new UpstreamError('ripestat', `${name}: ${errors[0]![1]}`)
+  if (errors.length > 0) throw failed('ripestat', `${name}: ${errors[0]![1]}`)
   const parsed = schema.safeParse(res.data)
   if (!parsed.success) {
-    throw new UpstreamError(
+    throw failed(
       'ripestat',
       `${name} returned unexpected data (${parsed.error.issues[0]?.message ?? 'invalid'})`,
     )

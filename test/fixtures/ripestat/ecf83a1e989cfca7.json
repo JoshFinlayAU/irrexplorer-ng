@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/ripestat/data/routing-status/data.json?resource=137.17.80.0%2F24&sourceapp=irrexplorer-ng-e2e"
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "body": "{\"messages\":[],\"see_also\":[],\"version\":\"3.4\",\"data_call_name\":\"routing-status\",\"data_call_status\":\"supported\",\"cached\":false,\"query_id\":\"20261030065130-d78eff10-bb0c-45fe-9ea8-6a52288a3979\",\"process_time\":2039,\"server_id\":\"app173\",\"build_version\":\"v0.12.2-2026.10.23\",\"pipeline\":\"1478200\",\"status\":\"ok\",\"status_code\":200,\"time\":\"2026-10-30T06:51:32.081482\",\"data\":{\"first_seen\":{\"prefix\":\"137.17.80.0/24\",\"origin\":\"1136\",\"time\":\"2021-06-05T00:00:00\"},\"last_seen\":{\"prefix\":\"137.17.80.0/24\",\"origin\":\"1136\",\"time\":\"2024-02-28T16:00:00\"},\"visibility\":{\"v4\":{\"ris_peers_seeing\":0,\"total_ris_peers\":323},\"v6\":{\"ris_peers_seeing\":0,\"total_ris_peers\":0}},\"origins\":[],\"less_specifics\":[{\"prefix\":\"137.17.0.0/16\",\"origin\":1136}],\"more_specifics\":[],\"resource\":\"137.17.80.0/24\",\"query_time\":\"2026-10-30T00:00:00\"}}"
+  }
+}

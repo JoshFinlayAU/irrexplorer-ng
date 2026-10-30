@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }",
+      "variables": {
+        "m": [
+          "AS-RIPENCC"
+        ],
+        "cls": [
+          "as-set"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"d\":[{\"rpslPk\":\"AS-KPN\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS3320:AS-DTAG\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-TELE2-NL\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS3320:AS-DTAG-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS13030:AS-GLOBAL\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS1273:AS-CWW\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS1273:AS-CWW-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NBIP\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NBIP6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS12859:AS-BIT\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS6777:AS-AMS-IX-RS-SETS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS6777:AS-AMS-IX-RS-SETS-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS1136:AS-KPNNL\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS200020:AS-NBIP\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NL-IX-RS\",\"source\":\"RIPE\"}]},\"extensions\":{\"execution\":0.033081434999985504}}"
+  }
+}

@@ -1,11 +1,10 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Explanation } from '~/components/explanation'
 import { SourceNotices } from '~/components/notices'
 import { ReportTables } from '~/components/report-tables'
 import { Pending } from '~/components/route-states'
-import { MemberOfTable } from '~/components/set-tables'
-import { badgeClass } from '~/components/status'
+import { MemberOfSection } from '~/components/member-of-section'
 import { classifyQuery, formatAsn } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
 import { asnQuery, memberOfQuery } from '~/lib/queries'
@@ -24,10 +23,12 @@ export const Route = createFileRoute('/asn/$asn')({
   loader: async ({ context, params }) => {
     if (context.asn !== null) {
       const target = formatAsn(context.asn)
-      // Member-of tables load alongside but never hold up the prefix tables.
-      void context.queryClient.query(memberOfQuery(target, 'as-set')).catch(() => undefined)
-      void context.queryClient.query(memberOfQuery(target, 'route-set')).catch(() => undefined)
-      await context.queryClient.query({ ...asnQuery(context.asn), staleTime: 'static' })
+      // Awaited together so SSR and hydration render from the same data.
+      await Promise.all([
+        context.queryClient.query({ ...asnQuery(context.asn), staleTime: 'static' }),
+        context.queryClient.query({ ...memberOfQuery(target, 'as-set'), staleTime: 'static' }),
+        context.queryClient.query({ ...memberOfQuery(target, 'route-set'), staleTime: 'static' }),
+      ])
     }
     return { asn: context.asn, error: context.error, raw: params.asn }
   },
@@ -108,45 +109,5 @@ function AsnReportView({ asn }: { asn: number }) {
         title="Included in the following route sets:"
       />
     </div>
-  )
-}
-
-export function MemberOfSection({
-  target,
-  objectClass,
-  title,
-}: {
-  target: string
-  objectClass: 'as-set' | 'route-set'
-  title: string
-}) {
-  const query = useQuery(memberOfQuery(target, objectClass))
-  const jsonHref = `/api/sets/member-of/${objectClass}/${target}`
-  if (query.isPending) {
-    return (
-      <section className="mb-8">
-        <h2 className="mb-2 text-lg font-semibold">{title}</h2>
-        <Pending label="Looking up sets" />
-      </section>
-    )
-  }
-  if (query.isError || !query.data.ok) {
-    const msg = query.isError ? query.error.message : query.data.ok ? '' : query.data.error
-    return (
-      <section className="mb-8">
-        <h2 className="mb-2 text-lg font-semibold">{title}</h2>
-        <p role="alert" className={`rounded-md px-3 py-2 text-sm ${badgeClass.danger}`}>
-          IRRd unavailable: {msg}. Set membership could not be checked.
-        </p>
-      </section>
-    )
-  }
-  return (
-    <MemberOfTable
-      memberOf={query.data.memberOf}
-      objectClass={objectClass}
-      title={title}
-      jsonHref={jsonHref}
-    />
   )
 }

@@ -9,7 +9,7 @@ import type { IrrRow } from '~/lib/analysis/collect'
 import type { SetLevelResult } from '~/lib/analysis/sets'
 import { cached } from '../cache'
 import { env } from '../env'
-import { fetchJson, UpstreamError } from '../http'
+import { failed, fetchJson } from '../http'
 
 const ALL_RPKI = '[valid, invalid, not_found]'
 /** How many aliased lookups go into one GraphQL request. */
@@ -31,9 +31,9 @@ async function graphql(
     body: JSON.stringify({ query, variables }),
     timeoutMs: Math.max(env().UPSTREAM_TIMEOUT_MS, 15000),
   })
-  if (res.errors?.length)
-    throw new UpstreamError('irrd', `GraphQL error: ${res.errors[0]!.message}`)
-  if (!res.data) throw new UpstreamError('irrd', 'GraphQL response had no data')
+  // A 200 carrying GraphQL errors still counts as a failed call for health.
+  if (res.errors?.length) throw failed('irrd', `GraphQL error: ${res.errors[0]!.message}`)
+  if (!res.data) throw failed('irrd', 'GraphQL response had no data')
   return res.data
 }
 
@@ -45,9 +45,18 @@ export const RouteObjectSchema = z.object({
 })
 const RouteList = z.array(RouteObjectSchema)
 
+/**
+ * IRRd serves ROAs as route objects in a pseudo-source "RPKI". ROAs come
+ * from the validator here, so those are dropped (the original also never
+ * showed RPKI as an IRR column).
+ */
+export const RPKI_PSEUDO_SOURCE = 'RPKI'
+
 const toIrrRows = (list: z.infer<typeof RouteList>): IrrRow[] =>
   list.flatMap((o) =>
-    o.prefix ? [{ prefix: o.prefix, asn: o.asn ?? 0, source: o.source, rpslPk: o.rpslPk }] : [],
+    o.prefix && o.source.toUpperCase() !== RPKI_PSEUDO_SOURCE
+      ? [{ prefix: o.prefix, asn: o.asn ?? 0, source: o.source, rpslPk: o.rpslPk }]
+      : [],
   )
 
 const ROUTE_FIELDS =

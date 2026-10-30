@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }",
+      "variables": {
+        "m": [
+          "AS3333"
+        ],
+        "cls": [
+          "route-set"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"d\":[]},\"extensions\":{\"execution\":0.052278600000136066}}"
+  }
+}

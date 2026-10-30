@@ -70,22 +70,31 @@ export interface Notice {
   text: string
 }
 
+/** One row per (set, IRR source, path), like the original. */
 export interface SetRow {
   name: string
   source: string
   depth: number
   path: string[]
-  members: string[]
-  /** Members that are sets but were not found in any IRR. */
-  missing: string[]
   /** Members that are sets already on this row's path (a loop). */
   loops: string[]
 }
+
+/** Per (set, source) data, shared by every row for that set so it is sent once. */
+export interface SetInfo {
+  members: string[]
+  /** Members that are sets but were not found in any IRR. */
+  missing: string[]
+}
+
+export const setKey = (name: string, source: string) => `${name}|${source}`
 
 export interface SetExpansion {
   root: string
   category: 'as-set' | 'route-set'
   rows: SetRow[]
+  /** Keyed by setKey(name, source). */
+  sets: Record<string, SetInfo>
   found: boolean
   truncated: boolean
   /** Deepest level reached. */

@@ -41,8 +41,9 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
   const query = isHost ? prefix.cidr.replace(/\/\d+$/, '') : prefix.cidr
   const base = { query, isHost, minLength }
 
-  const g = await gather([prefix], { ripestat: true })
   if (prefix.length < minLength) {
+    // Refuse before touching any upstream: an IRRd ipAny on a /8 is expensive.
+    const ok = { status: 'ok' } as const
     return {
       ...base,
       tooLarge: true,
@@ -50,11 +51,12 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
       leastSpecific: null,
       coveringAnnounced: null,
       visibility: null,
-      sources: g.sources,
-      notices: g.notices,
+      sources: { irr: ok, bgp: ok, rpki: ok, rir: ok },
+      notices: [],
       asNames: {},
     }
   }
+  const g = await gather([prefix], { ripestat: true })
 
   const overlaps = collect(g.input)
 

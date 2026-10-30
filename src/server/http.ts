@@ -17,6 +17,13 @@ export class UpstreamError extends Error {
   }
 }
 
+/** Record a semantic failure (HTTP fine, content not) and return the error to throw. */
+export function failed(source: SourceName, message: string): UpstreamError {
+  const err = new UpstreamError(source, message)
+  recordFailure(source, err)
+  return err
+}
+
 export interface FetchJsonOptions {
   method?: 'GET' | 'POST'
   headers?: Record<string, string>

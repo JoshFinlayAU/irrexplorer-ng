@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }",
+      "variables": {
+        "names": [
+          "AS-COLOCLUE"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"s\":[{\"rpslPk\":\"AS-COLOCLUE\",\"rootSource\":\"RIPE\",\"members\":[\"AS8283:AS-COLOCLUE\"]}]},\"extensions\":{\"execution\":0.013386143000388984}}"
+  }
+}

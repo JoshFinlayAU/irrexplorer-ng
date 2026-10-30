@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }",
+      "variables": {
+        "m": [
+          "RS-KROOT"
+        ],
+        "cls": [
+          "route-set"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"d\":[{\"rpslPk\":\"RS-KROOT-LINX\",\"source\":\"RIPE\"},{\"rpslPk\":\"RS-KROOT-AMS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"RS-KROOT-DENIC\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS20569:RS-FICIX-ROUTES\",\"source\":\"RIPE\"},{\"rpslPk\":\"RS-KROOT-AMS\",\"source\":\"RIPE\"},{\"rpslPk\":\"RS-KROOT-LON\",\"source\":\"RIPE\"},{\"rpslPk\":\"RS-KROOT-FRA\",\"source\":\"RIPE\"},{\"rpslPk\":\"RS-KROOT-TYO\",\"source\":\"RIPE\"},{\"rpslPk\":\"RS-KROOT-MIA\",\"source\":\"RIPE\"}]},\"extensions\":{\"execution\":0.03396525200059841}}"
+  }
+}

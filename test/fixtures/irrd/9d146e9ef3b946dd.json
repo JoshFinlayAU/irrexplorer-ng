@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }",
+      "variables": {
+        "m": [
+          "AS-BIT"
+        ],
+        "cls": [
+          "as-set"
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"d\":[{\"rpslPk\":\"AS-KPN\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-31576-PEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-OPENPEERINGMEMBERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-C4LPEERS\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS29075:AS-PEERS:AS-SET\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-CONNETU-LINX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-FRYS-IX-CONNECTED\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS30781:AS-JAGUAR-PEERING-AMS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS3216:AS-DECIX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS3216:AS-AMS-IX\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS6695:AS-DECIX-FRA\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS6695:AS-DECIX-FRA-V6\",\"source\":\"RIPE\"},{\"rpslPk\":\"AS-NL-IX-RS\",\"source\":\"RIPE\"}]},\"extensions\":{\"execution\":0.05446023999957106}}"
+  }
+}
