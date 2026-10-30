@@ -23,38 +23,11 @@ function Svg({ title, children, ...props }: IconProps) {
   )
 }
 
-export const DangerIcon = (p: IconProps) => (
-  <Svg {...p}>
-    <path
-      fillRule="evenodd"
-      d="M10 18a8 8 0 100-16 8 8 0 000 16zM7.7 6.3a1 1 0 00-1.4 1.4L8.6 10l-2.3 2.3a1 1 0 101.4 1.4l2.3-2.3 2.3 2.3a1 1 0 001.4-1.4L11.4 10l2.3-2.3a1 1 0 00-1.4-1.4L10 8.6 7.7 6.3z"
-      clipRule="evenodd"
-    />
-  </Svg>
-)
 export const WarningIcon = (p: IconProps) => (
   <Svg {...p}>
     <path
       fillRule="evenodd"
       d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1zm0 10a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4z"
-      clipRule="evenodd"
-    />
-  </Svg>
-)
-export const InfoIcon = (p: IconProps) => (
-  <Svg {...p}>
-    <path
-      fillRule="evenodd"
-      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM8.2 7.6a1.8 1.8 0 113.4.9c-.2.4-.6.7-1 1-.5.4-.9.8-.9 1.5a.7.7 0 001.4 0c0-.2.2-.4.6-.7.5-.4 1.3-1 1.3-2.4a3.1 3.1 0 10-6.1-.8.7.7 0 001.3.5zM10 15a1 1 0 100-2 1 1 0 000 2z"
-      clipRule="evenodd"
-    />
-  </Svg>
-)
-export const SuccessIcon = (p: IconProps) => (
-  <Svg {...p}>
-    <path
-      fillRule="evenodd"
-      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7-9.3a1 1 0 00-1.4-1.4L9 10.6 7.7 9.3a1 1 0 00-1.4 1.4l2 2a1 1 0 001.4 0l4-4z"
       clipRule="evenodd"
     />
   </Svg>
@@ -84,11 +57,6 @@ export const UnknownIcon = (p: IconProps) => (
       d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-1.6a6.4 6.4 0 110-12.8 6.4 6.4 0 010 12.8zM9 13a1 1 0 112 0 1 1 0 01-2 0zm1-7.2a2.6 2.6 0 00-2.6 2.1.8.8 0 001.6.3 1 1 0 112 .3c0 .3-.2.5-.6.8-.5.3-1.1.8-1.1 1.7a.8.8 0 001.6 0c0-.1.1-.2.5-.5.5-.3 1.2-.9 1.2-2a2.6 2.6 0 00-2.6-2.7z"
       clipRule="evenodd"
     />
-  </Svg>
-)
-export const CaretRightIcon = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="M7 5l6 5-6 5V5z" />
   </Svg>
 )
 export const SortIcon = ({ dir, ...p }: IconProps & { dir: false | 'asc' | 'desc' }) => (

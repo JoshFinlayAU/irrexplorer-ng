@@ -10,7 +10,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { Link } from '@tanstack/react-router'
-import { useId, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   setKey,
   type MemberOf,
@@ -21,7 +21,8 @@ import {
 import { classifyQuery } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
 import { ROW_LIMIT, stripRangeOperator } from '~/lib/analysis/sets'
-import { LoopIcon, SortIcon, SuccessIcon, WarningIcon } from './icons'
+import { LoopIcon, SortIcon, WarningIcon } from './icons'
+import { JsonLink, SectionHead } from './ui'
 import { VirtualRows } from './virtual-rows'
 import { badgeClass } from './status'
 
@@ -59,14 +60,14 @@ function MemberCell({ info, loops }: { info: SetInfo | undefined; loops: string[
           <MemberLink member={m} />
           {missing.has(m) ? (
             <span
-              className={`ml-0.5 inline-flex items-center gap-0.5 rounded px-1 text-xs ${badgeClass.warning}`}
+              className={`ml-0.5 inline-flex items-center gap-0.5 px-1 text-xs ${badgeClass.warning}`}
             >
               <WarningIcon /> not found
             </span>
           ) : null}
           {loopSet.has(m) ? (
             <span
-              className={`ml-0.5 inline-flex items-center gap-0.5 rounded px-1 text-xs ${badgeClass.danger}`}
+              className={`ml-0.5 inline-flex items-center gap-0.5 px-1 text-xs ${badgeClass.danger}`}
             >
               <LoopIcon /> loop
             </span>
@@ -87,6 +88,7 @@ const setFeatures = tableFeatures({
 const setHelper = createColumnHelper<typeof setFeatures, SetRow>()
 
 export interface SetTableState {
+  layout: 'tree' | 'table'
   sort: SortingState
   filter: string
   problems: boolean
@@ -104,7 +106,6 @@ export function SetExpansionTable({
   const { rows, category, sets } = expansion
   const loops = rows.reduce((n, r) => n + r.loops.length, 0)
   const missing = new Set(Object.values(sets).flatMap((s) => s.missing)).size
-  const filterId = useId()
 
   const columns = useMemo(
     () =>
@@ -169,23 +170,16 @@ export function SetExpansionTable({
   const visible = table.getRowModel().rows
 
   return (
-    <section aria-labelledby="expansion-title" className="mb-8">
-      <h2 id="expansion-title" className="mb-2 text-lg font-semibold">
-        Expands to:
-      </h2>
-      {!expansion.found ? (
-        <p className="surface rounded-md px-3 py-6 text-center text-[var(--muted)]">
-          {category} was not found.
-        </p>
-      ) : (
+    <>
+      {!expansion.found ? null : (
         <>
-          <ul className="mb-3 flex flex-wrap gap-2 text-sm" aria-label="Expansion summary">
-            <li className="rounded-md border border-[var(--border)] px-2 py-1">
+          <ul className="sr-only" aria-label="Expansion summary">
+            <li className="border border-[var(--rule)] px-2 py-1">
               {expansion.totalSets} {expansion.totalSets === 1 ? 'set' : 'sets'} resolved, depth{' '}
               {expansion.depthReached}
             </li>
             {expansion.truncated ? (
-              <li className={`rounded-md px-2 py-1 ${badgeClass.warning}`}>
+              <li className={` px-2 py-1 ${badgeClass.warning}`}>
                 <span role="status" className="inline-flex items-center gap-1">
                   <WarningIcon /> Truncated: expansion stops beyond {expansion.limit} total{' '}
                   {category}s or {ROW_LIMIT.toLocaleString('en-US')} paths
@@ -193,47 +187,22 @@ export function SetExpansionTable({
               </li>
             ) : null}
             {loops > 0 ? (
-              <li
-                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 ${badgeClass.danger}`}
-              >
+              <li className={`inline-flex items-center gap-1 px-2 py-1 ${badgeClass.danger}`}>
                 <LoopIcon /> {loops} {loops === 1 ? 'loop' : 'loops'} detected
               </li>
             ) : null}
             {missing > 0 ? (
-              <li
-                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 ${badgeClass.warning}`}
-              >
+              <li className={`inline-flex items-center gap-1 px-2 py-1 ${badgeClass.warning}`}>
                 <WarningIcon /> {missing} missing {missing === 1 ? 'member set' : 'member sets'}
               </li>
             ) : null}
           </ul>
-          <div className="mb-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={state.problems}
-                onChange={(e) => onChange({ problems: e.target.checked })}
-              />
-              Show only rows with loops or missing sets
-            </label>
-            <div className="flex items-center gap-2">
-              <label htmlFor={filterId}>Filter</label>
-              <input
-                id={filterId}
-                type="search"
-                value={state.filter}
-                onChange={(e) => onChange({ filter: e.target.value })}
-                placeholder="Set, source or member"
-                className="surface w-56 rounded-md px-2 py-1"
-              />
-            </div>
-          </div>
-          <div className="surface overflow-x-auto rounded-md lg:overflow-visible">
+          <div className="panel overflow-x-auto lg:overflow-visible">
             <table className="w-full border-collapse text-sm">
               <caption className="caption-bottom px-3 py-2 text-left text-xs text-[var(--muted)]">
                 Expansion depth is limited beyond {expansion.limit} total {category}s.
               </caption>
-              <thead className="sticky top-0 z-10 bg-[var(--surface-2)]">
+              <thead className="sticky top-0 z-10 bg-[var(--sunk)]">
                 {table.getHeaderGroups().map((group) => (
                   <tr key={group.id}>
                     {group.headers.map((header) => {
@@ -250,13 +219,13 @@ export function SetExpansionTable({
                                 ? 'descending'
                                 : undefined
                           }
-                          className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold whitespace-nowrap"
+                          className="border-b border-[var(--rule)] px-3 py-2 text-left font-semibold whitespace-nowrap"
                         >
                           {header.column.getCanSort() ? (
                             <button
                               type="button"
                               onClick={header.column.getToggleSortingHandler()}
-                              className="inline-flex items-center gap-1 hover:text-[var(--accent)]"
+                              className="inline-flex items-center gap-1 hover:text-[var(--text)]"
                             >
                               {label}
                               <SortIcon dir={sorted} />
@@ -278,7 +247,7 @@ export function SetExpansionTable({
                     key={row.id}
                     data-index={index}
                     ref={measure}
-                    className="border-b border-[var(--border)] align-top last:border-b-0"
+                    className="border-b border-[var(--rule)] align-top last:border-b-0"
                   >
                     {row.getAllCells().map((cell) => (
                       <td
@@ -305,7 +274,7 @@ export function SetExpansionTable({
           </p>
         </>
       )}
-    </section>
+    </>
   )
 }
 
@@ -323,63 +292,44 @@ export function MemberOfTable({
   const names = [...new Set(Object.values(memberOf.setsPerIrr).flat())].sort()
   const id = `memberof-${objectClass}`
   return (
-    <section aria-labelledby={id} className="mb-8">
-      <h2 id={id} className="mb-2 text-lg font-semibold">
-        {title}
-      </h2>
+    <section aria-labelledby={id} className="mb-10">
+      <SectionHead
+        id={id}
+        title={title}
+        meta={
+          <>
+            <span className="font-mono text-[0.75rem] text-[var(--muted)]">
+              {names.length} {names.length === 1 ? 'set' : 'sets'}
+            </span>
+            <JsonLink href={jsonHref} />
+          </>
+        }
+      />
       {names.length === 0 ? (
-        <p className="surface rounded-md px-3 py-6 text-center text-[var(--muted)]">
+        <p className="border border-dashed border-[var(--rule-strong)] px-3 py-4 text-center font-mono text-[0.8rem] text-[var(--muted)]">
           No {objectClass}s were found.
         </p>
       ) : (
-        <div className="surface overflow-x-auto rounded-md">
-          <table className="w-full border-collapse text-sm">
-            <thead className="bg-[var(--surface-2)]">
-              <tr>
-                <th
-                  scope="col"
-                  className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold"
-                >
-                  Name
-                </th>
-                {memberOf.irrsSeen.map((irr) => (
-                  <th
-                    key={irr}
-                    scope="col"
-                    className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold"
-                  >
-                    {irr}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {names.map((name) => (
-                <tr key={name} className="border-b border-[var(--border)] last:border-b-0">
-                  <td className="px-3 py-2">
-                    <SetNameLink name={name} category={objectClass} />
-                  </td>
-                  {memberOf.irrsSeen.map((irr) => (
-                    <td key={irr} className="px-3 py-2">
-                      {memberOf.setsPerIrr[irr]?.includes(name) ? (
-                        <SuccessIcon
-                          className="text-[var(--success-fg)]"
-                          title={`Present in ${irr}`}
-                        />
-                      ) : (
-                        <span className="sr-only">Not in {irr}</span>
-                      )}
-                    </td>
+        <ul className="columns-1 gap-x-6 border-t border-[var(--rule)] sm:columns-2">
+          {names.map((name) => (
+            <li
+              key={name}
+              className="flex break-inside-avoid items-baseline justify-between gap-3 border-b border-[var(--rule)] py-1 font-mono text-[0.8rem]"
+            >
+              <SetNameLink name={name} category={objectClass} />
+              <span className="text-[0.68rem] text-[var(--muted)]">
+                {memberOf.irrsSeen
+                  .filter((irr) => memberOf.setsPerIrr[irr]?.includes(name))
+                  .map((irr) => (
+                    <span key={irr} className="ml-2" title={`Present in ${irr}`}>
+                      {irr}
+                    </span>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </span>
+            </li>
+          ))}
+        </ul>
       )}
-      <p className="mt-1.5 text-right text-xs">
-        <a href={jsonHref}>Source data as JSON</a>
-      </p>
     </section>
   )
 }

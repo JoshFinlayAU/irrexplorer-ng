@@ -1,17 +1,22 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { AddressMap } from '~/components/address-map'
 import { Explanation } from '~/components/explanation'
+import { Findings } from '~/components/findings'
 import { SourceNotices } from '~/components/notices'
-import { ReportTables, type TableSpec } from '~/components/report-tables'
-import { Pending } from '~/components/route-states'
+import { ReportTables, useReportUpdate, type TableSpec } from '~/components/report-tables'
+import { InvalidQuery, Pending } from '~/components/route-states'
+import { RpkiWord } from '~/components/status'
+import { FactStrip, Meter, PageTitle, type Fact } from '~/components/ui'
 import { classifyQuery } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
 import { prefixQuery } from '~/lib/queries'
+import { useRecordRecent } from '~/lib/recent'
 import { reportSearchSchema } from '~/lib/search'
-import { parsePrefix } from '~/lib/ip'
+import { covers, parsePrefix, prefixSize, type Prefix } from '~/lib/ip'
 import { specialUseOverlaps } from '~/lib/analysis/special-use'
+import type { PrefixSummary } from '~/lib/analysis/types'
 import type { PrefixReport } from '~/server/services/prefix'
-import type { ReactNode } from 'react'
 
 export const Route = createFileRoute('/prefix/$')({
   validateSearch: reportSearchSchema,
@@ -41,22 +46,36 @@ export const Route = createFileRoute('/prefix/$')({
 
 function PrefixPage() {
   const { query, error, raw } = Route.useLoaderData()
-  if (!query) {
-    return (
-      <div className="py-8">
-        <h1 className="mb-2 text-2xl font-semibold">Not a valid prefix</h1>
-        <p role="alert" className="text-[var(--danger-fg)]">
-          <span className="font-mono">{raw}</span>: {error}
-        </p>
-      </div>
-    )
-  }
+  if (!query) return <InvalidQuery what="prefix" raw={raw} error={error} />
   return <PrefixReportView query={query} />
+}
+
+function sizeText(p: Prefix): string {
+  if (p.version === 4) return `${prefixSize(p).toLocaleString('en-US')} addresses`
+  const bits = 128 - p.length
+  return bits >= 64 ? `2^${bits - 64} /64s` : `2^${bits} addresses`
+}
+
+/** The row for the query itself, or else the most specific row covering it. */
+function closestRow(rows: PrefixSummary[], q: Prefix): PrefixSummary | null {
+  let best: { row: PrefixSummary; len: number } | null = null
+  for (const row of rows) {
+    const p = parsePrefix(row.prefix)
+    if (p && covers(p, q) && (!best || p.length > best.len)) best = { row, len: p.length }
+  }
+  return best?.row ?? null
 }
 
 function PrefixReportView({ query }: { query: string }) {
   const search = Route.useSearch()
+  const update = useReportUpdate()
   const { data } = useSuspenseQuery(prefixQuery(query))
+  const prefix = parsePrefix(data.query)!
+  useRecordRecent({
+    path: `/prefix/${data.query}`,
+    label: data.query,
+    kind: 'prefix',
+  })
 
   const tables: TableSpec[] = [
     {
@@ -88,72 +107,114 @@ function PrefixReportView({ query }: { query: string }) {
       jsonHref: `/api/prefixes/prefix/${data.leastSpecific.prefix}`,
     })
   }
+  const neighbourhood = data.leastSpecific?.rows.length ? data.leastSpecific.rows : data.overlaps
 
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-semibold">
-        Report for prefix <span className="font-mono">{data.query}</span>
-      </h1>
-      <Summary data={data} />
+      <PageTitle kind="prefix">{data.query}</PageTitle>
+      <div className="mb-6">
+        <FactStrip label="Prefix facts" facts={facts(data, prefix)} />
+      </div>
       <SourceNotices notices={data.notices} />
       {data.tooLarge ? (
-        <p role="alert" className="surface rounded-md px-4 py-6 text-center">
+        <p
+          role="alert"
+          className="border border-dashed border-[var(--rule-strong)] px-4 py-6 font-mono text-[0.85rem]"
+        >
           Query too large: the minimum prefix length is {data.minLength}.
         </p>
       ) : (
         <>
-          <Explanation />
+          <Findings
+            rows={data.overlaps}
+            reduced={!!search.reduced}
+            scope="overlapping the query"
+            onFilter={(v) => update({ filter: v })}
+          />
+          <AddressMap rows={neighbourhood} query={prefix} reduced={!!search.reduced} />
           <ReportTables search={search} tables={tables} asNames={data.asNames} />
           {data.leastSpecific?.tooLarge ? (
-            <p className="text-sm text-[var(--muted)]">
+            <p className="mb-8 font-mono text-[0.8rem] text-[var(--muted)]">
               The least specific match {data.leastSpecific.prefix} is shorter than the minimum
               prefix length, so its overlaps are not listed.
             </p>
           ) : null}
+          <Explanation />
         </>
       )}
     </div>
   )
 }
 
-function Summary({ data }: { data: PrefixReport }) {
-  const v = data.visibility
-  const facts: ReactNode[] = []
-  if (data.isHost && data.coveringAnnounced) {
-    facts.push(
-      <>
-        Most specific announced prefix covering this address:{' '}
-        <Link to="/prefix/$" params={{ _splat: data.coveringAnnounced }} className="font-mono">
+function facts(data: PrefixReport, prefix: Prefix): Fact[] {
+  const out: Fact[] = [
+    { label: 'Family', value: `IPv${prefix.version} /${prefix.length}` },
+    { label: 'Size', value: sizeText(prefix) },
+  ]
+  const own = closestRow(data.overlaps, prefix)
+  out.push({
+    label: 'RIR',
+    value: own?.rir ?? <span className="text-[var(--faint)]">unknown</span>,
+  })
+  if (data.isHost) {
+    out.push({
+      label: 'Covering route',
+      value: data.coveringAnnounced ? (
+        <Link to="/prefix/$" params={{ _splat: data.coveringAnnounced }}>
           {data.coveringAnnounced}
         </Link>
-      </>,
-    )
-  } else if (data.isHost && !data.tooLarge) {
-    facts.push(<>No announced prefix covers this address.</>)
+      ) : (
+        'No announced prefix covers this address.'
+      ),
+      wide: !data.coveringAnnounced,
+    })
   }
-  const prefix = parsePrefix(data.query)
-  for (const s of prefix ? specialUseOverlaps(prefix) : []) {
-    facts.push(
-      <span className="font-medium text-[var(--danger-fg)]">
-        Overlaps with {s.name} special use prefix {s.prefix.cidr}
-      </span>,
-    )
+  const exact = data.overlaps.find((r) => r.prefix === prefix.cidr)
+  if (exact && exact.bgpOrigins.length > 0) {
+    out.push({
+      label: 'Origin',
+      value: (
+        <span className="flex flex-wrap gap-x-3">
+          {exact.bgpOrigins.map((o) => (
+            <span key={o.asn} className="inline-flex items-center gap-2">
+              <Link to="/asn/$asn" params={{ asn: `AS${o.asn}` }}>
+                AS{o.asn}
+              </Link>
+              <RpkiWord validity={o.rpki} />
+            </span>
+          ))}
+        </span>
+      ),
+    })
   }
+  const v = data.visibility
   if (v && v.total > 0) {
-    facts.push(
-      <>
-        Seen by {v.seeing} of {v.total} RIPE RIS full-feed peers
-        {v.firstSeen ? <>, first seen {v.firstSeen.slice(0, 10)}</> : null}
-        {v.asOf ? <> (as of {v.asOf.slice(0, 16).replace('T', ' ')} UTC)</> : null}
-      </>,
-    )
+    out.push({
+      label: 'RIS visibility',
+      value: (
+        <span className="inline-flex items-center gap-2">
+          <Meter value={v.seeing} max={v.total} label="RIS peers seeing this prefix" />
+          <span>
+            Seen by {v.seeing} of {v.total} RIPE RIS full-feed peers
+          </span>
+        </span>
+      ),
+      wide: true,
+    })
+    if (v.firstSeen) out.push({ label: 'First seen', value: v.firstSeen.slice(0, 10) })
+    if (v.asOf)
+      out.push({ label: 'RIS as of', value: `${v.asOf.slice(0, 16).replace('T', ' ')} UTC` })
   }
-  if (facts.length === 0) return <div className="mb-4" />
-  return (
-    <ul className="mb-4 flex flex-col gap-0.5 text-sm text-[var(--muted)]">
-      {facts.map((f, i) => (
-        <li key={i}>{f}</li>
-      ))}
-    </ul>
-  )
+  for (const s of specialUseOverlaps(prefix)) {
+    out.push({
+      label: 'Special use',
+      value: (
+        <span className="text-[var(--danger-fg)]">
+          Overlaps with {s.name} special use prefix {s.prefix.cidr}
+        </span>
+      ),
+      wide: true,
+    })
+  }
+  return out
 }

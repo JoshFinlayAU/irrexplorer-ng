@@ -15,12 +15,16 @@ async function themes(page: Page, name: string) {
 const table = (page: Page, title: RegExp) =>
   page.getByRole('region', { name: title }).getByRole('table')
 
+/** One prefix record (record view) inside a report section. */
+const record = (page: Page, section: RegExp, prefix: string) =>
+  page.getByRole('region', { name: section }).getByRole('article', { name: prefix, exact: true })
+
 test.describe('home', () => {
   test('renders the search start page', async ({ page }) => {
     await page.goto('/')
     await hydrated(page)
     await expect(page).toHaveTitle('IRR Explorer NG')
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('IRR Explorer')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('IRR Explorer NG')
     await expect(
       page.getByText('IRR Explorer shows the routing, IRR and RPKI status'),
     ).toBeVisible()
@@ -29,7 +33,32 @@ test.describe('home', () => {
     ).toBeVisible()
     await expect(page.getByRole('button', { name: 'Search' })).toBeDisabled()
     await expect(page.getByRole('link', { name: 'Data source status' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Synopsis' })).toBeVisible()
+    // Sources panel loads on the client.
+    await expect(page.getByRole('table', { name: 'Data source freshness' })).toContainText(
+      'bgp.tools table',
+    )
     await themes(page, 'home')
+  })
+
+  test('slash focuses the command bar, and visited reports show as recent', async ({
+    page,
+    isMobile,
+  }) => {
+    await page.goto('/prefix/193.0.0.0/21')
+    await hydrated(page)
+    await page.keyboard.press('/')
+    await expect(
+      page.getByRole('textbox', { name: 'Prefix, IP, ASN or AS/route-set' }),
+    ).toBeFocused()
+    await page.keyboard.type('AS3333')
+    // The live classification hint only fits on wider screens.
+    if (!isMobile) await expect(page.getByText('asn', { exact: true })).toBeVisible()
+    await page.goto('/')
+    await hydrated(page)
+    await expect(
+      page.getByRole('region', { name: 'Recent' }).getByRole('link', { name: '193.0.0.0/21' }),
+    ).toBeVisible()
   })
 
   test('rejects invalid input with an explanation', async ({ page }) => {
@@ -60,15 +89,24 @@ test.describe('prefix view', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Report for prefix 193.0.0.0/21',
     )
+    const rec = record(page, /Directly overlapping prefixes of 193\.0\.0\.0\/21/, '193.0.0.0/21')
+    await expect(rec).toContainText('RIPE NCC')
+    for (const col of ['Origin', 'BGP', 'ROA', 'RIPE']) {
+      await expect(rec.getByRole('columnheader', { name: col, exact: true })).toBeVisible()
+    }
+    await expect(rec.getByRole('rowheader', { name: 'AS3333' })).toBeVisible()
+    await expect(rec.getByTitle('ROA max length')).toHaveText('max /21')
+    await expect(rec).toContainText('Everything looks good')
+    await expect(page.getByRole('region', { name: 'Findings' })).toContainText('no issues')
+    // The same data in the table view, with every original column.
+    await page.getByRole('button', { name: 'Table', exact: true }).click()
+    await expect(page).toHaveURL(/view=table/)
     const t = table(page, /Directly overlapping prefixes of 193\.0\.0\.0\/21/)
     for (const col of ['Prefix', 'RIR', 'BGP', 'RPKI', 'RIPE', 'Advice']) {
       await expect(t.getByRole('columnheader', { name: col, exact: true })).toBeVisible()
     }
     const row = t.getByRole('row').filter({ hasText: '193.0.0.0/21' })
-    await expect(row).toContainText('RIPE NCC')
-    await expect(row).toContainText('3333')
     await expect(row.getByRole('listitem').filter({ hasText: '/21' })).toHaveText(/3333.*\/21/)
-    await expect(row).toContainText('Everything looks good')
     await expect(page.getByText(/Seen by \d+ of \d+ RIPE RIS full-feed peers/)).toBeVisible()
     await expect(page.getByRole('link', { name: 'Source data as JSON' }).first()).toHaveAttribute(
       'href',
@@ -98,8 +136,9 @@ test.describe('prefix view', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Report for prefix 2001:67c:2e8::/48',
     )
-    const t = table(page, /Directly overlapping prefixes/)
-    await expect(t.getByRole('row').filter({ hasText: '2001:67c:2e8::/48' })).toContainText('3333')
+    await expect(record(page, /Directly overlapping prefixes/, '2001:67c:2e8::/48')).toContainText(
+      'AS3333',
+    )
     await themes(page, 'prefix-v6')
   })
 
@@ -107,10 +146,9 @@ test.describe('prefix view', () => {
     await page.goto('/prefix/193.0.0.1')
     await hydrated(page)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Report for prefix 193.0.0.1')
-    await expect(
-      page.getByText('Most specific announced prefix covering this address:'),
-    ).toBeVisible()
-    await expect(page.getByRole('link', { name: '193.0.0.0/21' }).first()).toBeVisible()
+    const facts = page.getByRole('definition').filter({ hasText: '193.0.0.0/21' })
+    await expect(page.getByText('Covering route', { exact: true })).toBeVisible()
+    await expect(facts.getByRole('link', { name: '193.0.0.0/21' })).toBeVisible()
     await expect(
       page.getByRole('heading', { name: /All overlaps of least specific match/ }),
     ).toBeVisible()
@@ -120,21 +158,25 @@ test.describe('prefix view', () => {
   test('8.8.8.0/24: expected IRR warning, least specific table, filters', async ({ page }) => {
     await page.goto('/prefix/8.8.8.0/24')
     await hydrated(page)
-    const t1 = table(page, /Directly overlapping prefixes of 8\.8\.8\.0\/24/)
-    const row = t1.getByRole('row').filter({ hasText: '8.8.8.0/24' })
-    await expect(row).toContainText('ARIN')
-    await expect(row).toContainText('Expected route object in ARIN, but only found in other IRRs')
-    await expect(t1.getByRole('columnheader', { name: 'RADB', exact: true })).toBeVisible()
+    const rec = record(page, /Directly overlapping prefixes of 8\.8\.8\.0\/24/, '8.8.8.0/24')
+    await expect(rec).toContainText('ARIN')
+    await expect(rec).toContainText('Expected route object in ARIN, but only found in other IRRs')
+    await expect(rec.getByRole('columnheader', { name: 'RADB', exact: true })).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Findings' })).toContainText(
+      'Expected route object in ARIN',
+    )
     await expect(
       page.getByRole('heading', { name: 'All overlaps of least specific match 8.0.0.0/9' }),
     ).toBeVisible()
 
-    // Show only error/warning hides OK and info-only rows, and lives in the URL.
-    await page.getByLabel('Show only error/warning').check()
+    // Errors + warnings hides OK and info-only rows, and lives in the URL.
+    await page.getByRole('button', { name: 'Errors + warnings' }).click()
     await expect(page).toHaveURL(/issues=true/)
-    // Reduced colour mode adds the status column.
-    await page.getByLabel('Reduced colour mode').check()
+    // Reduced colour mode adds the status column to the table view.
+    await page.getByLabel('Reduced colour').check()
     await expect(page).toHaveURL(/reduced=true/)
+    await page.getByRole('button', { name: 'Table', exact: true }).click()
+    const t1 = table(page, /Directly overlapping prefixes of 8\.8\.8\.0\/24/)
     await expect(t1.getByRole('columnheader', { name: 'Status' })).toHaveCount(1)
     // Text filter.
     await page.getByLabel('Filter', { exact: true }).fill('15169')
@@ -145,8 +187,17 @@ test.describe('prefix view', () => {
     await themes(page, 'prefix-8.8.8.0_24-filtered')
   })
 
-  test('sorting by column toggles direction and is shareable', async ({ page }) => {
+  test('record order is shareable', async ({ page }) => {
     await page.goto('/prefix/8.8.8.0/24')
+    await hydrated(page)
+    const region = page.getByRole('region', { name: /All overlaps of least specific/ })
+    await region.getByRole('button', { name: 'Address' }).click()
+    await expect(page).toHaveURL(/sort2=prefix/)
+    await expect(region.getByRole('article').first()).toHaveAccessibleName('8.0.0.0/9')
+  })
+
+  test('sorting by column toggles direction and is shareable', async ({ page }) => {
+    await page.goto('/prefix/8.8.8.0/24?view=table')
     await hydrated(page)
     const t1 = table(page, /Directly overlapping prefixes/)
     await t1.getByRole('button', { name: 'BGP' }).click()
@@ -166,11 +217,11 @@ test.describe('prefix view', () => {
   })
 
   test('column visibility can hide a column', async ({ page }) => {
-    await page.goto('/prefix/193.0.0.0/21')
+    await page.goto('/prefix/193.0.0.0/21?view=table')
     await hydrated(page)
     const region = page.getByRole('region', { name: /Directly overlapping/ })
-    await region.getByText('Columns', { exact: true }).click()
-    await region.getByRole('checkbox', { name: 'RIR' }).uncheck()
+    await page.getByText('Columns', { exact: true }).click()
+    await page.getByRole('checkbox', { name: 'RIR' }).uncheck()
     await expect(page).toHaveURL(/hide=/)
     await expect(region.getByRole('columnheader', { name: 'RIR', exact: true })).toHaveCount(0)
   })
@@ -178,11 +229,13 @@ test.describe('prefix view', () => {
   test('RPKI-invalid route object is struck through and flagged', async ({ page }) => {
     await page.goto('/prefix/137.17.80.0/24')
     await hydrated(page)
-    const row = table(page, /Directly overlapping/)
-      .getByRole('row')
-      .filter({ hasText: /^137\.17\.80\.0\/24/ })
-    await expect(row).toContainText('RPKI-invalid route objects found')
-    await expect(row.locator('button.line-through').first()).toBeVisible()
+    const rec = record(page, /Directly overlapping/, '137.17.80.0/24')
+    await expect(rec).toContainText('RPKI-invalid route objects found')
+    await expect(rec.locator('button.line-through').first()).toBeVisible()
+    await expect(rec).toContainText('invalid len')
+    await expect(page.getByRole('region', { name: 'Address space' })).toContainText(
+      'inside 137.17.0.0/16',
+    )
     await themes(page, 'prefix-rpki-invalid')
   })
 
@@ -211,20 +264,22 @@ test.describe('prefix view', () => {
     await expect(region.getByText(/^\d+ prefixes$/)).toBeVisible()
     const count = Number((await region.getByText(/^\d+ prefixes$/).textContent())?.split(' ')[0])
     expect(count).toBeGreaterThan(250)
-    const rendered = await region.locator('tbody tr[data-index]').count()
+    const rendered = await region.locator('[data-index]').count()
     expect(rendered).toBeLessThan(count)
-    // Rows are measured as they render, so the footer moves; keep scrolling until it settles.
-    const footer = region.getByText(/^\d+ prefixes$/)
-    const last = region.locator(`tbody tr[data-index="${count - 1}"]`)
+    // Records are measured as they render, so the page grows; keep scrolling until it settles.
+    const last = region.locator(`[data-index="${count - 1}"]`)
     await expect(async () => {
-      await footer.scrollIntoViewIfNeeded()
+      await region.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        window.scrollTo(0, window.scrollY + r.bottom - window.innerHeight + 10)
+      })
       await expect(last).toBeInViewport({ timeout: 500 })
-    }).toPass({ timeout: 20_000 })
+    }).toPass({ timeout: 30_000 })
   })
 
   test('table header stays visible while scrolling on desktop', async ({ page, isMobile }) => {
     test.skip(isMobile, 'tables scroll sideways on small screens instead')
-    await page.goto('/prefix/8.0.0.0/12')
+    await page.goto('/prefix/8.0.0.0/12?view=table')
     await hydrated(page)
     const region = page.getByRole('region', { name: /Directly overlapping/ })
     // Wheel step sizes differ per browser, so set the position directly.
@@ -248,9 +303,9 @@ test.describe('prefix view', () => {
   test('whois dialog shows the route object', async ({ page }) => {
     await page.goto('/prefix/193.0.0.0/21')
     await hydrated(page)
-    const t = table(page, /Directly overlapping/)
-    await t.getByRole('button', { name: /3333.*route object in RIPE/ }).click()
-    const dialog = page.getByRole('dialog', { name: 'AS3333 / 193.0.0.0/21' })
+    const rec = record(page, /Directly overlapping/, '193.0.0.0/21')
+    await rec.getByRole('button', { name: /Show route object/ }).click()
+    const dialog = page.getByRole('dialog', { name: 'RIPE AS3333 / 193.0.0.0/21' })
     await expect(dialog).toBeVisible()
     await expect(dialog.getByText('whois -h whois.ripe.net 193.0.0.0/21')).toBeVisible()
     await expect(dialog.locator('pre')).toContainText('route:')
@@ -280,10 +335,10 @@ test.describe('ASN view', () => {
     await expect(page).toHaveTitle('IRR Explorer NG: AS3333')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Report for ASN AS3333')
     await expect(page.getByText(/RIPE NCC/).first()).toBeVisible()
-    const direct = table(page, /Prefixes originated by AS3333/)
-    await expect(direct.getByRole('row').filter({ hasText: '193.0.0.0/21' })).toContainText(
+    await expect(record(page, /Prefixes originated by AS3333/, '193.0.0.0/21')).toContainText(
       'Everything looks good',
     )
+    await expect(page.getByLabel('ASN facts')).toContainText('Announced')
     await expect(
       page.getByRole('heading', {
         name: 'Other prefixes overlapping with prefixes originated by AS3333',
@@ -338,12 +393,18 @@ test.describe('set views', () => {
     await hydrated(page)
     await expect(page).toHaveTitle('IRR Explorer NG: AS-RIPENCC')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Report for as-set AS-RIPENCC')
-    const t = page.getByRole('region', { name: 'Expands to:' }).getByRole('table')
+    const region = page.getByRole('region', { name: 'Expands to:' })
+    const tree = region.getByRole('list', { name: 'Expansion tree of AS-RIPENCC' })
+    await expect(tree.getByRole('link', { name: 'AS3333' })).toHaveAttribute('href', '/asn/AS3333')
+    await expect(page.getByRole('region', { name: 'Flattened members' })).toContainText('AS3333')
+    // The original path table is one click away.
+    await region.getByRole('button', { name: 'Paths' }).click()
+    await expect(page).toHaveURL(/layout=table/)
+    const t = region.getByRole('table')
     for (const col of ['Name', 'Source', 'Depth', 'Path', 'Members']) {
       await expect(t.getByRole('columnheader', { name: col })).toBeVisible()
     }
     await expect(t.getByRole('row').nth(1)).toContainText('AS3333')
-    await expect(t.getByRole('link', { name: 'AS3333' })).toHaveAttribute('href', '/asn/AS3333')
     await expect(
       page.getByText('Expansion depth is limited beyond 50 total as-sets.'),
     ).toBeVisible()
@@ -356,12 +417,14 @@ test.describe('set views', () => {
   test('AS-BIT flags loops and missing member sets', async ({ page }) => {
     await page.goto('/as-set/AS-BIT')
     await hydrated(page)
-    await expect(page.getByText(/\d+ loops? detected/)).toBeVisible()
-    await expect(page.getByText(/\d+ missing member sets?/)).toBeVisible()
-    await page.getByLabel('Show only rows with loops or missing sets').check()
+    const facts = page.getByLabel('Expansion facts')
+    await expect(facts).toContainText(/Loops\s*[1-9]/)
+    await expect(facts).toContainText(/Missing sets\s*[1-9]/)
+    await page.getByRole('button', { name: 'Loops + missing' }).click()
     await expect(page).toHaveURL(/problems=true/)
-    const t = page.getByRole('region', { name: 'Expands to:' }).getByRole('table')
-    await expect(t.getByText('loop').first()).toBeVisible()
+    const tree = page.getByRole('list', { name: 'Expansion tree of AS-BIT' })
+    await expect(tree.getByText('loop', { exact: true }).first()).toBeVisible()
+    await expect(tree.getByText('not found', { exact: true }).first()).toBeVisible()
     await themes(page, 'as-set-AS-BIT-problems')
   })
 
@@ -379,7 +442,7 @@ test.describe('set views', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Report for route-set RS-KROOT',
     )
-    const t = page.getByRole('region', { name: 'Expands to:' }).getByRole('table')
+    const t = page.getByRole('region', { name: 'Expands to:' })
     await expect(t.getByRole('link', { name: '193.0.14.0/23' })).toHaveAttribute(
       'href',
       '/prefix/193.0.14.0/23',

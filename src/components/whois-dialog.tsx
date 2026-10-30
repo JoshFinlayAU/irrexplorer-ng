@@ -3,7 +3,6 @@ import { useEffect, useRef } from 'react'
 import { rpslObjectQuery } from '~/lib/queries'
 import type { RpkiValidity } from '~/lib/analysis/types'
 import { describeValidity } from '~/lib/analysis/rpki'
-import { badgeClass } from './status'
 import { ExternalIcon } from './icons'
 
 export interface WhoisTarget {
@@ -80,44 +79,56 @@ export function WhoisDialog({ target, onClose }: { target: WhoisTarget; onClose:
       ref={ref}
       onClose={onClose}
       aria-labelledby="whois-title"
-      className="surface m-auto w-[min(48rem,calc(100vw-2rem))] rounded-lg p-0 text-[var(--text)] backdrop:bg-black/50"
+      className="m-auto w-[min(52rem,calc(100vw-2rem))] border border-[var(--rule-strong)] bg-[var(--panel)] p-0 text-[var(--text)] backdrop:bg-black/60"
     >
-      <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
-        <h2 id="whois-title" className="font-mono text-base font-semibold">
-          {title}
-        </h2>
-        <button
-          type="button"
-          onClick={() => ref.current?.close()}
-          className="rounded-md px-2 py-1 text-[var(--muted)] hover:bg-[var(--surface-2)]"
+      <div className="flex items-center justify-between gap-4 border-b border-[var(--rule)] px-4 py-2.5">
+        <h2
+          id="whois-title"
+          className="flex items-baseline gap-3 font-mono text-[0.95rem] font-semibold"
         >
+          <span className="label">{target.source}</span> {title}
+        </h2>
+        <button type="button" onClick={() => ref.current?.close()} className="control">
           Close
         </button>
       </div>
-      <div className="flex flex-col gap-3 px-4 py-4 text-sm">
+      <div className="flex flex-col gap-3 px-4 py-4 text-[0.88rem]">
         <p>
           Route object in <strong>{target.source}</strong>. {describeValidity(target.rpki)}.
         </p>
         {target.rpki.state === 'invalid' ? (
-          <p role="alert" className={`rounded-md px-3 py-2 ${badgeClass.warning}`}>
+          <p
+            role="alert"
+            className="border-l-[3px] border-[var(--warning-fg)] bg-[var(--warning-tint)] px-3 py-2 text-[var(--warning-fg)]"
+          >
             This route object is RPKI-invalid, and may be filtered out of whois query output by
             default.
           </p>
         ) : null}
         {command ? (
-          <code className="rounded bg-[var(--surface-2)] px-2 py-1 font-mono">{command}</code>
+          <code className="block border border-[var(--rule)] bg-[var(--sunk)] px-3 py-1.5 font-mono text-[0.8rem]">
+            <span aria-hidden="true" className="text-[var(--faint)]">
+              ${' '}
+            </span>
+            {command}
+          </code>
         ) : null}
         {query.isPending ? (
-          <p role="status">Loading object…</p>
+          <p role="status" className="font-mono text-[0.8rem] text-[var(--muted)]">
+            Loading object_
+          </p>
         ) : query.data?.ok === false ? (
-          <p role="alert" className={`rounded-md px-3 py-2 ${badgeClass.danger}`}>
+          <p
+            role="alert"
+            className="border-l-[3px] border-[var(--danger-fg)] bg-[var(--danger-tint)] px-3 py-2 text-[var(--danger-fg)]"
+          >
             Could not load the object from IRRd: {query.data.error}
           </p>
         ) : query.data?.ok && query.data.text ? (
           <pre
             tabIndex={0}
             aria-label="RPSL object text"
-            className="max-h-[50vh] overflow-auto rounded-md bg-[#11151a] p-3 font-mono text-xs leading-relaxed text-[#e6e9ed]"
+            className="max-h-[50vh] overflow-auto border border-[var(--rule)] bg-[var(--bg)] p-3 font-mono text-[0.78rem] leading-relaxed"
           >
             {query.data.text}
           </pre>

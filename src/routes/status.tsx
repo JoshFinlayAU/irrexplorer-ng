@@ -1,7 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Pending } from '~/components/route-states'
-import { badgeClass } from '~/components/status'
+import { SeverityTag } from '~/components/status'
+import { SectionHead } from '~/components/ui'
 import { Timestamp } from '~/components/time'
 import { statusQuery } from '~/lib/queries'
 
@@ -34,26 +35,27 @@ const UPSTREAM_LABEL: Record<string, string> = {
 function StatusPage() {
   const { data } = useSuspenseQuery(statusQuery())
   return (
-    <div className="max-w-4xl">
-      <h1 className="mb-2 text-2xl font-semibold">Data status</h1>
-      <p className="mb-6 text-[var(--muted)]">
+    <div className="max-w-5xl">
+      <p className="label mb-1">sources</p>
+      <h1 className="mb-2 text-[2rem] font-semibold tracking-tight">Data status</h1>
+      <p className="mb-8 text-[var(--muted)]">
         This page shows the last update times for all IRR Explorer data sources.
       </p>
 
-      <h2 className="mb-2 text-lg font-semibold">Bulk datasets</h2>
-      <p className="mb-2 text-sm text-[var(--muted)]">
+      <SectionHead title="Bulk datasets" />
+      <p className="mb-3 max-w-[75ch] text-sm text-[var(--muted)]">
         Downloaded on a schedule and held in memory. The time is when IRR Explorer last loaded the
         data, not when the source published it.
       </p>
-      <div className="surface mb-8 overflow-x-auto rounded-md">
-        <table className="w-full border-collapse text-sm">
-          <thead className="bg-[var(--surface-2)]">
+      <div className="mb-10 overflow-x-auto border border-[var(--rule)] bg-[var(--panel)]">
+        <table className="w-full border-collapse font-mono text-[0.8rem]">
+          <thead className="bg-[var(--sunk)]">
             <tr>
               {['Source', 'Last update', 'Rows', 'State'].map((h) => (
                 <th
                   key={h}
                   scope="col"
-                  className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold"
+                  className="label border-b border-[var(--rule-strong)] px-3 py-2 text-left"
                 >
                   {h}
                 </th>
@@ -64,7 +66,7 @@ function StatusPage() {
             {data.datasets.map((d) => {
               const info = DATASET_INFO[d.name]
               return (
-                <tr key={d.name} className="border-b border-[var(--border)] last:border-b-0">
+                <tr key={d.name} className="border-b border-[var(--rule)] last:border-b-0">
                   <td className="px-3 py-2">
                     {info ? <a href={info.href}>{info.label}</a> : d.name}
                   </td>
@@ -76,17 +78,16 @@ function StatusPage() {
                   </td>
                   <td className="px-3 py-2">
                     {d.lastError ? (
-                      <span className={`rounded px-1.5 py-0.5 ${badgeClass.danger}`}>
-                        Error: {d.lastError}
+                      <span className="inline-flex items-baseline gap-2">
+                        <SeverityTag category="danger" />
+                        <span className="text-[var(--danger-fg)]">Error: {d.lastError}</span>
                       </span>
                     ) : d.loading ? (
-                      <span className={`rounded px-1.5 py-0.5 ${badgeClass.info}`}>Loading</span>
+                      <span className="text-[var(--info-fg)]">Loading</span>
                     ) : d.loadedAt ? (
-                      <span className={`rounded px-1.5 py-0.5 ${badgeClass.success}`}>OK</span>
+                      <SeverityTag category="success" />
                     ) : (
-                      <span className={`rounded px-1.5 py-0.5 ${badgeClass.warning}`}>
-                        Not loaded
-                      </span>
+                      <span className="text-[var(--warning-fg)]">Not loaded</span>
                     )}
                   </td>
                 </tr>
@@ -96,23 +97,23 @@ function StatusPage() {
         </table>
       </div>
 
-      <h2 className="mb-2 text-lg font-semibold">IRR sources</h2>
-      <p className="mb-2 text-sm text-[var(--muted)]">
+      <SectionHead title="IRR sources" />
+      <p className="mb-3 max-w-[75ch] text-sm text-[var(--muted)]">
         IRRs mirrored by <a href="https://irrd.readthedocs.io/en/stable/">IRRd v4</a> and queried
         live. The last update is when IRRd last processed a change for the source, not when it last
         checked, so rarely changing sources can look old. The RPKI source is IRRd&apos;s import of
         validated ROAs, which IRR Explorer uses for every RPKI column and check.
       </p>
       {data.irr ? (
-        <div className="surface mb-8 overflow-x-auto rounded-md">
-          <table className="w-full border-collapse text-sm">
-            <thead className="bg-[var(--surface-2)]">
+        <div className="mb-10 overflow-x-auto border border-[var(--rule)] bg-[var(--panel)]">
+          <table className="w-full border-collapse font-mono text-[0.8rem]">
+            <thead className="bg-[var(--sunk)]">
               <tr>
                 {['Source', 'Last update', 'Authoritative'].map((h) => (
                   <th
                     key={h}
                     scope="col"
-                    className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold"
+                    className="label border-b border-[var(--rule-strong)] px-3 py-2 text-left"
                   >
                     {h}
                   </th>
@@ -121,7 +122,7 @@ function StatusPage() {
             </thead>
             <tbody>
               {data.irr.map((s) => (
-                <tr key={s.source} className="border-b border-[var(--border)] last:border-b-0">
+                <tr key={s.source} className="border-b border-[var(--rule)] last:border-b-0">
                   <td className="px-3 py-2 font-mono">{s.source}</td>
                   <td className="px-3 py-2">
                     <Timestamp iso={s.lastUpdate} />
@@ -133,24 +134,27 @@ function StatusPage() {
           </table>
         </div>
       ) : (
-        <p role="alert" className={`mb-8 rounded-md px-3 py-2 text-sm ${badgeClass.danger}`}>
+        <p
+          role="alert"
+          className="mb-10 border border-[var(--rule-strong)] bg-[var(--panel)] px-3 py-2 text-sm text-[var(--danger-fg)]"
+        >
           IRRd unavailable: {data.irrError}
         </p>
       )}
 
-      <h2 className="mb-2 text-lg font-semibold">Upstream calls</h2>
-      <p className="mb-2 text-sm text-[var(--muted)]">
+      <SectionHead title="Upstream calls" />
+      <p className="mb-3 max-w-[75ch] text-sm text-[var(--muted)]">
         The last successful and failed call this server made to each upstream, from real traffic.
       </p>
-      <div className="surface mb-8 overflow-x-auto rounded-md">
-        <table className="w-full border-collapse text-sm">
-          <thead className="bg-[var(--surface-2)]">
+      <div className="mb-10 overflow-x-auto border border-[var(--rule)] bg-[var(--panel)]">
+        <table className="w-full border-collapse font-mono text-[0.8rem]">
+          <thead className="bg-[var(--sunk)]">
             <tr>
               {['Upstream', 'Last success', 'Last failure', 'Last error'].map((h) => (
                 <th
                   key={h}
                   scope="col"
-                  className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold"
+                  className="label border-b border-[var(--rule-strong)] px-3 py-2 text-left"
                 >
                   {h}
                 </th>
@@ -159,7 +163,7 @@ function StatusPage() {
           </thead>
           <tbody>
             {Object.entries(data.health).map(([name, h]) => (
-              <tr key={name} className="border-b border-[var(--border)] last:border-b-0">
+              <tr key={name} className="border-b border-[var(--rule)] last:border-b-0">
                 <td className="px-3 py-2">{UPSTREAM_LABEL[name] ?? name}</td>
                 <td className="px-3 py-2">
                   <Timestamp iso={h.lastSuccess} />
@@ -173,8 +177,10 @@ function StatusPage() {
           </tbody>
         </table>
       </div>
-      <p className="text-right text-xs">
-        <a href="/api/metadata/">Source data as JSON</a>
+      <p className="text-right">
+        <a href="/api/metadata/" className="label">
+          Source data as JSON
+        </a>
       </p>
     </div>
   )

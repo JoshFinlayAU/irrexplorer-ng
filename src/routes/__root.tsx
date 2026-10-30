@@ -54,33 +54,30 @@ function RootLayout() {
     <div className="flex min-h-screen flex-col">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-[var(--surface)] focus:px-3 focus:py-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-[var(--panel)] focus:px-3 focus:py-2"
       >
         Skip to content
       </a>
-      <header className="border-b border-[var(--border)] bg-[var(--surface)]">
-        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5">
-          <Link
-            to="/"
-            className="flex items-center gap-2 font-semibold text-[var(--text)] hover:no-underline"
-          >
+      <header className="border-b border-[var(--rule)]">
+        <div className="mx-auto flex max-w-[1680px] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2 sm:px-6">
+          <Link to="/" className="flex items-center gap-2.5 no-underline">
             <Logo />
-            <span>
-              IRR Explorer <span className="text-[var(--accent)]">NG</span>
+            <span className="font-mono text-[0.95rem] font-semibold tracking-tight">
+              irrexplorer<span className="text-[var(--faint)]">/ng</span>
             </span>
           </Link>
           {isHome ? (
             <div className="flex-1" />
           ) : (
-            <div className="order-last w-full sm:order-none sm:w-auto sm:max-w-xl sm:flex-1">
+            <div className="order-last w-full sm:order-none sm:w-auto sm:max-w-2xl sm:flex-1">
               <SearchForm />
             </div>
           )}
-          <nav aria-label="Main" className="ml-auto flex items-center gap-1 text-sm">
+          <nav aria-label="Main" className="ml-auto flex items-center gap-4">
             <Link
               to="/status"
-              className="rounded-md px-2 py-1.5 text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)] hover:no-underline"
-              activeProps={{ className: 'text-[var(--text)] font-medium', 'aria-current': 'page' }}
+              className="label no-underline hover:text-[var(--text)]"
+              activeProps={{ className: '!text-[var(--text)]', 'aria-current': 'page' }}
             >
               Data status
             </Link>
@@ -88,30 +85,32 @@ function RootLayout() {
           </nav>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-6">
+      <main id="main" className="mx-auto w-full max-w-[1680px] flex-1 px-4 py-6 sm:px-6">
         <Outlet />
       </main>
-      <footer className="border-t border-[var(--border)] py-4 text-center text-xs text-[var(--muted)]">
-        IRR Explorer NG by Athena Networks. Based on{' '}
-        <a href="https://github.com/nlnog/irrexplorer">IRR explorer</a> by DashCare BV for Stichting
-        NLNOG. Data from IRRd, bgp.tools, RIPE RIS, the RIRs and RPKI.
+      <footer className="border-t border-[var(--rule)]">
+        <div className="mx-auto flex max-w-[1680px] flex-wrap justify-between gap-x-6 gap-y-1 px-4 py-3 font-mono text-[0.7rem] text-[var(--muted)] sm:px-6">
+          <span>
+            IRR Explorer NG, Athena Networks. Based on{' '}
+            <a href="https://github.com/nlnog/irrexplorer">IRR explorer</a> by DashCare BV for
+            Stichting NLNOG.
+          </span>
+          <span>Data from IRRd, bgp.tools, RIPE RIS, the RIRs and RPKI.</span>
+        </div>
       </footer>
     </div>
   )
 }
 
+/** Three nested prefixes, as drawn in the address map. */
 function Logo() {
   return (
-    <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
-      <rect width="32" height="32" rx="7" fill="var(--accent)" />
-      <path
-        d="M8 22V10m0 0h5a3.5 3.5 0 010 7H8m5 0l4 5m3-12h4m-2 0v12m-2 0h4"
-        stroke="var(--accent-contrast)"
-        strokeWidth="2.2"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <rect x="1" y="3" width="22" height="5" fill="var(--text)" />
+      <rect x="1" y="10" width="10" height="5" fill="var(--text)" />
+      <rect x="13" y="10" width="10" height="5" fill="var(--rule-strong)" />
+      <rect x="1" y="17" width="4.5" height="5" fill="var(--text)" />
+      <rect x="6.5" y="17" width="4.5" height="5" fill="var(--danger-fg)" />
     </svg>
   )
 }

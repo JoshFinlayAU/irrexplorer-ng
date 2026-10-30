@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { Pending } from '~/components/route-states'
+import { InvalidQuery, Pending } from '~/components/route-states'
 import { SetPage } from '~/components/set-page'
 import { classifyQuery, setType } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
@@ -42,6 +42,7 @@ function Page() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const state = {
+    layout: search.layout ?? ('tree' as const),
     sort: parseSort(search.sort, 'depth'),
     filter: search.filter ?? '',
     problems: !!search.problems,
@@ -49,6 +50,12 @@ function Page() {
   const update = (next: Partial<typeof state>) =>
     void navigate({
       search: (prev) => ({
+        layout:
+          next.layout !== undefined
+            ? next.layout === 'tree'
+              ? undefined
+              : next.layout
+            : prev.layout,
         sort: next.sort ? formatSort(next.sort) : prev.sort,
         filter: next.filter !== undefined ? next.filter || undefined : prev.filter,
         problems: next.problems !== undefined ? next.problems || undefined : prev.problems,
@@ -56,15 +63,6 @@ function Page() {
       replace: true,
       resetScroll: false,
     })
-  if (!name) {
-    return (
-      <div className="py-8">
-        <h1 className="mb-2 text-2xl font-semibold">Not a valid set name</h1>
-        <p role="alert" className="text-[var(--danger-fg)]">
-          <span className="font-mono">{raw}</span>: {error}
-        </p>
-      </div>
-    )
-  }
+  if (!name) return <InvalidQuery what="set name" raw={raw} error={error} />
   return <SetPage name={name} category="route-set" state={state} onChange={update} />
 }

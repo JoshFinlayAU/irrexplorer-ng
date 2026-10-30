@@ -1,31 +1,28 @@
+// The table view: the original IRR Explorer grid (one column per IRR source),
+// for engineers who want everything on one dense screen. Rows arrive already
+// filtered; sorting is driven by the URL like the record view.
 import {
-  columnFilteringFeature,
   columnVisibilityFeature,
   createColumnHelper,
-  createFilteredRowModel,
   createSortedRowModel,
-  globalFilteringFeature,
   rowSortingFeature,
   tableFeatures,
   useTable,
   type SortingState,
 } from '@tanstack/react-table'
 import { Link } from '@tanstack/react-router'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo } from 'react'
 import { VirtualRows } from './virtual-rows'
-import { parsePrefix, prefixSortKey } from '~/lib/ip'
 import { lookingGlassUrl } from '~/lib/links'
+import { comparator, sourcesOf } from '~/lib/report-rows'
 import type { IrrRoute, PrefixSummary } from '~/lib/analysis/types'
-import { CaretRightIcon, SortIcon } from './icons'
-import { CategoryIcon, MessageList, RpkiMark, rowClass } from './status'
-import { WhoisDialog, type WhoisTarget } from './whois-dialog'
+import { SortIcon } from './icons'
+import { CategoryIcon, MessageList, RpkiMark, edgeClass } from './status'
+import type { WhoisTarget } from './whois-dialog'
 
 const features = tableFeatures({
   rowSortingFeature,
-  columnFilteringFeature,
-  globalFilteringFeature,
   columnVisibilityFeature,
-  filteredRowModel: createFilteredRowModel(),
   sortedRowModel: createSortedRowModel(),
 })
 
@@ -41,27 +38,6 @@ export function formatSort(state: SortingState): string | undefined {
   return s ? `${s.desc ? '-' : ''}${s.id}` : undefined
 }
 
-const firstOr = (list: number[], fallback = Number.POSITIVE_INFINITY) =>
-  list.length > 0 ? list[0]! : fallback
-// Sorting compares rows many times; parse each prefix once into a string key
-// that orders by family, address and length, plus its length.
-const sortKeys = new Map<string, { key: string; length: number }>()
-function keyOf(cidr: string) {
-  let k = sortKeys.get(cidr)
-  if (!k) {
-    if (sortKeys.size > 50_000) sortKeys.clear()
-    const p = parsePrefix(cidr)
-    k = p ? { key: prefixSortKey(p), length: p.length } : { key: `~${cidr}`, length: 0 }
-    sortKeys.set(cidr, k)
-  }
-  return k
-}
-const byAddress = (a: string, b: string) => {
-  const ka = keyOf(a).key
-  const kb = keyOf(b).key
-  return ka < kb ? -1 : ka > kb ? 1 : 0
-}
-
 function AsnText({ asn, names }: { asn: number; names: Record<string, string> }) {
   const name = names[asn]
   return (
@@ -71,30 +47,32 @@ function AsnText({ asn, names }: { asn: number; names: Record<string, string> })
   )
 }
 
-export interface PrefixTableProps {
+const sortWith = (id: string) => {
+  const cmp = comparator(id)
+  return (a: { original: PrefixSummary }, b: { original: PrefixSummary }) =>
+    cmp(a.original, b.original)
+}
+
+export function PrefixGrid({
+  id,
+  rows,
+  asNames,
+  sort,
+  onSortChange,
+  hidden,
+  reduced,
+  onWhois,
+}: {
   id: string
-  title: ReactNode
   rows: PrefixSummary[]
   asNames: Record<string, string>
   sort: SortingState
   onSortChange: (s: SortingState) => void
   hidden: string[]
-  onHiddenChange: (h: string[]) => void
   reduced: boolean
-  issuesOnly: boolean
-  filter: string
-  jsonHref: string
-  emptyText?: string
-}
-
-export function PrefixTable(props: PrefixTableProps) {
-  const { rows, asNames, reduced, issuesOnly, filter } = props
-  const [whois, setWhois] = useState<WhoisTarget | null>(null)
-
-  const sources = useMemo(
-    () => [...new Set(rows.flatMap((r) => Object.keys(r.irrRoutes)))].sort(),
-    [rows],
-  )
+  onWhois: (t: WhoisTarget) => void
+}) {
+  const sources = useMemo(() => sourcesOf(rows), [rows])
 
   const columns = useMemo(() => {
     const irrCell = (prefix: string, source: string, list: IrrRoute[] | undefined) =>
@@ -105,9 +83,9 @@ export function PrefixTable(props: PrefixTableProps) {
               <button
                 type="button"
                 onClick={() =>
-                  setWhois({ prefix, asn: r.asn, source, rpslPk: r.rpslPk, rpki: r.rpki })
+                  onWhois({ prefix, asn: r.asn, source, rpslPk: r.rpslPk, rpki: r.rpki })
                 }
-                className={`inline-flex items-center gap-0.5 text-[var(--accent)] hover:underline ${
+                className={`inline-flex items-center gap-0.5 underline decoration-[var(--rule-strong)] underline-offset-2 hover:decoration-current ${
                   r.rpki.state === 'invalid' ? 'line-through' : ''
                 }`}
               >
@@ -124,7 +102,7 @@ export function PrefixTable(props: PrefixTableProps) {
       helper.accessor('prefix', {
         id: 'prefix',
         header: 'Prefix',
-        sortFn: (a, b) => byAddress(a.original.prefix, b.original.prefix),
+        sortFn: sortWith('prefix'),
         cell: (info) => (
           <Link
             to="/prefix/$"
@@ -140,22 +118,18 @@ export function PrefixTable(props: PrefixTableProps) {
         id: 'specific',
         header: 'Most specific first',
         enableHiding: false,
-        sortFn: (a, b) =>
-          keyOf(b.original.prefix).length - keyOf(a.original.prefix).length ||
-          byAddress(a.original.prefix, b.original.prefix),
+        sortFn: sortWith('specific'),
       }),
       helper.accessor((r) => r.rir ?? '', {
         id: 'rir',
         header: 'RIR',
-        sortFn: (a, b) => (a.original.rir ?? '~').localeCompare(b.original.rir ?? '~'),
+        sortFn: sortWith('rir'),
         cell: (info) => <span className="whitespace-nowrap">{info.getValue()}</span>,
       }),
       helper.accessor((r) => r.bgpOrigins.map((o) => o.asn).join(' '), {
         id: 'bgp',
         header: 'BGP',
-        sortFn: (a, b) =>
-          firstOr(a.original.bgpOrigins.map((o) => o.asn)) -
-          firstOr(b.original.bgpOrigins.map((o) => o.asn)),
+        sortFn: sortWith('bgp'),
         cell: (info) => {
           const r = info.row.original
           if (r.bgpOrigins.length === 0) return null
@@ -180,19 +154,16 @@ export function PrefixTable(props: PrefixTableProps) {
       helper.accessor((r) => r.rpkiRoutes.map((o) => o.asn).join(' '), {
         id: 'rpki',
         header: 'RPKI',
-        sortFn: (a, b) =>
-          firstOr(a.original.rpkiRoutes.map((o) => o.asn)) -
-          firstOr(b.original.rpkiRoutes.map((o) => o.asn)),
+        sortFn: sortWith('rpki'),
         cell: (info) => (
           <ul className="flex flex-wrap gap-x-2 font-mono">
             {info.row.original.rpkiRoutes.map((roa) => (
-              <li
-                key={`${roa.asn}/${roa.maxLength}`}
-                className="inline-flex items-center whitespace-nowrap"
-              >
+              <li key={`${roa.asn}/${roa.maxLength}`} className="whitespace-nowrap">
                 <AsnText asn={roa.asn} names={asNames} />
-                <CaretRightIcon className="text-[var(--muted)]" title="max length" />/
-                {roa.maxLength}
+                <span className="text-[var(--muted)]" title="max length">
+                  {' '}
+                  /{roa.maxLength}
+                </span>
               </li>
             ))}
           </ul>
@@ -202,9 +173,7 @@ export function PrefixTable(props: PrefixTableProps) {
         helper.accessor((r) => (r.irrRoutes[source] ?? []).map((o) => o.asn).join(' '), {
           id: `irr:${source}`,
           header: source,
-          sortFn: (a, b) =>
-            firstOr((a.original.irrRoutes[source] ?? []).map((o) => o.asn)) -
-            firstOr((b.original.irrRoutes[source] ?? []).map((o) => o.asn)),
+          sortFn: sortWith(`irr:${source}`),
           cell: (info) =>
             irrCell(info.row.original.prefix, source, info.row.original.irrRoutes[source]),
         }),
@@ -213,201 +182,113 @@ export function PrefixTable(props: PrefixTableProps) {
         id: 'status',
         header: 'Status',
         enableSorting: false,
-        filterFn: (row, _id, value: string[]) => value.includes(row.original.categoryOverall),
         cell: (info) => <CategoryIcon category={info.getValue()} />,
       }),
       helper.accessor((r) => r.messages.map((m) => m.text).join(' '), {
         id: 'advice',
         header: 'Advice',
-        sortFn: (a, b) => a.original.goodnessOverall - b.original.goodnessOverall,
+        sortFn: sortWith('advice'),
         cell: (info) => <MessageList messages={info.row.original.messages} reduced={reduced} />,
       }),
     ])
-  }, [sources, asNames, reduced])
+  }, [sources, asNames, reduced, onWhois])
 
   const columnVisibility = useMemo(() => {
     const v: Record<string, boolean> = { specific: false, status: reduced }
-    for (const id of props.hidden) v[id] = false
+    for (const c of hidden) v[c] = false
     return v
-  }, [props.hidden, reduced])
-
-  const columnFilters = useMemo(
-    () => (issuesOnly ? [{ id: 'status', value: ['danger', 'warning'] }] : []),
-    [issuesOnly],
-  )
+  }, [hidden, reduced])
 
   const table = useTable({
     features,
     columns,
     data: rows,
-    state: { sorting: props.sort, columnVisibility, columnFilters, globalFilter: filter },
+    state: { sorting: sort, columnVisibility },
     onSortingChange: (updater) => {
-      props.onSortChange(typeof updater === 'function' ? updater(props.sort) : updater)
+      onSortChange(typeof updater === 'function' ? updater(sort) : updater)
     },
     enableSortingRemoval: false,
-    globalFilterFn: (row, _id, value: string) => {
-      const needle = value
-        .trim()
-        .toLowerCase()
-        .replace(/^as(?=\d)/, '')
-      if (!needle) return true
-      const r = row.original
-      const hay = [
-        r.prefix,
-        r.rir ?? '',
-        ...r.bgpOrigins.map((o) => String(o.asn)),
-        ...r.rpkiRoutes.map((o) => String(o.asn)),
-        ...Object.entries(r.irrRoutes).flatMap(([s, l]) => [s, ...l.map((o) => String(o.asn))]),
-        ...r.messages.map((m) => m.text),
-      ]
-      return hay.some((h) => h.toLowerCase().includes(needle))
-    },
   })
 
   const visibleRows = table.getRowModel().rows
-  const headerGroups = table.getHeaderGroups()
-  const hideable = table.getAllLeafColumns().filter((c) => c.id !== 'specific' && c.id !== 'status')
-  const specificFirst = props.sort[0]?.id === 'specific'
 
   return (
-    <section aria-labelledby={`${props.id}-title`} className="mb-8">
-      <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
-        <h2 id={`${props.id}-title`} className="text-lg font-semibold">
-          {props.title}
-        </h2>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <button
-            type="button"
-            aria-pressed={specificFirst}
-            onClick={() =>
-              props.onSortChange(
-                specificFirst ? [{ id: 'prefix', desc: false }] : [{ id: 'specific', desc: false }],
-              )
-            }
-            className="rounded-md border border-[var(--border)] px-2 py-1 hover:bg-[var(--surface-2)]"
-          >
-            Most specific first
-          </button>
-          <details className="relative">
-            <summary className="cursor-pointer list-none rounded-md border border-[var(--border)] px-2 py-1 hover:bg-[var(--surface-2)]">
-              Columns
-            </summary>
-            <fieldset className="surface absolute right-0 z-20 mt-1 flex min-w-44 flex-col gap-1 rounded-md p-2 shadow-lg">
-              <legend className="sr-only">Visible columns</legend>
-              {hideable.map((c) => (
-                <label key={c.id} className="flex items-center gap-2 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={c.getIsVisible()}
-                    onChange={(e) => {
-                      const next = new Set(props.hidden)
-                      if (e.target.checked) next.delete(c.id)
-                      else next.add(c.id)
-                      props.onHiddenChange([...next])
-                    }}
-                  />
-                  {typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id}
-                </label>
+    <div className="overflow-x-auto border border-[var(--rule)] bg-[var(--panel)] lg:overflow-visible">
+      <table className="w-full border-collapse text-[0.82rem]" aria-describedby={`${id}-count`}>
+        <thead className="z-10 bg-[var(--sunk)] lg:sticky lg:top-[47px]">
+          {table.getHeaderGroups().map((group) => (
+            <tr key={group.id}>
+              {group.headers.map((header) => {
+                const sorted = header.column.getIsSorted()
+                const label = <table.FlexRender header={header} />
+                return (
+                  <th
+                    key={header.id}
+                    scope="col"
+                    aria-sort={
+                      sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined
+                    }
+                    className="label border-b border-[var(--rule-strong)] px-3 py-2 text-left whitespace-nowrap"
+                  >
+                    {header.column.id === 'status' ? (
+                      <span className="sr-only">Status</span>
+                    ) : header.column.getCanSort() ? (
+                      <button
+                        type="button"
+                        onClick={header.column.getToggleSortingHandler()}
+                        className="inline-flex items-center gap-1 uppercase hover:text-[var(--text)]"
+                      >
+                        {label}
+                        <SortIcon dir={sorted} />
+                      </button>
+                    ) : (
+                      label
+                    )}
+                  </th>
+                )
+              })}
+            </tr>
+          ))}
+        </thead>
+        <VirtualRows
+          rows={visibleRows}
+          colSpan={visibleRows[0]?.getVisibleCells().length ?? 1}
+          estimateSize={52}
+          renderRow={(row, index, measure) => (
+            <tr
+              key={row.id}
+              data-index={index}
+              ref={measure}
+              className="border-b border-[var(--rule)] align-top last:border-b-0"
+            >
+              {row.getVisibleCells().map((cell, i) => (
+                <td
+                  key={cell.id}
+                  className={`px-3 py-2 ${
+                    i === 0
+                      ? `border-l-[3px] ${reduced ? 'border-l-[var(--rule-strong)]' : edgeClass[row.original.categoryOverall]}`
+                      : ''
+                  }`}
+                >
+                  <table.FlexRender cell={cell} />
+                </td>
               ))}
-            </fieldset>
-          </details>
-        </div>
-      </div>
-
-      {/* Scroll sideways on small screens; on large screens let the header stick to the page. */}
-      <div className="surface overflow-x-auto rounded-md lg:overflow-visible">
-        <table className="w-full border-collapse text-sm" aria-describedby={`${props.id}-count`}>
-          <thead className="sticky top-0 z-10 bg-[var(--surface-2)]">
-            {headerGroups.map((group) => (
-              <tr key={group.id}>
-                {group.headers.map((header) => {
-                  const sorted = header.column.getIsSorted()
-                  const canSort = header.column.getCanSort()
-                  const label = <table.FlexRender header={header} />
-                  return (
-                    <th
-                      key={header.id}
-                      scope="col"
-                      aria-sort={
-                        sorted === 'asc'
-                          ? 'ascending'
-                          : sorted === 'desc'
-                            ? 'descending'
-                            : undefined
-                      }
-                      className="border-b border-[var(--border)] px-3 py-2 text-left font-semibold whitespace-nowrap"
-                    >
-                      {header.column.id === 'status' ? (
-                        <span className="sr-only">Status</span>
-                      ) : canSort ? (
-                        <button
-                          type="button"
-                          onClick={header.column.getToggleSortingHandler()}
-                          className="inline-flex items-center gap-1 hover:text-[var(--accent)]"
-                        >
-                          {label}
-                          <SortIcon dir={sorted} />
-                        </button>
-                      ) : (
-                        label
-                      )}
-                    </th>
-                  )
-                })}
-              </tr>
-            ))}
-          </thead>
-          <Body table={table} rows={visibleRows} reduced={reduced} />
-        </table>
-        {visibleRows.length === 0 ? (
-          <p className="px-3 py-6 text-center text-[var(--muted)]">
-            {rows.length === 0
-              ? (props.emptyText ?? 'No prefixes were found.')
-              : issuesOnly && !filter
-                ? 'No records with an error or warning status.'
-                : 'No rows match the current filter.'}
-          </p>
-        ) : null}
-      </div>
-      <p
-        id={`${props.id}-count`}
-        className="mt-1.5 flex flex-wrap justify-between gap-2 text-xs text-[var(--muted)]"
-      >
-        <span>
-          {visibleRows.length === rows.length
-            ? `${rows.length} ${rows.length === 1 ? 'prefix' : 'prefixes'}`
-            : `${visibleRows.length} of ${rows.length} prefixes shown`}
-        </span>
-        <a href={props.jsonHref}>Source data as JSON</a>
-      </p>
-      {whois ? <WhoisDialog target={whois} onClose={() => setWhois(null)} /> : null}
-    </section>
+            </tr>
+          )}
+        />
+      </table>
+    </div>
   )
 }
 
-type AppTable = ReturnType<typeof useTable<typeof features, PrefixSummary>>
-type AppRow = ReturnType<AppTable['getRowModel']>['rows'][number]
-
-function Body({ table, rows, reduced }: { table: AppTable; rows: AppRow[]; reduced: boolean }) {
-  return (
-    <VirtualRows
-      rows={rows}
-      colSpan={rows[0]?.getVisibleCells().length ?? 1}
-      estimateSize={52}
-      renderRow={(row, index, measure) => (
-        <tr
-          key={row.id}
-          data-index={index}
-          ref={measure}
-          className={`border-b border-[var(--border)] align-top last:border-b-0 ${reduced ? '' : rowClass[row.original.categoryOverall]}`}
-        >
-          {row.getVisibleCells().map((cell) => (
-            <td key={cell.id} className="px-3 py-2">
-              <table.FlexRender cell={cell} />
-            </td>
-          ))}
-        </tr>
-      )}
-    />
-  )
+/** Hideable columns for the table view, for the column picker. */
+export function hideableColumns(rows: readonly PrefixSummary[]): { id: string; label: string }[] {
+  return [
+    { id: 'prefix', label: 'Prefix' },
+    { id: 'rir', label: 'RIR' },
+    { id: 'bgp', label: 'BGP' },
+    { id: 'rpki', label: 'RPKI' },
+    ...sourcesOf(rows).map((s) => ({ id: `irr:${s}`, label: s })),
+    { id: 'advice', label: 'Advice' },
+  ]
 }

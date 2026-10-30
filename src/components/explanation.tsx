@@ -61,33 +61,33 @@ const MESSAGES: [string, string][] = [
 
 export function Explanation() {
   return (
-    <div className="mb-6 flex flex-col gap-2 text-sm">
-      <details className="surface rounded-md">
-        <summary className="cursor-pointer px-4 py-2.5 font-medium">
+    <div className="mb-8 grid items-start gap-3 text-sm md:grid-cols-2">
+      <details className="border border-[var(--rule)] bg-[var(--panel)] open:md:col-span-2">
+        <summary className="label cursor-pointer px-3 py-2 hover:text-[var(--text)]">
           What does the prefix table show?
         </summary>
-        <div className="flex flex-col gap-2 border-t border-[var(--border)] px-4 py-3 leading-relaxed">
+        <div className="flex flex-col gap-2 border-t border-[var(--rule)] px-4 py-3 leading-relaxed">
           <p>
             The table with prefixes shows prefixes relating to your query. In some cases, there
             might be two tables: one with direct overlaps of your query, and a second with all
             overlaps of the least specific prefix found in the first table.
           </p>
           <dl className="grid gap-x-4 gap-y-1.5 sm:grid-cols-[10rem_1fr]">
-            <dt className="font-semibold">Prefix</dt>
+            <dt className="font-mono text-[0.8rem] font-medium">Prefix</dt>
             <dd>The prefix found in either BGP, RPKI or IRR.</dd>
-            <dt className="font-semibold">RIR</dt>
+            <dt className="font-mono text-[0.8rem] font-medium">RIR</dt>
             <dd>The RIR (or NIR) that allocated or assigned this prefix.</dd>
-            <dt className="font-semibold">BGP</dt>
+            <dt className="font-mono text-[0.8rem] font-medium">BGP</dt>
             <dd>
               The originating AS number(s) seen in the DFZ for this prefix, with the RPKI status of
               each origin. Links to the NLNOG RING looking glass.
             </dd>
-            <dt className="font-semibold">RPKI</dt>
+            <dt className="font-mono text-[0.8rem] font-medium">RPKI</dt>
             <dd>
               ASNs seen in RPKI ROAs for this exact prefix, along with the maximum prefix length in
               the ROA.
             </dd>
-            <dt className="font-semibold">Each IRR</dt>
+            <dt className="font-mono text-[0.8rem] font-medium">Each IRR</dt>
             <dd>
               The originating AS number(s) seen in route(6) objects in that IRR database. Select one
               to see the object. <ValidIcon className="inline text-[var(--success-fg)]" /> means
@@ -96,7 +96,7 @@ export function Explanation() {
               means the RPKI status could not be checked, and no icon means no covering ROA (not
               found).
             </dd>
-            <dt className="font-semibold">Advice</dt>
+            <dt className="font-mono text-[0.8rem] font-medium">Advice</dt>
             <dd>
               Information, warnings, and alerts about this prefix and its BGP, IRR and RPKI status.
               IRR Explorer makes a best effort at identifying possible misconfigurations, but do
@@ -111,15 +111,15 @@ export function Explanation() {
           </p>
         </div>
       </details>
-      <details className="surface rounded-md">
-        <summary className="cursor-pointer px-4 py-2.5 font-medium">
+      <details className="border border-[var(--rule)] bg-[var(--panel)] open:md:col-span-2">
+        <summary className="label cursor-pointer px-3 py-2 hover:text-[var(--text)]">
           Explanation of different messages
         </summary>
-        <div className="border-t border-[var(--border)] px-4 py-3 leading-relaxed">
+        <div className="border-t border-[var(--rule)] px-4 py-3 leading-relaxed">
           <dl className="flex flex-col gap-2">
             {MESSAGES.map(([title, body]) => (
               <div key={title}>
-                <dt className="font-semibold">{title}</dt>
+                <dt className="font-mono text-[0.8rem] font-medium">{title}</dt>
                 <dd className="text-[var(--muted)]">{body}</dd>
               </div>
             ))}

@@ -21,7 +21,7 @@ export function ThemeToggle() {
           // Storage can be blocked; the toggle still works for this page.
         }
       }}
-      className="rounded-md p-2 text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
+      className="flex h-8 w-8 items-center justify-center border border-[var(--rule)] text-[var(--muted)] hover:border-[var(--text)] hover:text-[var(--text)]"
     >
       <span className="sr-only">Toggle dark mode</span>
       <SunIcon className="hidden dark:block" />

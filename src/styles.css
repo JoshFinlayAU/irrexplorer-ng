@@ -1,59 +1,64 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/ibm-plex-sans';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: 'IBM Plex Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-/* Semantic colour tokens. Light values first, dark overrides below. Status
-   colours meet WCAG AA contrast for text on their tinted backgrounds. */
+/* The interface is monochrome ink on paper. Colour is reserved for state
+   (error, warning, info, ok, RPKI validity), so anything coloured means
+   something. Status colours meet WCAG AA on --bg and on their tints. */
 :root {
-  --bg: #f7f8fa;
-  --surface: #ffffff;
-  --surface-2: #f0f2f5;
-  --border: #d9dde3;
-  --text: #16191d;
-  --muted: #555d68;
-  --accent: #0b5cad;
-  --accent-contrast: #ffffff;
-  --danger-bg: #fde8e8;
-  --danger-fg: #9b1c1c;
-  --danger-row: #fdf2f2;
-  --warning-bg: #fdf3d3;
-  --warning-fg: #7a4d00;
-  --warning-row: #fffaeb;
-  --info-bg: #e1effe;
-  --info-fg: #1a4f8a;
-  --info-row: #f2f8ff;
-  --success-bg: #def7ec;
-  --success-fg: #03543f;
-  --success-row: #f3faf7;
+  --bg: #f2f1ec;
+  --panel: #fbfaf6;
+  --sunk: #e9e7e0;
+  --rule: #d6d3ca;
+  --rule-strong: #a9a59a;
+  --text: #121413;
+  --muted: #545852;
+  --faint: #61655e;
+  --invert-bg: #121413;
+  --invert-text: #f2f1ec;
+  --hl: #fff3b0;
+
+  --danger-fg: #b0201a;
+  --danger-tint: #f7e1dc;
+  --warning-fg: #8a5300;
+  --warning-tint: #f6ead0;
+  --info-fg: #2b5a8a;
+  --info-tint: #e2eaf2;
+  --success-fg: #1d6b43;
+  --success-tint: #dcebe1;
   color-scheme: light;
 }
 
 .dark {
-  --bg: #0f1216;
-  --surface: #171b21;
-  --surface-2: #1f252d;
-  --border: #2e3640;
-  --text: #e6e9ed;
-  --muted: #9aa4b0;
-  --accent: #6cb2ff;
-  --accent-contrast: #0b1320;
-  --danger-bg: #4a1c1f;
-  --danger-fg: #ffb4b4;
-  --danger-row: #2a1719;
-  --warning-bg: #45360f;
-  --warning-fg: #ffd98a;
-  --warning-row: #272112;
-  --info-bg: #15304f;
-  --info-fg: #a8d1ff;
-  --info-row: #151f2c;
-  --success-bg: #123d2c;
-  --success-fg: #9be5c3;
-  --success-row: #13221c;
+  --bg: #0d0f0e;
+  --panel: #141716;
+  --sunk: #1b1f1d;
+  --rule: #272c29;
+  --rule-strong: #434a46;
+  --text: #e6e4dd;
+  --muted: #9da29b;
+  --faint: #868b84;
+  --invert-bg: #e6e4dd;
+  --invert-text: #0d0f0e;
+  --hl: #4a4216;
+
+  --danger-fg: #ff7b6e;
+  --danger-tint: #2e1714;
+  --warning-fg: #e9a944;
+  --warning-tint: #2b2111;
+  --info-fg: #8fb4e0;
+  --info-tint: #16202b;
+  --success-fg: #5fc58f;
+  --success-tint: #12241a;
   color-scheme: dark;
 }
 
@@ -61,25 +66,84 @@
   html {
     background: var(--bg);
     color: var(--text);
+    font-size: 15px;
   }
   body {
     @apply font-sans antialiased;
     background: var(--bg);
     color: var(--text);
+    font-feature-settings: 'ss02';
   }
   a {
-    color: var(--accent);
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
   }
   a:hover {
-    text-decoration: underline;
+    text-decoration-color: currentColor;
   }
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--text);
     outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--hl);
+    color: var(--text);
+  }
+  code,
+  kbd,
+  .font-mono {
+    font-variant-ligatures: none;
   }
 }
 
-@utility surface {
-  background: var(--surface);
-  border: 1px solid var(--border);
+/* Small uppercase mono label used for section and field captions. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@utility panel {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+}
+
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inputs and buttons share one square, hairline look. */
+@utility control {
+  background: var(--panel);
+  border: 1px solid var(--rule-strong);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding: 0.35rem 0.6rem;
+  &:hover {
+    border-color: var(--text);
+  }
+  &[aria-pressed='true'],
+  &[aria-checked='true'] {
+    background: var(--invert-bg);
+    color: var(--invert-text);
+    border-color: var(--invert-bg);
+  }
+}
+
+@keyframes scan {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(400%);
+  }
 }

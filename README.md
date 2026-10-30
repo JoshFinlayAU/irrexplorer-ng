@@ -24,6 +24,35 @@ expansion, and shareable URLs for every filter and sort order.
 Every page works as a direct link. `/query/<anything>` classifies the input and redirects to the
 right view.
 
+## The interface
+
+The design is deliberately plain: ink on paper (or the reverse in dark mode), IBM Plex type, and
+colour used only for state, so anything coloured means something. Every view is built from the
+same parts:
+
+- **Command bar.** One input for everything. It classifies what you type as you type it (IPv4
+  host, IPv6 /48, 32-bit ASN, route-set) and `/` focuses it from anywhere.
+- **Fact strip.** The header of each report: size, RIR, origins with RPKI state, RIS visibility,
+  covering route for a bare IP, special-use overlaps; for an ASN, announcement and ROA counts and
+  route objects per IRR; for a set, sets resolved, depth, ASNs, prefixes, loops, missing sets.
+- **Findings.** Every advice message on the page grouped across prefixes, errors first, like a
+  compiler's diagnostics, with a status bar of the whole result. Clicking a message or a prefix
+  filters the records to it.
+- **Address map** (prefix view). Every overlapping prefix drawn to scale inside the least
+  specific one, one lane per nesting level, so holes and stray more-specifics are visible at a
+  glance.
+- **Records.** One block per prefix with an origin by source matrix: each origin ASN on a row,
+  BGP, ROA and each IRR as columns, so a disagreement shows up as a ragged row. The original
+  one-row-per-prefix table is still there as the Table view, with sortable and hideable columns.
+- **Set tree.** AS-set and route-set expansion as a collapsible tree with loop, not-found and
+  not-expanded markers, a problems-only filter, the original path table as an alternative, and
+  the flattened ASN and prefix lists with copy buttons.
+- **Start page.** Input synopsis with examples, recently opened reports (kept in the browser
+  only) and the freshness of every data source.
+
+View, filter, order, hidden columns and colour mode all live in the URL, so a link reproduces
+exactly what you are looking at.
+
 ## Data sources
 
 Everything is fetched live or held in memory. There is no database; restarting the app only

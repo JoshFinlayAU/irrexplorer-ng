@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -7,6 +7,7 @@ import { SearchForm } from '~/components/search-form'
 import { SourceNotices } from '~/components/notices'
 import { MessageBadge } from '~/components/status'
 import { SetExpansionTable, MemberOfTable } from '~/components/set-tables'
+import { SetTree, flatten } from '~/components/set-tree'
 import { Timestamp, formatUtc } from '~/components/time'
 import type { SetExpansion } from '~/lib/analysis/types'
 import { renderWithRouter } from '../render'
@@ -52,7 +53,7 @@ describe('status display', () => {
         reduced={false}
       />,
     )
-    expect(screen.getByText('Error:')).toHaveClass('sr-only')
+    expect(screen.getByText('Error')).toHaveClass('sr-only')
   })
 
   it('source notices use alert for danger and status otherwise', () => {
@@ -109,7 +110,12 @@ describe('set tables', () => {
     await renderWithRouter(
       <SetExpansionTable
         expansion={expansion}
-        state={{ sort: [{ id: 'depth', desc: false }], filter: '', problems: false }}
+        state={{
+          layout: 'table',
+          sort: [{ id: 'depth', desc: false }],
+          filter: '',
+          problems: false,
+        }}
         onChange={() => undefined}
       />,
     )
@@ -122,15 +128,22 @@ describe('set tables', () => {
     expect(screen.getByText('AS-A > AS-B')).toBeInTheDocument()
   })
 
-  it('says when a set was not found', async () => {
-    await renderWithRouter(
-      <SetExpansionTable
-        expansion={{ ...expansion, found: false, rows: [], sets: {} }}
-        state={{ sort: [], filter: '', problems: false }}
-        onChange={() => undefined}
-      />,
+  it('draws the tree with loop and missing markers', async () => {
+    const user = userEvent.setup()
+    await renderWithRouter(<SetTree expansion={expansion} filter="" problems={false} />)
+    const tree = screen.getByRole('list', { name: 'Expansion tree of AS-A' })
+    expect(within(tree).getByText('not found')).toBeInTheDocument()
+    expect(within(tree).getByText('loop')).toBeInTheDocument()
+    expect(within(tree).getByRole('link', { name: 'AS64500' })).toHaveAttribute(
+      'href',
+      '/asn/AS64500',
     )
-    expect(screen.getByText('as-set was not found.')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Collapse AS-A' }))
+    expect(within(tree).queryByText('loop')).not.toBeInTheDocument()
+  })
+
+  it('flattens every ASN and prefix', () => {
+    expect(flatten(expansion)).toEqual({ asns: ['AS64500'], prefixes: [] })
   })
 
   it('member-of table marks presence per IRR', async () => {
@@ -145,7 +158,8 @@ describe('set tables', () => {
         jsonHref="/api/x"
       />,
     )
-    expect(screen.getAllByRole('img', { name: /Present in/ })).toHaveLength(3)
-    expect(screen.getByText('Not in RIPE')).toBeInTheDocument()
+    expect(screen.getAllByTitle(/Present in/)).toHaveLength(3)
+    const y = screen.getByRole('link', { name: 'AS-Y' }).closest('li')!
+    expect(y).toHaveTextContent('AS-YRADB')
   })
 })

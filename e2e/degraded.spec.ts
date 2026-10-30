@@ -15,9 +15,8 @@ test('prefix page renders with notices and RIS fallback', async ({ page }) => {
   await expect(notices).toContainText('RIR delegation data unavailable')
   const row = page
     .getByRole('region', { name: /Directly overlapping/ })
-    .getByRole('row')
-    .filter({ hasText: '193.0.0.0/21' })
-  await expect(row).toContainText('3333')
+    .getByRole('article', { name: '193.0.0.0/21', exact: true })
+  await expect(row).toContainText('AS3333')
   await expect(row).toContainText('Some checks were skipped because IRR, RPKI data is unavailable')
   await expect(row).not.toContainText('Everything looks good')
   await checkA11y(page)
