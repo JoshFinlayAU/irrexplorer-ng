@@ -46,6 +46,7 @@ function Flattened({ expansion }: { expansion: SetExpansion }) {
             </div>
             <pre
               tabIndex={0}
+              role="region"
               aria-label={`${b.label} in the expansion`}
               className="max-h-64 overflow-auto px-3 py-2 font-mono text-[0.75rem] leading-relaxed whitespace-pre-wrap text-[var(--muted)]"
             >
