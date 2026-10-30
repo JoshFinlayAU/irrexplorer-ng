@@ -1,0 +1,12 @@
+node_modules
+.output
+dist
+pnpm-lock.yaml
+src/routeTree.gen.ts
+test/fixtures
+memory
+.claude
+.agents
+playwright-report
+test-results
+CLAUDE.md
