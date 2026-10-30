@@ -36,6 +36,8 @@ const EnvSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   CACHE_TTL_SECONDS: z.coerce.number().int().min(0).default(600),
   UPSTREAM_TIMEOUT_MS: z.coerce.number().int().min(500).default(8000),
+  /** Batched IRRd overlap lookups on ASN pages can legitimately take longer. */
+  IRRD_BULK_TIMEOUT_MS: z.coerce.number().int().min(1000).default(60000),
   /** Stop set expansion beyond this many sets (the original used 1000). */
   SET_SIZE_LIMIT: z.coerce.number().int().min(1).max(100000).default(1000),
 })

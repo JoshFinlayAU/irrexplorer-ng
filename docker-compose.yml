@@ -16,6 +16,11 @@ services:
     environment:
       PORT: '3000'
       RPKI_VALIDATOR_URL: http://routinator:8323
+      # Keeps raw bulk downloads across restarts so bgp.tools is not fetched
+      # more than every 30 minutes. Safe to delete at any time.
+      BULK_CACHE_DIR: /app/.cache
+    volumes:
+      - bulk-cache:/app/.cache
     depends_on:
       - routinator
 
@@ -30,3 +35,4 @@ services:
 
 volumes:
   rpki-cache:
+  bulk-cache:

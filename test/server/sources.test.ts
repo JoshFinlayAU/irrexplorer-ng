@@ -72,6 +72,42 @@ describe('irrd', () => {
     expect(status.map((s) => s.source)).toEqual(expect.arrayContaining(['RIPE', 'RADB']))
   })
 
+  it('splits a timed-out batch and retries the halves', async () => {
+    process.env.IRRD_BULK_TIMEOUT_MS = '1000'
+    resetEnv()
+    let calls = 0
+    server.use(
+      http.post(`${MOCK_BASE}/irrd/graphql/`, async ({ request }) => {
+        calls++
+        const body = (await request.json()) as { variables: Record<string, string> }
+        const vars = Object.entries(body.variables)
+        // Anything with more than one prefix "hangs"; single lookups answer.
+        if (vars.length > 1) {
+          await delay(5_000)
+          return HttpResponse.json({ data: {} })
+        }
+        const [, cidr] = vars[0]!
+        return HttpResponse.json({
+          data: { q0: [{ rpslPk: `${cidr}AS1`, source: 'RADB', prefix: cidr, asn: 1 }] },
+        })
+      }),
+    )
+    const rows = await routesOverlapping([
+      P('192.0.2.0/24'),
+      P('198.51.100.0/24'),
+      P('203.0.113.0/24'),
+    ])
+    expect(rows.map((r) => r.prefix).sort()).toEqual([
+      '192.0.2.0/24',
+      '198.51.100.0/24',
+      '203.0.113.0/24',
+    ])
+    // 1 batch of 3, halves of 2 and 1, then the 2 split into singles.
+    expect(calls).toBe(5)
+    delete process.env.IRRD_BULK_TIMEOUT_MS
+    resetEnv()
+  }, 20_000)
+
   it('turns GraphQL errors into UpstreamError', async () => {
     server.use(
       http.post(`${MOCK_BASE}/irrd/graphql/`, () =>

@@ -9,12 +9,12 @@ import type { IrrRow } from '~/lib/analysis/collect'
 import type { SetLevelResult } from '~/lib/analysis/sets'
 import { cached } from '../cache'
 import { env } from '../env'
-import { failed, fetchJson } from '../http'
+import { failed, fetchJson, UpstreamError } from '../http'
 
 const ALL_RPKI = '[valid, invalid, not_found]'
 /** How many aliased lookups go into one GraphQL request. */
 const BATCH = 40
-const CONCURRENCY = 4
+const CONCURRENCY = 6
 
 const GraphQlResponse = z.object({
   data: z.record(z.string(), z.unknown()).nullable().optional(),
@@ -24,12 +24,13 @@ const GraphQlResponse = z.object({
 async function graphql(
   query: string,
   variables: Record<string, unknown> = {},
+  timeoutMs = Math.max(env().UPSTREAM_TIMEOUT_MS, 15000),
 ): Promise<Record<string, unknown>> {
   const res = await fetchJson('irrd', env().IRRD_GRAPHQL_URL, GraphQlResponse, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ query, variables }),
-    timeoutMs: Math.max(env().UPSTREAM_TIMEOUT_MS, 15000),
+    timeoutMs,
   })
   // A 200 carrying GraphQL errors still counts as a failed call for health.
   if (res.errors?.length) throw failed('irrd', `GraphQL error: ${res.errors[0]!.message}`)
@@ -66,7 +67,7 @@ const ROUTE_FIELDS =
 export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<IrrRow[]> {
   const batches: Prefix[][] = []
   for (let i = 0; i < prefixes.length; i += BATCH) batches.push(prefixes.slice(i, i + BATCH))
-  const runBatch = (batch: Prefix[]) =>
+  const query = (batch: Prefix[]) =>
     cached(`irrd:overlap:${batch.map((p) => p.cidr).join(',')}`, async () => {
       const vars: Record<string, string> = {}
       const defs: string[] = []
@@ -76,9 +77,30 @@ export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<Ir
         const cls = p.version === 4 ? 'route' : 'route6'
         return `q${j}: rpslObjects(ipAny: $p${j}, objectClass: ["${cls}"], rpkiStatus: ${ALL_RPKI}) ${ROUTE_FIELDS}`
       })
-      const data = await graphql(`query(${defs.join(', ')}) { ${fields.join('\n')} }`, vars)
+      const data = await graphql(
+        `query(${defs.join(', ')}) { ${fields.join('\n')} }`,
+        vars,
+        env().IRRD_BULK_TIMEOUT_MS,
+      )
       return batch.flatMap((_, j) => toIrrRows(RouteList.parse(data[`q${j}`] ?? [])))
     })
+  // Large aggregates (a /12 with thousands of objects) can make one batch slow.
+  // On a timeout, split the batch and retry the halves rather than failing all.
+  const runBatch = async (batch: Prefix[]): Promise<IrrRow[]> => {
+    try {
+      return await query(batch)
+    } catch (err) {
+      if (batch.length > 1 && err instanceof UpstreamError && err.timedOut) {
+        const mid = Math.ceil(batch.length / 2)
+        const [a, b] = await Promise.all([
+          runBatch(batch.slice(0, mid)),
+          runBatch(batch.slice(mid)),
+        ])
+        return [...a, ...b]
+      }
+      throw err
+    }
+  }
   // A few batches in flight at once; large ASNs can need dozens.
   const results: IrrRow[][] = new Array<IrrRow[]>(batches.length)
   let next = 0
@@ -98,6 +120,7 @@ export async function routesByOrigin(asn: number): Promise<IrrRow[]> {
     const data = await graphql(
       `query($asn: [ASN!]) { r: rpslObjects(asn: $asn, objectClass: ["route", "route6"], rpkiStatus: ${ALL_RPKI}) ${ROUTE_FIELDS} }`,
       { asn: [asn] },
+      env().IRRD_BULK_TIMEOUT_MS,
     )
     return toIrrRows(RouteList.parse(data['r'] ?? []))
   })
@@ -114,6 +137,7 @@ export async function setLevel(names: string[]): Promise<SetLevelResult[]> {
     const data = await graphql(
       'query($names: [String!]!) { s: recursiveSetMembers(setNames: $names, depth: 1) { rpslPk rootSource members } }',
       { names },
+      env().IRRD_BULK_TIMEOUT_MS,
     )
     return SetMembersSchema.parse(data['s'] ?? []).map((s) => ({
       name: s.rpslPk,
@@ -154,9 +178,11 @@ export async function memberOf(
 ): Promise<MemberOfRow[]> {
   const member = /^\d+$/.test(target) ? `AS${target}` : target.toUpperCase()
   return cached(`irrd:memberof:${objectClass}:${member}`, async () => {
+    // Popular ASNs are in thousands of sets, so this can be slow.
     const data = await graphql(
       'query($m: [String!], $cls: [String!]) { d: rpslObjects(members: $m, objectClass: $cls) { rpslPk source } }',
       { m: [member], cls: [objectClass] },
+      env().IRRD_BULK_TIMEOUT_MS,
     )
     const rows: MemberOfRow[] = PkSourceList.parse(data['d'] ?? []).map((r) => ({
       name: r.rpslPk,

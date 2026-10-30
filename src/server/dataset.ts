@@ -163,11 +163,17 @@ export async function fetchLines(
   if (!response.ok || !response.body)
     throw new Error(`HTTP ${response.status} from ${new URL(url).host}`)
 
+  // The cache is an optimisation: if it cannot be written, load without it.
   let out: WriteStream | null = null
   const tmp = file ? `${file}.${process.pid}.tmp` : null
   if (tmp && dir) {
-    await mkdir(dir, { recursive: true })
-    out = createWriteStream(tmp, { encoding: 'utf8' })
+    try {
+      await mkdir(dir, { recursive: true })
+      out = await openForWrite(tmp)
+    } catch (err) {
+      console.warn(`[dataset] cache ${dir} not writable, continuing without it: ${String(err)}`)
+      out = null
+    }
   }
   const lines = splitter(onLine)
   try {
@@ -185,11 +191,26 @@ export async function fetchLines(
     throw err
   }
   if (out && tmp && file) {
-    await new Promise<void>((resolve, reject) =>
-      out.end((err?: Error | null) => (err ? reject(err) : resolve())),
-    )
-    await rename(tmp, file)
+    const stream = out
+    try {
+      await new Promise<void>((resolve, reject) =>
+        stream.end((err?: Error | null) => (err ? reject(err) : resolve())),
+      )
+      await rename(tmp, file)
+    } catch (err) {
+      console.warn(`[dataset] could not save ${file}: ${String(err)}`)
+      await rm(tmp, { force: true }).catch(() => undefined)
+    }
   }
+}
+
+/** Open a write stream and surface open errors (permissions) as a rejection. */
+function openForWrite(file: string): Promise<WriteStream> {
+  return new Promise((resolve, reject) => {
+    const stream = createWriteStream(file, { encoding: 'utf8' })
+    stream.once('open', () => resolve(stream))
+    stream.once('error', reject)
+  })
 }
 
 /**

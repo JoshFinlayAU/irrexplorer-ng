@@ -89,9 +89,14 @@ docker compose up -d --build
 ```
 
 The image is a two-stage build on `node:26-alpine` that ships only `.output/`, runs as the
-`node` user and listens on port 3000. `GET /healthz` reports the process plus the last success
-and failure time for each upstream and dataset, without calling any upstream. The app holds
-around 1 GB of data in memory once every dataset has loaded; the image sets a 2 GB heap limit.
+`node` user under tini and listens on port 3000. `GET /healthz` reports the process (including
+memory use) plus the last success and failure time for each upstream and dataset, without
+calling any upstream. Responses are gzip-compressed when the client accepts it.
+
+With every dataset loaded the process uses about 550 MB. Very large ASN pages (AS13335,
+AS16509) push it towards 1 GB while they are built; the image sets a 2 GB heap limit. Those
+pages also take minutes on a cold cache, because every aggregate the ASN announces needs an
+IRRd overlap lookup. The original IRR Explorer has the same cost.
 
 ### Configuration
 

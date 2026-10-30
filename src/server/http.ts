@@ -8,12 +8,18 @@ import { recordFailure, recordSuccess, type SourceName } from './health'
 export class UpstreamError extends Error {
   readonly source: SourceName
   readonly status: number | undefined
+  readonly timedOut: boolean
 
-  constructor(source: SourceName, message: string, status?: number) {
+  constructor(
+    source: SourceName,
+    message: string,
+    options: { status?: number; timedOut?: boolean } = {},
+  ) {
     super(message)
     this.name = 'UpstreamError'
     this.source = source
-    this.status = status
+    this.status = options.status
+    this.timedOut = options.timedOut ?? false
   }
 }
 
@@ -50,7 +56,7 @@ export async function fetchJson<S extends z.ZodType>(
     } catch (err) {
       const name = err instanceof Error ? err.name : ''
       if (name === 'TimeoutError' || name === 'AbortError') {
-        throw new UpstreamError(source, `timed out after ${timeoutMs / 1000}s`)
+        throw new UpstreamError(source, `timed out after ${timeoutMs / 1000}s`, { timedOut: true })
       }
       throw new UpstreamError(
         source,
@@ -58,7 +64,7 @@ export async function fetchJson<S extends z.ZodType>(
       )
     }
     if (!response.ok) {
-      throw new UpstreamError(source, `HTTP ${response.status}`, response.status)
+      throw new UpstreamError(source, `HTTP ${response.status}`, { status: response.status })
     }
     let json: unknown
     try {
