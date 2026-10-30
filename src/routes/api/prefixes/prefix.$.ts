@@ -7,7 +7,7 @@ export const Route = createFileRoute('/api/prefixes/prefix/$')({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const raw = decodeURIComponent(params._splat ?? '')
+        const raw = params._splat ?? ''
         const prefix = parsePrefix(raw)
         if (!prefix) return text(`Invalid prefix: ${raw}`, 400)
         const report = await prefixReport(prefix.cidr)

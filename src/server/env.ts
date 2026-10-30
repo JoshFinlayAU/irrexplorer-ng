@@ -35,6 +35,11 @@ const EnvSchema = z.object({
     .transform((v) => v === 'true'),
   PORT: z.coerce.number().int().positive().default(3000),
   CACHE_TTL_SECONDS: z.coerce.number().int().min(0).default(600),
+  /** Upper bound for the in-process response cache. */
+  CACHE_MAX_MB: z.coerce.number().int().min(1).default(256),
+  /** Most concurrent calls to each per-request upstream, to be a polite client. */
+  IRRD_MAX_CONCURRENCY: z.coerce.number().int().min(1).default(12),
+  RIPESTAT_MAX_CONCURRENCY: z.coerce.number().int().min(1).default(8),
   UPSTREAM_TIMEOUT_MS: z.coerce.number().int().min(500).default(8000),
   /** Batched IRRd overlap lookups on ASN pages can legitimately take longer. */
   IRRD_BULK_TIMEOUT_MS: z.coerce.number().int().min(1000).default(60000),

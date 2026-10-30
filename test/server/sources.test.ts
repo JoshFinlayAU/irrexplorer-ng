@@ -72,24 +72,30 @@ describe('irrd', () => {
     expect(status.map((s) => s.source)).toEqual(expect.arrayContaining(['RIPE', 'RADB']))
   })
 
-  it('splits a timed-out batch and retries the halves', async () => {
+  it('splits a timed-out batch once and retries the halves', async () => {
     process.env.IRRD_BULK_TIMEOUT_MS = '1000'
     resetEnv()
     let calls = 0
+    let maxFast = 2
     server.use(
       http.post(`${MOCK_BASE}/irrd/graphql/`, async ({ request }) => {
         calls++
         const body = (await request.json()) as { variables: Record<string, string> }
         const vars = Object.entries(body.variables)
-        // Anything with more than one prefix "hangs"; single lookups answer.
-        if (vars.length > 1) {
+        // Batches of more than two prefixes "hang"; smaller ones answer.
+        if (vars.length > maxFast) {
           await delay(5_000)
           return HttpResponse.json({ data: {} })
         }
-        const [, cidr] = vars[0]!
-        return HttpResponse.json({
-          data: { q0: [{ rpslPk: `${cidr}AS1`, source: 'RADB', prefix: cidr, asn: 1 }] },
+        const data: Record<string, unknown> = {}
+        vars.forEach(([, cidr], j) => {
+          // The same covering object comes back for every query prefix.
+          data[`q${j}`] = [
+            { rpslPk: `${cidr}AS1`, source: 'RADB', prefix: cidr, asn: 1 },
+            { rpslPk: '0.0.0.0/0AS1', source: 'RADB', prefix: '0.0.0.0/0', asn: 1 },
+          ]
         })
+        return HttpResponse.json({ data })
       }),
     )
     const rows = await routesOverlapping([
@@ -97,13 +103,24 @@ describe('irrd', () => {
       P('198.51.100.0/24'),
       P('203.0.113.0/24'),
     ])
+    // Covering objects are de-duplicated across query prefixes.
     expect(rows.map((r) => r.prefix).sort()).toEqual([
+      '0.0.0.0/0',
       '192.0.2.0/24',
       '198.51.100.0/24',
       '203.0.113.0/24',
     ])
-    // 1 batch of 3, halves of 2 and 1, then the 2 split into singles.
-    expect(calls).toBe(5)
+    // One batch of 3 timed out, then halves of 2 and 1 answered.
+    expect(calls).toBe(3)
+
+    // Only one split: if a half also times out, the lookup fails.
+    maxFast = 0
+    calls = 0
+    clearCache()
+    await expect(
+      routesOverlapping([P('192.0.2.0/25'), P('198.51.100.0/25'), P('203.0.113.0/25')]),
+    ).rejects.toThrow(/timed out/)
+    expect(calls).toBe(3)
     delete process.env.IRRD_BULK_TIMEOUT_MS
     resetEnv()
   }, 20_000)
@@ -203,5 +220,27 @@ describe('ripestat', () => {
     )
     await routingStatus(P('192.0.2.0/26'))
     expect(seen).toBe('/ripestat/data/routing-status/data.json')
+  })
+})
+
+describe('upstream concurrency', () => {
+  it('never runs more IRRd calls at once than allowed', async () => {
+    process.env.IRRD_MAX_CONCURRENCY = '2'
+    resetEnv()
+    let inFlight = 0
+    let peak = 0
+    server.use(
+      http.post(`${MOCK_BASE}/irrd/graphql/`, async () => {
+        inFlight++
+        peak = Math.max(peak, inFlight)
+        await delay(50)
+        inFlight--
+        return HttpResponse.json({ data: { r: [] } })
+      }),
+    )
+    await Promise.all(Array.from({ length: 8 }, (_, i) => routesByOrigin(65000 + i)))
+    expect(peak).toBe(2)
+    delete process.env.IRRD_MAX_CONCURRENCY
+    resetEnv()
   })
 })

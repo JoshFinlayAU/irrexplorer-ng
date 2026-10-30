@@ -13,7 +13,7 @@ import {
 import { Link } from '@tanstack/react-router'
 import { useMemo, useState, type ReactNode } from 'react'
 import { VirtualRows } from './virtual-rows'
-import { compareCidr, parsePrefix } from '~/lib/ip'
+import { parsePrefix, prefixSortKey } from '~/lib/ip'
 import { lookingGlassUrl } from '~/lib/links'
 import type { IrrRoute, PrefixSummary } from '~/lib/analysis/types'
 import { CaretRightIcon, SortIcon } from './icons'
@@ -43,7 +43,24 @@ export function formatSort(state: SortingState): string | undefined {
 
 const firstOr = (list: number[], fallback = Number.POSITIVE_INFINITY) =>
   list.length > 0 ? list[0]! : fallback
-const lengthOf = (cidr: string) => parsePrefix(cidr)?.length ?? 0
+// Sorting compares rows many times; parse each prefix once into a string key
+// that orders by family, address and length, plus its length.
+const sortKeys = new Map<string, { key: string; length: number }>()
+function keyOf(cidr: string) {
+  let k = sortKeys.get(cidr)
+  if (!k) {
+    if (sortKeys.size > 50_000) sortKeys.clear()
+    const p = parsePrefix(cidr)
+    k = p ? { key: prefixSortKey(p), length: p.length } : { key: `~${cidr}`, length: 0 }
+    sortKeys.set(cidr, k)
+  }
+  return k
+}
+const byAddress = (a: string, b: string) => {
+  const ka = keyOf(a).key
+  const kb = keyOf(b).key
+  return ka < kb ? -1 : ka > kb ? 1 : 0
+}
 
 function AsnText({ asn, names }: { asn: number; names: Record<string, string> }) {
   const name = names[asn]
@@ -107,7 +124,7 @@ export function PrefixTable(props: PrefixTableProps) {
       helper.accessor('prefix', {
         id: 'prefix',
         header: 'Prefix',
-        sortFn: (a, b) => compareCidr(a.original.prefix, b.original.prefix),
+        sortFn: (a, b) => byAddress(a.original.prefix, b.original.prefix),
         cell: (info) => (
           <Link
             to="/prefix/$"
@@ -124,8 +141,8 @@ export function PrefixTable(props: PrefixTableProps) {
         header: 'Most specific first',
         enableHiding: false,
         sortFn: (a, b) =>
-          lengthOf(b.original.prefix) - lengthOf(a.original.prefix) ||
-          compareCidr(a.original.prefix, b.original.prefix),
+          keyOf(b.original.prefix).length - keyOf(a.original.prefix).length ||
+          byAddress(a.original.prefix, b.original.prefix),
       }),
       helper.accessor((r) => r.rir ?? '', {
         id: 'rir',

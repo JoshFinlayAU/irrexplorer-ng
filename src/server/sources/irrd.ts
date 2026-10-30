@@ -84,17 +84,18 @@ export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<Ir
       )
       return batch.flatMap((_, j) => toIrrRows(RouteList.parse(data[`q${j}`] ?? [])))
     })
-  // Large aggregates (a /12 with thousands of objects) can make one batch slow.
-  // On a timeout, split the batch and retry the halves rather than failing all.
-  const runBatch = async (batch: Prefix[]): Promise<IrrRow[]> => {
+  // A batch with one heavy aggregate can be slow. On a timeout, retry once as
+  // two halves; going further would only pile more load onto a slow IRRd and
+  // keep the page waiting through a chain of timeouts.
+  const runBatch = async (batch: Prefix[], retry = true): Promise<IrrRow[]> => {
     try {
       return await query(batch)
     } catch (err) {
-      if (batch.length > 1 && err instanceof UpstreamError && err.timedOut) {
+      if (retry && batch.length > 1 && err instanceof UpstreamError && err.timedOut) {
         const mid = Math.ceil(batch.length / 2)
         const [a, b] = await Promise.all([
-          runBatch(batch.slice(0, mid)),
-          runBatch(batch.slice(mid)),
+          runBatch(batch.slice(0, mid), false),
+          runBatch(batch.slice(mid), false),
         ])
         return [...a, ...b]
       }
@@ -111,7 +112,14 @@ export async function routesOverlapping(prefixes: readonly Prefix[]): Promise<Ir
     }
   }
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, batches.length) }, worker))
-  return results.flat()
+  // Covering objects come back once per query prefix; keep one of each.
+  const seen = new Set<string>()
+  return results.flat().filter((r) => {
+    const key = `${r.source}|${r.rpslPk}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 /** Every route/route6 object with this origin. */

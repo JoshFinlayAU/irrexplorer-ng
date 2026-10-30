@@ -70,6 +70,10 @@ docker run -d --name routinator -p 127.0.0.1:8323:8323 \
 ```
 
 Its first validation run takes several minutes. Until it finishes, RPKI shows as unavailable.
+On slower links, give Routinator longer fetch timeouts (`--rrdp-timeout=1800
+--rsync-timeout=1800` before the `server` subcommand, as the compose file does). With the
+defaults, ARIN's large repository can time out and its ROAs go missing without any error in
+the app.
 
 Setting `BULK_CACHE_DIR=.cache` in `.env` keeps the raw bulk downloads on disk, so restarting
 the dev server does not download bgp.tools again within 30 minutes.
@@ -91,10 +95,12 @@ docker compose up -d --build
 The image is a two-stage build on `node:26-alpine` that ships only `.output/`, runs as the
 `node` user under tini and listens on port 3000. `GET /healthz` reports the process (including
 memory use) plus the last success and failure time for each upstream and dataset, without
-calling any upstream. Responses are gzip-compressed when the client accepts it.
+calling any upstream. Responses are gzip-compressed when the client accepts it and carry basic
+security headers (nosniff, no framing, strict referrer policy). Calls to IRRd and RIPEstat are
+limited to 12 and 8 at a time, and the response cache is capped at `CACHE_MAX_MB`.
 
 With every dataset loaded the process uses about 550 MB. Very large ASN pages (AS13335,
-AS16509) push it towards 1 GB while they are built; the image sets a 2 GB heap limit. Those
+AS16509) and a warm response cache take it to about 1.4 GB; the image sets a 2 GB heap limit. Those
 pages also take minutes on a cold cache, because every aggregate the ASN announces needs an
 IRRd overlap lookup. The original IRR Explorer has the same cost.
 
@@ -111,6 +117,8 @@ Every setting is documented in `.env.example`. The main ones:
 | `PORT`                         | `3000`                                      | HTTP port                                  |
 | `CACHE_TTL_SECONDS`            | `600`                                       | In-process cache for upstream responses    |
 | `UPSTREAM_TIMEOUT_MS`          | `8000`                                      | Per-call timeout (IRRd gets at least 15 s) |
+| `IRRD_BULK_TIMEOUT_MS`         | `60000`                                     | Large IRRd lookups (big ASNs and sets)     |
+| `CACHE_MAX_MB`                 | `256`                                       | Size cap for the response cache            |
 | `SET_SIZE_LIMIT`               | `1000`                                      | Stop set expansion beyond this many sets   |
 | `MIN_PREFIX_LENGTH_V4` / `_V6` | `9` / `29`                                  | Shorter queries are refused as too large   |
 

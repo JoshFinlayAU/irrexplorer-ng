@@ -20,13 +20,33 @@ const compress = createMiddleware().server(async ({ next, request }) => {
   headers.set('content-encoding', 'gzip')
   headers.delete('content-length')
   headers.append('vary', 'accept-encoding')
-  return new Response(res.body.pipeThrough(new CompressionStream('gzip')), {
-    status: res.status,
-    statusText: res.statusText,
-    headers,
-  })
+  // Node's gzip with a sync flush per write, so streamed HTML and framed
+  // server-function responses still arrive chunk by chunk. Imported here so
+  // it never reaches the client bundle.
+  const zlib = await import('node:zlib')
+  const { Readable } = await import('node:stream')
+  const gzip = zlib.createGzip({ flush: zlib.constants.Z_SYNC_FLUSH })
+  const source = Readable.fromWeb(res.body as Parameters<typeof Readable.fromWeb>[0])
+  const body = Readable.toWeb(source.pipe(gzip)) as unknown as ReadableStream<Uint8Array>
+  return new Response(body, { status: res.status, statusText: res.statusText, headers })
+})
+
+/** Conservative security headers that do not interfere with the inline theme script. */
+const securityHeaders = createMiddleware().server(async ({ next }) => {
+  const result = await next()
+  const res = result.response
+  const headers = new Headers(res.headers)
+  headers.set('x-content-type-options', 'nosniff')
+  headers.set('referrer-policy', 'strict-origin-when-cross-origin')
+  headers.set('x-frame-options', 'DENY')
+  headers.set(
+    'content-security-policy',
+    "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+  )
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers })
 })
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [compress],
+  // Outermost first: headers wrap the (possibly compressed) response.
+  requestMiddleware: [securityHeaders, compress],
 }))

@@ -27,6 +27,14 @@ services:
   routinator:
     image: nlnetlabs/routinator:v0.15.3
     restart: unless-stopped
+    # ARIN's main repository is large; the default RRDP and rsync timeouts were
+    # too short on a slower link, which silently dropped ROAs (8.8.8.0/24).
+    command:
+      - --rrdp-timeout=1800
+      - --rsync-timeout=1800
+      - server
+      - --rtr=0.0.0.0:3323
+      - --http=0.0.0.0:8323
     # The HTTP API stays on the compose network; publish it only if needed.
     expose:
       - '8323'

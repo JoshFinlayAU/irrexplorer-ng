@@ -5,7 +5,7 @@ export const Route = createFileRoute('/api/clean_query/$')({
   server: {
     handlers: {
       GET: ({ params }) => {
-        const result = cleanQuery(decodeURIComponent(params._splat ?? ''))
+        const result = cleanQuery(params._splat ?? '')
         return 'error' in result ? text(result.error, 400) : json(result)
       },
     },

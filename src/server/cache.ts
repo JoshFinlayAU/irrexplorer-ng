@@ -7,7 +7,13 @@ import { env } from './env'
 // Anything except null/undefined, which LRUCache cannot store.
 type Value = string | number | boolean | object
 
-const store = new LRUCache<string, Value>({ max: 2000 })
+// Bounded by total size, not just entry count: one large ASN can cache
+// megabytes, and an entry count alone would let many of them exhaust memory.
+const store = new LRUCache<string, Value>({
+  max: 5000,
+  maxSize: env().CACHE_MAX_MB * 1024 * 1024,
+  sizeCalculation: (value) => Math.max(1, JSON.stringify(value).length),
+})
 const inflight = new Map<string, Promise<unknown>>()
 
 export async function cached<T extends Value>(

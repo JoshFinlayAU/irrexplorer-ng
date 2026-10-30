@@ -29,6 +29,14 @@ export interface PrefixReport {
   asNames: Record<string, string>
 }
 
+const SEVERITY = { ok: 0, degraded: 1, unavailable: 2 } as const
+
+function worstOf(a: SourceStates, b: SourceStates): SourceStates {
+  const pick = <K extends keyof SourceStates>(k: K) =>
+    SEVERITY[b[k].status] > SEVERITY[a[k].status] ? b[k] : a[k]
+  return { irr: pick('irr'), bgp: pick('bgp'), rpki: pick('rpki'), rir: pick('rir') }
+}
+
 export function minLengthFor(p: Prefix): number {
   return p.version === 4 ? env().MIN_PREFIX_LENGTH_V4 : env().MIN_PREFIX_LENGTH_V6
 }
@@ -75,6 +83,8 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
       for (const n of g2.notices) {
         if (!g.notices.some((x) => x.text === n.text)) g.notices.push(n)
       }
+      // A source that only failed for the second table must not still read "ok".
+      g.sources = worstOf(g.sources, g2.sources)
     }
   }
 

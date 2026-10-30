@@ -1,9 +1,14 @@
 // Prefix aggregation: drop prefixes covered by another one, then merge
-// adjacent siblings into their parent until nothing changes.
+// adjacent siblings into their parent until nothing changes. An optional
+// floor stops merging above a minimum length, so aggregates never become
+// queries the app would refuse as too large.
 
 import { comparePrefixes, covers, makePrefix, maxLength, type Prefix } from '../ip'
 
-export function aggregate(prefixes: readonly Prefix[]): Prefix[] {
+export function aggregate(
+  prefixes: readonly Prefix[],
+  minLength: (version: 4 | 6) => number = () => 0,
+): Prefix[] {
   const byFamily = new Map<4 | 6, Prefix[]>()
   for (const p of prefixes) {
     const list = byFamily.get(p.version) ?? []
@@ -11,7 +16,7 @@ export function aggregate(prefixes: readonly Prefix[]): Prefix[] {
     byFamily.set(p.version, list)
   }
   const out: Prefix[] = []
-  for (const list of byFamily.values()) out.push(...aggregateFamily(list))
+  for (const [version, list] of byFamily) out.push(...aggregateFamily(list, minLength(version)))
   return out.sort(comparePrefixes)
 }
 
@@ -25,7 +30,7 @@ function dropCovered(sorted: Prefix[]): Prefix[] {
   return kept
 }
 
-function aggregateFamily(list: Prefix[]): Prefix[] {
+function aggregateFamily(list: Prefix[], floor: number): Prefix[] {
   let current = dropCovered([...list].sort(comparePrefixes))
   for (;;) {
     const merged: Prefix[] = []
@@ -33,7 +38,7 @@ function aggregateFamily(list: Prefix[]): Prefix[] {
     for (let i = 0; i < current.length; i++) {
       const a = current[i]!
       const b = current[i + 1]
-      if (b && a.length === b.length && a.length > 0) {
+      if (b && a.length === b.length && a.length > Math.max(floor, 0)) {
         const parent = makePrefix(a.version, a.network, a.length - 1)
         const size = 1n << BigInt(maxLength(a.version) - a.length)
         if (parent.network === a.network && b.network === a.network + size) {

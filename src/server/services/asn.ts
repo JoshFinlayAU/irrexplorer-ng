@@ -4,6 +4,7 @@ import { parsePrefix, type Prefix } from '~/lib/ip'
 import { aggregate } from '~/lib/analysis/aggregate'
 import { collect, type BgpRow } from '~/lib/analysis/collect'
 import type { Notice, PrefixSummary, SourceStates } from '~/lib/analysis/types'
+import { env } from '../env'
 import { asName, bgpByOrigin } from '../sources/bgptools'
 import { routesByOrigin } from '../sources/irrd'
 import { originatedByAsn } from '../sources/ripestat'
@@ -54,7 +55,10 @@ export async function asnReport(asn: number): Promise<AsnReport> {
     const p = parsePrefix(cidr)
     if (p && p.length >= minLengthFor(p)) seeds.push(p)
   }
-  const aggregates = aggregate(seeds)
+  // Merge, but never into anything shorter than the minimum query length.
+  const aggregates = aggregate(seeds, (version) =>
+    version === 4 ? env().MIN_PREFIX_LENGTH_V4 : env().MIN_PREFIX_LENGTH_V6,
+  )
 
   const g = await gather(aggregates, { extraBgp: fallbackBgp })
   if (irrResult.status === 'rejected' && g.sources.irr.status === 'ok') {

@@ -7,7 +7,7 @@ import { locationFor } from '~/lib/links'
 // this through client-side navigation).
 export const Route = createFileRoute('/query/$')({
   beforeLoad: ({ params }) => {
-    const raw = decodeURIComponent(params._splat ?? '')
+    const raw = params._splat ?? ''
     const q = classifyQuery(raw)
     if (q.kind === 'invalid') return { error: q.reason, raw }
     throw redirect({ ...locationFor(q), replace: true })

@@ -239,6 +239,9 @@ test.describe('prefix view', () => {
     await page.goto('/prefix/300.1.1.1/24')
     await hydrated(page)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Not a valid prefix')
+    await page.goto('/prefix/100%25')
+    await hydrated(page)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Not a valid prefix')
     await themes(page, 'prefix-invalid')
   })
 

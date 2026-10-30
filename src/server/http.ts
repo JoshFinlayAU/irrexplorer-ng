@@ -37,6 +37,31 @@ export interface FetchJsonOptions {
   timeoutMs?: number
 }
 
+/** A counting semaphore per upstream, so a burst of requests cannot flood IRRd or RIPEstat. */
+const waiting = new Map<SourceName, (() => void)[]>()
+const active = new Map<SourceName, number>()
+
+function limitFor(source: SourceName): number {
+  if (source === 'irrd') return env().IRRD_MAX_CONCURRENCY
+  if (source === 'ripestat') return env().RIPESTAT_MAX_CONCURRENCY
+  return Number.POSITIVE_INFINITY
+}
+
+async function acquire(source: SourceName): Promise<() => void> {
+  if ((active.get(source) ?? 0) >= limitFor(source)) {
+    await new Promise<void>((resolve) => {
+      const queue = waiting.get(source) ?? []
+      queue.push(resolve)
+      waiting.set(source, queue)
+    })
+  }
+  active.set(source, (active.get(source) ?? 0) + 1)
+  return () => {
+    active.set(source, (active.get(source) ?? 1) - 1)
+    waiting.get(source)?.shift()?.()
+  }
+}
+
 export async function fetchJson<S extends z.ZodType>(
   source: SourceName,
   url: string,
@@ -44,6 +69,7 @@ export async function fetchJson<S extends z.ZodType>(
   options: FetchJsonOptions = {},
 ): Promise<z.infer<S>> {
   const timeoutMs = options.timeoutMs ?? env().UPSTREAM_TIMEOUT_MS
+  const release = await acquire(source)
   try {
     let response: Response
     try {
@@ -84,5 +110,7 @@ export async function fetchJson<S extends z.ZodType>(
   } catch (err) {
     recordFailure(source, err)
     throw err
+  } finally {
+    release()
   }
 }

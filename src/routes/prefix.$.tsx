@@ -16,7 +16,8 @@ import type { ReactNode } from 'react'
 export const Route = createFileRoute('/prefix/$')({
   validateSearch: reportSearchSchema,
   beforeLoad: ({ params, search }) => {
-    const raw = decodeURIComponent(params._splat ?? '')
+    // The router has already decoded the splat; decoding again breaks on '%'.
+    const raw = params._splat ?? ''
     const q = classifyQuery(raw)
     if (q.kind === 'invalid') return { query: null, error: q.reason, raw }
     const loc = locationFor(q)

@@ -3,6 +3,7 @@
 
 import { createReadStream, createWriteStream, type WriteStream } from 'node:fs'
 import { mkdir, rename, rm, stat } from 'node:fs/promises'
+import { once } from 'node:events'
 import path from 'node:path'
 import { env } from './env'
 import { recordFailure, recordSuccess, type SourceName } from './health'
@@ -181,7 +182,8 @@ export async function fetchLines(
     for (;;) {
       const { done, value } = await reader.read()
       if (done) break
-      out?.write(value)
+      // Respect backpressure so a slow cache disk cannot buffer the whole dump.
+      if (out && !out.write(value)) await once(out, 'drain')
       lines.push(value)
     }
     lines.end()

@@ -36,6 +36,11 @@ test('clean_query classifies like the original', async ({ request }) => {
   }
   const bad = await request.get('/api/clean_query/hello%20world')
   expect(bad.status()).toBe(400)
+  // A literal '%' must give a clean 400, not a 500 from a double decode.
+  const percent = await request.get('/api/clean_query/100%25')
+  expect(percent.status()).toBe(400)
+  const badPrefix = await request.get('/api/prefixes/prefix/1%25')
+  expect(badPrefix.status()).toBe(400)
   const large = await request.get('/api/clean_query/8.0.0.0/8')
   expect(large.status()).toBe(400)
   expect(await large.text()).toBe('Query too large: the minimum prefix length is 9.')
