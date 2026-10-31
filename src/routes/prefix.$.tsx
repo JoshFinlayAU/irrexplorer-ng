@@ -6,6 +6,7 @@ import { Findings } from '~/components/findings'
 import { SourceNotices } from '~/components/notices'
 import { ReportTables, useReportUpdate, type TableSpec } from '~/components/report-tables'
 import { InvalidQuery, Pending } from '~/components/route-states'
+import { GeoPlaceView, GeoShares, geoMissingText } from '~/components/geo'
 import { RpkiWord } from '~/components/status'
 import { FactStrip, Meter, PageTitle, type Fact } from '~/components/ui'
 import { classifyQuery } from '~/lib/parse'
@@ -187,6 +188,7 @@ function facts(data: PrefixReport, prefix: Prefix): Fact[] {
       ),
     })
   }
+  if (!data.tooLarge) out.push(locationFact(data))
   const v = data.visibility
   if (v && v.total > 0) {
     out.push({
@@ -217,4 +219,20 @@ function facts(data: PrefixReport, prefix: Prefix): Fact[] {
     })
   }
   return out
+}
+
+function locationFact(data: PrefixReport): Fact {
+  const geo = data.geo
+  if (!geo)
+    return {
+      label: 'Location',
+      value: <span className="text-[var(--faint)]">{geoMissingText(data.geoip)}</span>,
+    }
+  if (geo.place) return { label: 'Location', value: <GeoPlaceView place={geo.place} />, wide: true }
+  if (geo.countries.length === 0)
+    return {
+      label: 'Location',
+      value: <span className="text-[var(--faint)]">No GeoLite2 data</span>,
+    }
+  return { label: 'Location', value: <GeoShares geo={geo} />, wide: geo.countries.length > 1 }
 }

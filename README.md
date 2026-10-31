@@ -33,8 +33,8 @@ same parts:
 - **Command bar.** One input for everything. It classifies what you type as you type it (IPv4
   host, IPv6 /48, 32-bit ASN, route-set) and `/` focuses it from anywhere.
 - **Fact strip.** The header of each report: size, RIR, origins with RPKI state, RIS visibility,
-  covering route for a bare IP, special-use overlaps; for an ASN, announcement and ROA counts and
-  route objects per IRR; for a set, sets resolved, depth, ASNs, prefixes, loops, missing sets.
+  location, covering route for a bare IP, special-use overlaps; for an ASN, announcement and ROA
+  counts, route objects per IRR and the countries it announces from; for a set, sets resolved, depth, ASNs, prefixes, loops, missing sets.
 - **Findings.** Every advice message on the page grouped across prefixes, errors first, like a
   compiler's diagnostics, with a status bar of the whole result. Clicking a message or a prefix
   filters the records to it.
@@ -42,7 +42,8 @@ same parts:
   specific one, one lane per nesting level, so holes and stray more-specifics are visible at a
   glance.
 - **Records.** One block per prefix with an origin by source matrix: each origin ASN on a row,
-  BGP, ROA and each IRR as columns, so a disagreement shows up as a ragged row. The original
+  BGP, ROA and each IRR as columns, so a disagreement shows up as a ragged row. The header
+  carries the prefix's countries from GeoLite2. The original
   one-row-per-prefix table is still there as the Table view, with sortable and hideable columns.
 - **Set tree.** AS-set and route-set expansion as a collapsible tree with loop, not-found and
   not-expanded markers, a problems-only filter, the original path table as an alternative, and
@@ -66,6 +67,7 @@ means the bulk datasets are downloaded again.
 | RPKI ROAs and validity              | IRRd's `RPKI` source                | Queried per request, validated locally (RFC 6811) |
 | RIR per prefix                      | NRO delegated stats and Registro.BR | Downloaded daily                                  |
 | RIS visibility, BGP fallback        | RIPEstat Data API                   | Queried per request                               |
+| Geolocation                         | MaxMind GeoLite2 City               | Checked every 6 hours, downloaded when updated    |
 
 A few notes on these choices:
 
@@ -80,6 +82,17 @@ A few notes on these choices:
 - If a source is down, the page still renders with a notice saying what is missing. Checks that
   depend on missing data are skipped and the row says so rather than reporting that everything
   looks good. If the bgp.tools table is not loaded, BGP origins come from RIPE RIS instead.
+- Location comes from MaxMind GeoLite2 and needs a free MaxMind account: set
+  `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`. Without them location is simply left out. The
+  app checks for a new release with a HEAD request, which MaxMind does not count against the
+  daily download limit, and downloads only when `Last-Modified` changes (GeoLite2 is normally
+  rebuilt on Tuesdays and Fridays). With `BULK_CACHE_DIR` set the database is kept on disk, so a
+  restart does not download it again. A prefix spanning several GeoLite2 networks is walked
+  network by network and each country is weighted by address count; one spanning more than 64
+  networks (512 for the query itself) is sampled at 128 evenly spaced addresses and marked as
+  sampled. City, coordinates and accuracy radius are shown only when one GeoLite2 network covers
+  the whole query, and the registered country is shown when it differs from where the block is
+  used. GeoLite2 is accurate at country level and rough below that.
 - bgp.tools asks for an identifying User-Agent with a contact address and no more than one
   download every 30 minutes. Set `BGPTOOLS_USER_AGENT`; without it the table is not downloaded.
 
@@ -131,6 +144,10 @@ Every setting is documented in `.env.example`. The main ones:
 | `IRRD_GRAPHQL_URL`             | `https://rr.ntt.net/graphql/` | IRRd GraphQL endpoint                      |
 | `RIPESTAT_SOURCEAPP`           | `irrexplorer-ng`                            | Sent on every RIPEstat call                |
 | `BGPTOOLS_USER_AGENT`          | empty                                       | Required for the bgp.tools download        |
+| `MAXMIND_ACCOUNT_ID`           | empty                                       | MaxMind account, for GeoLite2              |
+| `MAXMIND_LICENSE_KEY`          | empty                                       | MaxMind licence key, for GeoLite2          |
+| `GEOIP_EDITION`                | `GeoLite2-City`                             | Or `GeoLite2-Country` (no city detail)     |
+| `GEOIP_REFRESH_SECONDS`        | `21600`                                     | How often to check for a new release       |
 | `PORT`                         | `3000`                                      | HTTP port                                  |
 | `CACHE_TTL_SECONDS`            | `600`                                       | In-process cache for upstream responses    |
 | `UPSTREAM_TIMEOUT_MS`          | `8000`                                      | Per-call timeout (IRRd gets at least 15 s) |
@@ -192,3 +209,6 @@ every request the suite makes and trims the bulk dumps down to the rows the test
 
 Based on [IRR explorer](https://github.com/nlnog/irrexplorer) by DashCare BV for Stichting
 NLNOG. Built by Athena Networks.
+
+This product includes GeoLite2 data created by MaxMind, available from
+[https://www.maxmind.com](https://www.maxmind.com).

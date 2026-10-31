@@ -9,6 +9,7 @@
 //         /ripestat/data/...  RIPEstat Data API
 //         /bgptools/...       table.jsonl, asns.csv
 //         /rir/nro, /rir/registrobr
+//         /maxmind/geoip/databases/GeoLite2-City/download   generated GeoLite2 stand-in
 //         /fail/...           always 503, for partial-failure tests
 
 import { createHash } from 'node:crypto'
@@ -16,6 +17,7 @@ import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import path from 'node:path'
+import { GEO_LAST_MODIFIED, geoFixtureTarball } from '../test/geo-fixture.ts'
 
 const PORT = Number(process.env.MOCK_PORT ?? 3199)
 const RECORD = process.env.MOCK_RECORD === '1'
@@ -112,6 +114,15 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
   if (p === '/__health') return send(res, 200, 'text/plain', 'ok')
   if (p.startsWith('/fail'))
     return send(res, 503, 'text/plain', 'upstream deliberately unavailable')
+
+  if (p === '/maxmind/geoip/databases/GeoLite2-City/download') {
+    // Credentials the e2e app instances are given (see playwright.config.ts).
+    if (req.headers.authorization !== `Basic ${btoa('e2e:e2e-licence')}`)
+      return send(res, 401, 'text/plain', 'Invalid license key')
+    const headers = { 'content-type': 'application/gzip', 'last-modified': GEO_LAST_MODIFIED }
+    res.writeHead(200, headers)
+    return res.end(method === 'HEAD' ? undefined : geoFixtureTarball())
+  }
 
   const bulk = BULK[p]
   if (bulk) {

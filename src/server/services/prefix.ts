@@ -2,8 +2,15 @@ import '@tanstack/react-start/server-only'
 
 import { covers, maxLength, parsePrefix, type Prefix } from '~/lib/ip'
 import { collect } from '~/lib/analysis/collect'
-import type { Notice, PrefixSummary, SourceStates } from '~/lib/analysis/types'
+import type {
+  GeoAvailability,
+  Notice,
+  PrefixGeo,
+  PrefixSummary,
+  SourceStates,
+} from '~/lib/analysis/types'
 import { env } from '../env'
+import { geoAvailability, geoFor, withGeo } from '../sources/geoip'
 import { visibilityFrom, type RisVisibility } from '../sources/ripestat'
 import { gather } from './gather'
 import { namesFor } from './names'
@@ -24,6 +31,9 @@ export interface PrefixReport {
   /** For a host query: the most specific announced prefix covering it. */
   coveringAnnounced: string | null
   visibility: RisVisibility | null
+  /** GeoLite2 location of the query itself, with city detail where it is one network. */
+  geo: PrefixGeo | null
+  geoip: GeoAvailability
   sources: SourceStates
   notices: Notice[]
   asNames: Record<string, string>
@@ -59,6 +69,8 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
       leastSpecific: null,
       coveringAnnounced: null,
       visibility: null,
+      geo: null,
+      geoip: geoAvailability(),
       sources: { irr: ok, bgp: ok, rpki: ok, rir: ok },
       notices: [],
       asNames: {},
@@ -66,7 +78,7 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
   }
   const g = await gather([prefix], { ripestat: true })
 
-  const overlaps = collect(g.input)
+  const overlaps = withGeo(collect(g.input))
 
   // Second table: everything overlapping the least specific prefix found.
   let leastSpecific: PrefixTable | null = null
@@ -79,7 +91,7 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
       leastSpecific = { prefix: shortest.cidr, rows: [], tooLarge: true }
     } else {
       const g2 = await gather([shortest])
-      leastSpecific = { prefix: shortest.cidr, rows: collect(g2.input), tooLarge: false }
+      leastSpecific = { prefix: shortest.cidr, rows: withGeo(collect(g2.input)), tooLarge: false }
       for (const n of g2.notices) {
         if (!g.notices.some((x) => x.text === n.text)) g.notices.push(n)
       }
@@ -103,6 +115,8 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
     leastSpecific,
     coveringAnnounced,
     visibility: g.routing ? visibilityFrom(prefix, g.routing) : null,
+    geo: geoFor(prefix, { place: true, maxSteps: 512 }),
+    geoip: geoAvailability(),
     sources: g.sources,
     notices: g.notices,
     asNames: namesFor([...overlaps, ...(leastSpecific?.rows ?? [])]),

@@ -14,8 +14,9 @@ import { Link } from '@tanstack/react-router'
 import { useMemo } from 'react'
 import { VirtualRows } from './virtual-rows'
 import { lookingGlassUrl } from '~/lib/links'
-import { comparator, sourcesOf } from '~/lib/report-rows'
+import { comparator, hasGeo, sourcesOf } from '~/lib/report-rows'
 import type { IrrRoute, PrefixSummary } from '~/lib/analysis/types'
+import { GeoCodes } from './geo'
 import { SortIcon } from './icons'
 import { CategoryIcon, MessageList, RpkiMark, edgeClass } from './status'
 import type { WhoisTarget } from './whois-dialog'
@@ -73,6 +74,7 @@ export function PrefixGrid({
   onWhois: (t: WhoisTarget) => void
 }) {
   const sources = useMemo(() => sourcesOf(rows), [rows])
+  const withGeo = useMemo(() => hasGeo(rows), [rows])
 
   const columns = useMemo(() => {
     const irrCell = (prefix: string, source: string, list: IrrRoute[] | undefined) =>
@@ -126,6 +128,16 @@ export function PrefixGrid({
         sortFn: sortWith('rir'),
         cell: (info) => <span className="whitespace-nowrap">{info.getValue()}</span>,
       }),
+      ...(withGeo
+        ? [
+            helper.accessor((r) => r.geo?.countries.map((c) => c.code).join(' ') ?? '', {
+              id: 'geo',
+              header: 'Geo',
+              sortFn: sortWith('geo'),
+              cell: (info) => <GeoCodes geo={info.row.original.geo} />,
+            }),
+          ]
+        : []),
       helper.accessor((r) => r.bgpOrigins.map((o) => o.asn).join(' '), {
         id: 'bgp',
         header: 'BGP',
@@ -191,7 +203,7 @@ export function PrefixGrid({
         cell: (info) => <MessageList messages={info.row.original.messages} reduced={reduced} />,
       }),
     ])
-  }, [sources, asNames, reduced, onWhois])
+  }, [sources, withGeo, asNames, reduced, onWhois])
 
   const columnVisibility = useMemo(() => {
     const v: Record<string, boolean> = { specific: false, status: reduced }
@@ -286,6 +298,7 @@ export function hideableColumns(rows: readonly PrefixSummary[]): { id: string; l
   return [
     { id: 'prefix', label: 'Prefix' },
     { id: 'rir', label: 'RIR' },
+    ...(hasGeo(rows) ? [{ id: 'geo', label: 'Geo' }] : []),
     { id: 'bgp', label: 'BGP' },
     { id: 'rpki', label: 'RPKI' },
     ...sourcesOf(rows).map((s) => ({ id: `irr:${s}`, label: s })),

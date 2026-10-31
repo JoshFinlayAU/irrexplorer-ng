@@ -6,6 +6,7 @@ import { SourceNotices } from '~/components/notices'
 import { ReportTables, useReportUpdate } from '~/components/report-tables'
 import { InvalidQuery, Pending } from '~/components/route-states'
 import { MemberOfSection } from '~/components/member-of-section'
+import { GeoShares, geoMissingText } from '~/components/geo'
 import { FactStrip, PageTitle, type Fact } from '~/components/ui'
 import { classifyQuery, formatAsn } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
@@ -14,6 +15,7 @@ import { useRecordRecent } from '~/lib/recent'
 import { reportSearchSchema } from '~/lib/search'
 import { parsePrefix } from '~/lib/ip'
 import type { PrefixSummary } from '~/lib/analysis/types'
+import type { AsnReport } from '~/server/services/asn'
 
 export const Route = createFileRoute('/asn/$asn')({
   validateSearch: reportSearchSchema,
@@ -50,7 +52,7 @@ function AsnPage() {
   return <AsnReportView asn={asn} />
 }
 
-function asnFacts(asn: number, rows: PrefixSummary[]): Fact[] {
+function asnFacts(asn: number, rows: PrefixSummary[], data: AsnReport): Fact[] {
   const bgp = rows.filter((r) => r.bgpOrigins.some((o) => o.asn === asn))
   const v4 = bgp.filter((r) => parsePrefix(r.prefix)?.version === 4).length
   const roas = rows.reduce((n, r) => n + r.rpkiRoutes.filter((o) => o.asn === asn).length, 0)
@@ -81,6 +83,17 @@ function asnFacts(asn: number, rows: PrefixSummary[]): Fact[] {
               .join('  '),
       wide: irr.size > 2,
     },
+    {
+      label: 'Announced from',
+      value: data.geo ? (
+        <GeoShares geo={data.geo} />
+      ) : (
+        <span className="text-[var(--faint)]">
+          {data.geoip === 'ok' ? 'Nothing announced' : geoMissingText(data.geoip)}
+        </span>
+      ),
+      wide: (data.geo?.countries.length ?? 0) > 1,
+    },
   ]
 }
 
@@ -96,7 +109,7 @@ function AsnReportView({ asn }: { asn: number }) {
         {label}
       </PageTitle>
       <div className="mb-6">
-        <FactStrip label="ASN facts" facts={asnFacts(asn, data.directOrigin)} />
+        <FactStrip label="ASN facts" facts={asnFacts(asn, data.directOrigin, data)} />
       </div>
       <SourceNotices notices={data.notices} />
       <Findings

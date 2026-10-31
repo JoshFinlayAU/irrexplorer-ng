@@ -61,13 +61,19 @@ function Sources() {
     return <p className="font-mono text-[0.78rem] text-[var(--faint)]">checking sources_</p>
   if (isError)
     return <p className="font-mono text-[0.78rem] text-[var(--danger-fg)]">status unavailable</p>
-  const rows: { name: string; age: string; ok: boolean; detail?: string }[] = [
-    ...data.datasets.map((d) => ({
-      name: d.name,
-      age: age(d.loadedAt, now),
-      ok: !!d.loadedAt && !d.lastError,
-      detail: d.size ? d.size.toLocaleString('en-US') : undefined,
-    })),
+  const rows: { name: string; age: string; ok: boolean | null; detail?: string }[] = [
+    ...data.datasets.map((d) =>
+      d.name === 'MaxMind GeoLite2' && !data.geoip.configured
+        ? { name: d.name, age: '', ok: null, detail: 'not configured' }
+        : {
+            name: d.name,
+            age: age(d.loadedAt, now),
+            ok: !!d.loadedAt && !d.lastError,
+            detail: d.size
+              ? d.size.toLocaleString('en-US')
+              : (d.version?.replace(/^.* built /, 'built ') ?? undefined),
+          },
+    ),
     ...(data.irr ?? []).map((s) => ({
       name: `IRR ${s.source}`,
       age: age(s.lastUpdate, now),
@@ -83,7 +89,7 @@ function Sources() {
             Source
           </th>
           <th scope="col" className="label pb-1 text-right font-medium">
-            Rows
+            Size
           </th>
           <th scope="col" className="label pb-1 text-right font-medium">
             Age
@@ -96,10 +102,18 @@ function Sources() {
             <td className="py-1">
               <span
                 aria-hidden="true"
-                className={`mr-2 inline-block h-1.5 w-1.5 align-middle ${r.ok ? 'bg-[var(--success-fg)]' : 'bg-[var(--danger-fg)]'}`}
+                className={`mr-2 inline-block h-1.5 w-1.5 align-middle ${
+                  r.ok === null
+                    ? 'border border-[var(--rule-strong)]'
+                    : r.ok
+                      ? 'bg-[var(--success-fg)]'
+                      : 'bg-[var(--danger-fg)]'
+                }`}
               />
               {r.name}
-              <span className="sr-only">{r.ok ? ' (ok)' : ' (not loaded)'}</span>
+              <span className="sr-only">
+                {r.ok === null ? ' (off)' : r.ok ? ' (ok)' : ' (not loaded)'}
+              </span>
             </td>
             <td className="py-1 text-right text-[var(--muted)]">{r.detail ?? ''}</td>
             <td className="py-1 text-right">{r.age}</td>

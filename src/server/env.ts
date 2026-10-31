@@ -21,6 +21,14 @@ const EnvSchema = z.object({
     .url()
     .default('https://ftp.registro.br/pub/numeracao/origin/nicbr-asn-blk-latest.txt'),
   RIRSTATS_REFRESH_SECONDS: z.coerce.number().int().min(3600).default(86400),
+  /** MaxMind account and licence key for GeoLite2. GeoIP is off without both. */
+  MAXMIND_ACCOUNT_ID: z.string().default(''),
+  MAXMIND_LICENSE_KEY: z.string().default(''),
+  MAXMIND_DOWNLOAD_URL: z.url().default('https://download.maxmind.com'),
+  /** GeoLite2-City (country, city, coordinates) or GeoLite2-Country. */
+  GEOIP_EDITION: z.enum(['GeoLite2-City', 'GeoLite2-Country']).default('GeoLite2-City'),
+  /** How often to check for a new release. Checks are HEAD requests and free. */
+  GEOIP_REFRESH_SECONDS: z.coerce.number().int().min(3600).default(21600),
   /** Queries shorter than these lengths are refused as too large, like the original. */
   MIN_PREFIX_LENGTH_V4: z.coerce.number().int().min(0).max(32).default(9),
   MIN_PREFIX_LENGTH_V6: z.coerce.number().int().min(0).max(128).default(29),

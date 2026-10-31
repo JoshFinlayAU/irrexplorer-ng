@@ -95,7 +95,10 @@ function RootLayout() {
             <a href="https://github.com/nlnog/irrexplorer">IRR explorer</a> by DashCare BV for
             Stichting NLNOG.
           </span>
-          <span>Data from IRRd, bgp.tools, RIPE RIS, the RIRs and RPKI.</span>
+          <span>
+            Data from IRRd, bgp.tools, RIPE RIS, the RIRs and RPKI. Includes GeoLite2 data created
+            by MaxMind, available from <a href="https://www.maxmind.com">maxmind.com</a>.
+          </span>
         </div>
       </footer>
     </div>

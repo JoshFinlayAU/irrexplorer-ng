@@ -14,6 +14,8 @@ export interface DatasetStatus {
   loading: boolean
   lastError: string | null
   size: number | null
+  /** Release or build of the loaded data, where the dataset knows it. */
+  version: string | null
 }
 
 export interface DatasetOptions<T> {
@@ -24,6 +26,7 @@ export interface DatasetOptions<T> {
   enabled: () => boolean
   load: () => Promise<T>
   size?: (data: T) => number
+  version?: (data: T) => string
 }
 
 export class Dataset<T> {
@@ -67,6 +70,7 @@ export class Dataset<T> {
       loading: this.loading !== null,
       lastError: this.lastError,
       size: this.data !== null && this.options.size ? this.options.size(this.data) : null,
+      version: this.data !== null && this.options.version ? this.options.version(this.data) : null,
     }
   }
 

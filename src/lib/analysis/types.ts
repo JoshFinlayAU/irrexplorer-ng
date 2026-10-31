@@ -53,6 +53,8 @@ export interface PrefixSummary {
   messages: Message[]
   categoryOverall: Category
   goodnessOverall: number
+  /** GeoLite2 location; absent when not looked up, null when GeoIP is unavailable. */
+  geo?: PrefixGeo | null
 }
 
 export type SourceKey = 'irr' | 'bgp' | 'rpki' | 'rir'
@@ -106,4 +108,51 @@ export interface SetExpansion {
 export interface MemberOf {
   irrsSeen: string[]
   setsPerIrr: Record<string, string[]>
+}
+
+/** Share of a prefix's addresses that GeoLite2 places in one country. */
+export interface GeoCountry {
+  /** ISO 3166-1 alpha-2. */
+  code: string
+  name: string
+  /** 0..1 of the prefix's addresses. */
+  share: number
+}
+
+/** City-level detail, only given where one GeoLite2 network covers the query. */
+export interface GeoPlace {
+  city: string | null
+  region: string | null
+  country: string | null
+  countryName: string | null
+  /** Country the block is registered to, which can differ from where it is used. */
+  registered: string | null
+  registeredName: string | null
+  latitude: number | null
+  longitude: number | null
+  radiusKm: number | null
+}
+
+/** Whether GeoIP could be used: "unconfigured" means no MaxMind licence key. */
+export type GeoAvailability = 'ok' | 'unconfigured' | 'unavailable'
+
+/** Country shares across several prefixes (an ASN's announcements). */
+export interface GeoBreakdown {
+  countries: GeoCountry[]
+  other: number
+  unknown: number
+}
+
+export interface PrefixGeo {
+  /** Most addresses first; the tail beyond a few countries is folded into "other". */
+  countries: GeoCountry[]
+  /** Share in countries not listed. */
+  other: number
+  /** Share with no country in GeoLite2. */
+  unknown: number
+  /** GeoLite2 networks the prefix spans (a lower bound when estimated). */
+  networks: number
+  /** True when the prefix spans too many networks and was sampled instead. */
+  estimated: boolean
+  place: GeoPlace | null
 }

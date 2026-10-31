@@ -11,6 +11,10 @@ import { prefixReport } from '~/server/services/prefix'
 import { asnReport } from '~/server/services/asn'
 import { memberOfReport, setExpansion } from '~/server/services/sets'
 import { statusReport } from '~/server/services/status'
+import { geoip } from '~/server/sources/geoip'
+import { Reader, type CityResponse } from 'mmdb-lib'
+import type { GeoRecord } from '~/lib/analysis/geo'
+import { geoFixtureDb } from '../geo-fixture'
 
 const server = setupServer(...recordedHandlers)
 
@@ -29,6 +33,16 @@ function loadDatasets() {
     for (const r of parseDelegatedLine(line)) rir.add(r.prefix, r.value)
   }
   rirStats.set(rir.build())
+}
+
+function loadGeo() {
+  const reader = new Reader<CityResponse>(geoFixtureDb())
+  geoip.set({
+    edition: 'GeoLite2-City',
+    buildDate: reader.metadata.buildEpoch.toISOString(),
+    lastModified: null,
+    lookup: (ip) => reader.getWithPrefixLength(ip) as [GeoRecord | null, number],
+  })
 }
 
 beforeAll(() => {
@@ -165,8 +179,57 @@ describe('sets and status', () => {
       'bgp.tools table',
       'bgp.tools AS names',
       'RIR delegations',
+      'MaxMind GeoLite2',
     ])
+    expect(s.geoip).toEqual({ configured: false, edition: 'GeoLite2-City' })
     expect(s.irr?.map((i) => i.source)).toContain('RIPE')
     expect(s.irr?.map((i) => i.source)).toContain('RPKI')
+  })
+})
+
+describe('geolocation', () => {
+  beforeEach(() => {
+    process.env.MAXMIND_ACCOUNT_ID = '1'
+    process.env.MAXMIND_LICENSE_KEY = 'k'
+    resetEnv()
+    loadGeo()
+  })
+  afterEach(() => {
+    delete process.env.MAXMIND_ACCOUNT_ID
+    delete process.env.MAXMIND_LICENSE_KEY
+    resetEnv()
+    geoip.set(null)
+  })
+
+  it('locates the query and every row of a prefix report', async () => {
+    const r = await prefixReport('193.0.0.0/21')
+    expect(r.geoip).toBe('ok')
+    expect(r.geo?.countries.map((c) => [c.code, c.share])).toEqual([
+      ['NL', 0.75],
+      ['DE', 0.25],
+    ])
+    const row = r.overlaps.find((x) => x.prefix === '193.0.0.0/21')!
+    expect(row.geo?.countries[0]?.code).toBe('NL')
+  })
+
+  it('gives city detail for a host', async () => {
+    const r = await prefixReport('193.0.0.1')
+    expect(r.geo?.place).toMatchObject({ city: 'Amsterdam', country: 'NL' })
+  })
+
+  it('rolls up the countries an ASN announces from', async () => {
+    const r = await asnReport(3333)
+    expect(r.geoip).toBe('ok')
+    expect(r.geo?.countries[0]?.code).toBe('NL')
+  })
+
+  it('marks reports when GeoIP is not configured', async () => {
+    delete process.env.MAXMIND_LICENSE_KEY
+    resetEnv()
+    geoip.set(null)
+    const r = await prefixReport('193.0.0.0/21')
+    expect(r.geoip).toBe('unconfigured')
+    expect(r.geo).toBeNull()
+    expect(r.overlaps[0]?.geo).toBeUndefined()
   })
 })

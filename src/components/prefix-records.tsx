@@ -6,6 +6,7 @@ import { parsePrefix, prefixSize } from '~/lib/ip'
 import { lookingGlassUrl } from '~/lib/links'
 import type { IrrRoute, PrefixSummary, RpkiValidity } from '~/lib/analysis/types'
 import { describeValidity } from '~/lib/analysis/rpki'
+import { GeoCodes } from './geo'
 import { ExternalIcon } from './icons'
 import { MessageList, RpkiWord, SeverityTag, edgeClass } from './status'
 import { VirtualList } from './virtual-list'
@@ -114,6 +115,12 @@ export function PrefixRecord({
           {row.rir ?? 'no RIR'}
           <span className="px-2 text-[var(--faint)]">|</span>
           {addressCount(row.prefix)}
+          {row.geo !== undefined ? (
+            <>
+              <span className="px-2 text-[var(--faint)]">|</span>
+              <GeoCodes geo={row.geo} />
+            </>
+          ) : null}
         </span>
         {row.bgpOrigins.length > 0 ? (
           <a

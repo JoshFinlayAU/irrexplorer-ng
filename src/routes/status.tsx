@@ -19,6 +19,10 @@ const DATASET_INFO: Record<string, { label: string; href: string }> = {
     href: 'https://bgp.tools/',
   },
   'bgp.tools AS names': { label: 'AS names from bgp.tools', href: 'https://bgp.tools/' },
+  'MaxMind GeoLite2': {
+    label: 'Prefix geolocation from MaxMind GeoLite2',
+    href: 'https://dev.maxmind.com/geoip/geolite2-free-geolocation-data',
+  },
   'RIR delegations': {
     label: 'Prefix to RIR mapping from NRO delegated stats and Registro.BR',
     href: 'https://www.nro.net/about/rirs/statistics/',
@@ -30,6 +34,7 @@ const UPSTREAM_LABEL: Record<string, string> = {
   ripestat: 'RIPEstat',
   bgptools: 'bgp.tools',
   rirstats: 'RIR delegated stats',
+  maxmind: 'MaxMind downloads',
 }
 
 function StatusPage() {
@@ -51,7 +56,7 @@ function StatusPage() {
         <table className="w-full border-collapse font-mono text-[0.8rem]">
           <thead className="bg-[var(--sunk)]">
             <tr>
-              {['Source', 'Last update', 'Rows', 'State'].map((h) => (
+              {['Source', 'Last update', 'Rows / release', 'State'].map((h) => (
                 <th
                   key={h}
                   scope="col"
@@ -65,6 +70,7 @@ function StatusPage() {
           <tbody>
             {data.datasets.map((d) => {
               const info = DATASET_INFO[d.name]
+              const off = d.name === 'MaxMind GeoLite2' && !data.geoip.configured
               return (
                 <tr key={d.name} className="border-b border-[var(--rule)] last:border-b-0">
                   <td className="px-3 py-2">
@@ -74,10 +80,14 @@ function StatusPage() {
                     <Timestamp iso={d.loadedAt} />
                   </td>
                   <td className="px-3 py-2 tabular-nums">
-                    {d.size?.toLocaleString('en-US') ?? ''}
+                    {d.size?.toLocaleString('en-US') ?? d.version ?? ''}
                   </td>
                   <td className="px-3 py-2">
-                    {d.lastError ? (
+                    {off ? (
+                      <span className="text-[var(--muted)]">
+                        Not configured: set MAXMIND_ACCOUNT_ID and MAXMIND_LICENSE_KEY
+                      </span>
+                    ) : d.lastError ? (
                       <span className="inline-flex items-baseline gap-2">
                         <SeverityTag category="danger" />
                         <span className="text-[var(--danger-fg)]">Error: {d.lastError}</span>
@@ -96,6 +106,12 @@ function StatusPage() {
           </tbody>
         </table>
       </div>
+
+      <p className="-mt-7 mb-10 max-w-[75ch] text-sm text-[var(--muted)]">
+        GeoLite2 is checked for a new release every few hours and downloaded only when MaxMind
+        publishes one (usually Tuesdays and Fridays). This product includes GeoLite2 data created by
+        MaxMind, available from <a href="https://www.maxmind.com">https://www.maxmind.com</a>.
+      </p>
 
       <SectionHead title="IRR sources" />
       <p className="mb-3 max-w-[75ch] text-sm text-[var(--muted)]">

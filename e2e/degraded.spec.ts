@@ -19,6 +19,7 @@ test('prefix page renders with notices and RIS fallback', async ({ page }) => {
   await expect(row).toContainText('AS3333')
   await expect(row).toContainText('Some checks were skipped because IRR, RPKI data is unavailable')
   await expect(row).not.toContainText('Everything looks good')
+  await expect(page.getByLabel('Prefix facts')).toContainText('GeoIP unavailable')
   await checkA11y(page)
   await shot(page, 'degraded-prefix')
 })

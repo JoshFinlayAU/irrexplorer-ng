@@ -12,7 +12,13 @@ test('healthz reports process and per-upstream state', async ({ request }) => {
     datasets: unknown[]
   }
   expect(body.status).toBe('ok')
-  expect(Object.keys(body.upstreams).sort()).toEqual(['bgptools', 'irrd', 'ripestat', 'rirstats'])
+  expect(Object.keys(body.upstreams).sort()).toEqual([
+    'bgptools',
+    'irrd',
+    'maxmind',
+    'ripestat',
+    'rirstats',
+  ])
   expect(body.datasets).toHaveLength(3)
 })
 

@@ -2,6 +2,7 @@
 # BGPTOOLS_USER_AGENT, then: docker compose up -d --build
 #
 # RPKI data comes from the RPKI source of the IRRd at IRRD_GRAPHQL_URL.
+# Set MAXMIND_ACCOUNT_ID and MAXMIND_LICENSE_KEY for GeoLite2 location.
 services:
   app:
     build: .
@@ -14,8 +15,9 @@ services:
         required: false
     environment:
       PORT: '3000'
-      # Keeps raw bulk downloads across restarts so bgp.tools is not fetched
-      # more than every 30 minutes. Safe to delete at any time.
+      # Keeps raw bulk downloads and the GeoLite2 database across restarts so
+      # bgp.tools is not fetched more than every 30 minutes and GeoLite2 only
+      # when MaxMind publishes a new release. Safe to delete at any time.
       BULK_CACHE_DIR: /app/.cache
     volumes:
       - bulk-cache:/app/.cache

@@ -8,6 +8,7 @@ import type { BgpRow, CollectInput, IrrRow, RoaRow } from '~/lib/analysis/collec
 import { validatorFrom } from '~/lib/analysis/rpki'
 import type { Notice, SourceStates } from '~/lib/analysis/types'
 import { bgpOverlapping, bgpTable } from '../sources/bgptools'
+import { geoip } from '../sources/geoip'
 import { routesOverlapping, rpkiSource, type IrrdRoutes } from '../sources/irrd'
 import { bgpRowsFrom, routingStatus, type RoutingStatus } from '../sources/ripestat'
 import { rirOverlapping } from '../sources/rirstats'
@@ -39,7 +40,7 @@ export async function gather(
   }
 
   // Give a cold-started table a moment, but never block a request on a download.
-  await bgpTable.ready(250)
+  await Promise.all([bgpTable.ready(250), geoip.ready(250)])
 
   const wantRipestat = options.ripestat === true && prefixes.length === 1
   const [irrResult, risResult, rpkiResult] = await Promise.allSettled([

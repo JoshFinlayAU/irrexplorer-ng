@@ -108,6 +108,15 @@ test.describe('prefix view', () => {
     const row = t.getByRole('row').filter({ hasText: '193.0.0.0/21' })
     await expect(row.getByRole('listitem').filter({ hasText: '/21' })).toHaveText(/3333.*\/21/)
     await expect(page.getByText(/Seen by \d+ of \d+ RIPE RIS full-feed peers/)).toBeVisible()
+    // GeoLite2 (the generated stand-in): a quarter of the /21 is in Germany.
+    const location = page
+      .getByLabel('Prefix facts')
+      .getByRole('definition')
+      .filter({ hasText: 'NL' })
+    await expect(location).toContainText('NL 75%')
+    await expect(location).toContainText('DE 25%')
+    await expect(t.getByRole('columnheader', { name: 'Geo', exact: true })).toBeVisible()
+    await expect(row.getByTitle(/GeoLite2 location: Netherlands 75%, Germany 25%/)).toBeVisible()
     await expect(page.getByRole('link', { name: 'Source data as JSON' }).first()).toHaveAttribute(
       'href',
       '/api/prefixes/prefix/193.0.0.0/21',
@@ -149,6 +158,16 @@ test.describe('prefix view', () => {
     const facts = page.getByRole('definition').filter({ hasText: '193.0.0.0/21' })
     await expect(page.getByText('Covering route', { exact: true })).toBeVisible()
     await expect(facts.getByRole('link', { name: '193.0.0.0/21' })).toBeVisible()
+    const location = page
+      .getByLabel('Prefix facts')
+      .getByRole('definition')
+      .filter({ hasText: 'Amsterdam' })
+    await expect(location).toContainText('Amsterdam, North Holland, Netherlands')
+    await expect(location).toContainText('±20 km')
+    await expect(location.getByRole('link', { name: /52\.3759, 4\.8975/ })).toHaveAttribute(
+      'href',
+      /openstreetmap\.org\/\?mlat=52\.3759&mlon=4\.8975/,
+    )
     await expect(
       page.getByRole('heading', { name: /All overlaps of least specific match/ }),
     ).toBeVisible()
@@ -233,6 +252,11 @@ test.describe('prefix view', () => {
     await expect(rec).toContainText('RPKI-invalid route objects found')
     await expect(rec.locator('button.line-through').first()).toBeVisible()
     await expect(rec).toContainText('invalid len')
+    // Used in Australia but registered to the US, as GeoLite2 reports it.
+    await expect(page.getByLabel('Prefix facts')).toContainText(
+      'Sydney, New South Wales, Australia',
+    )
+    await expect(page.getByLabel('Prefix facts')).toContainText('registered US')
     await expect(page.getByRole('region', { name: 'Address space' })).toContainText(
       'inside 137.17.0.0/16',
     )
@@ -339,6 +363,8 @@ test.describe('ASN view', () => {
       'Everything looks good',
     )
     await expect(page.getByLabel('ASN facts')).toContainText('Announced')
+    await expect(page.getByLabel('ASN facts')).toContainText('Announced from')
+    await expect(page.getByLabel('ASN facts')).toContainText(/NL \d+%/)
     await expect(
       page.getByRole('heading', {
         name: 'Other prefixes overlapping with prefixes originated by AS3333',
@@ -478,6 +504,9 @@ test.describe('other routes', () => {
     await page.goto('/status')
     await hydrated(page)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Data status')
+    await expect(page.getByRole('row').filter({ hasText: 'MaxMind GeoLite2' })).toContainText(
+      'GeoLite2-City built 2026-10-29',
+    )
     for (const text of ['bgp.tools', 'RPKI', 'NRO delegated stats', 'RIPE', 'RADB']) {
       await expect(page.getByText(text).first()).toBeVisible()
     }

@@ -40,6 +40,12 @@ export function comparator(id: string): (a: PrefixSummary, b: PrefixSummary) => 
     case 'rpki':
       return (a, b) =>
         diff(firstOr(a.rpkiRoutes.map((o) => o.asn)), firstOr(b.rpkiRoutes.map((o) => o.asn)))
+    case 'geo':
+      // By main country, then by how much of the prefix it covers (most first).
+      return (a, b) =>
+        (a.geo?.countries[0]?.code ?? '~').localeCompare(b.geo?.countries[0]?.code ?? '~') ||
+        (b.geo?.countries[0]?.share ?? 0) - (a.geo?.countries[0]?.share ?? 0) ||
+        byAddress(a.prefix, b.prefix)
     case 'advice':
       return (a, b) => a.goodnessOverall - b.goodnessOverall || byAddress(a.prefix, b.prefix)
     default:
@@ -66,7 +72,7 @@ export function sortRows(
 export const isIssue = (r: PrefixSummary) =>
   r.categoryOverall === 'danger' || r.categoryOverall === 'warning'
 
-/** Free-text match over prefix, RIR, every ASN, IRR source names and messages. */
+/** Free-text match over prefix, RIR, every ASN, IRR source names, messages and countries. */
 export function matchesFilter(r: PrefixSummary, value: string): boolean {
   const needle = value
     .trim()
@@ -80,6 +86,7 @@ export function matchesFilter(r: PrefixSummary, value: string): boolean {
     ...r.rpkiRoutes.map((o) => String(o.asn)),
     ...Object.entries(r.irrRoutes).flatMap(([s, l]) => [s, ...l.map((o) => String(o.asn))]),
     ...r.messages.map((m) => m.text),
+    ...(r.geo?.countries.flatMap((c) => [c.code, c.name]) ?? []),
   ]
   return hay.some((h) => h.toLowerCase().includes(needle))
 }
@@ -94,4 +101,9 @@ export function filterRows(
 /** IRR sources present anywhere in these rows, so record columns line up. */
 export function sourcesOf(rows: readonly PrefixSummary[]): string[] {
   return [...new Set(rows.flatMap((r) => Object.keys(r.irrRoutes)))].sort()
+}
+
+/** Whether these rows carry GeoLite2 data at all (null counts: GeoIP is configured). */
+export function hasGeo(rows: readonly PrefixSummary[]): boolean {
+  return rows.some((r) => r.geo !== undefined)
 }

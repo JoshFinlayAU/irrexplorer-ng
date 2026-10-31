@@ -3,9 +3,17 @@ import '@tanstack/react-start/server-only'
 import { parsePrefix, type Prefix } from '~/lib/ip'
 import { aggregate } from '~/lib/analysis/aggregate'
 import { collect, type BgpRow } from '~/lib/analysis/collect'
-import type { Notice, PrefixSummary, SourceStates } from '~/lib/analysis/types'
+import { mergeGeo } from '~/lib/analysis/geo'
+import type {
+  GeoAvailability,
+  GeoBreakdown,
+  Notice,
+  PrefixSummary,
+  SourceStates,
+} from '~/lib/analysis/types'
 import { env } from '../env'
 import { asName, bgpByOrigin } from '../sources/bgptools'
+import { geoAvailability, withGeo } from '../sources/geoip'
 import { routesByOrigin } from '../sources/irrd'
 import { originatedByAsn } from '../sources/ripestat'
 import { gather } from './gather'
@@ -17,6 +25,9 @@ export interface AsnReport {
   name: string | null
   directOrigin: PrefixSummary[]
   overlaps: PrefixSummary[]
+  /** Where the prefixes this ASN announces in BGP are, by address share. */
+  geo: GeoBreakdown | null
+  geoip: GeoAvailability
   sources: SourceStates
   notices: Notice[]
   asNames: Record<string, string>
@@ -68,7 +79,7 @@ export async function asnReport(asn: number): Promise<AsnReport> {
     })
     g.sources.rpki = g.sources.irr
   }
-  const rows = collect(g.input)
+  const rows = withGeo(collect(g.input))
 
   const isDirect = (r: PrefixSummary) =>
     r.bgpOrigins.some((o) => o.asn === asn) ||
@@ -80,6 +91,13 @@ export async function asnReport(asn: number): Promise<AsnReport> {
     name: asName(asn),
     directOrigin: rows.filter(isDirect),
     overlaps: rows.filter((r) => !isDirect(r)),
+    geo: mergeGeo(
+      rows.flatMap((r) => {
+        const prefix = r.bgpOrigins.some((o) => o.asn === asn) ? parsePrefix(r.prefix) : null
+        return prefix && r.geo ? [{ prefix, geo: r.geo }] : []
+      }),
+    ),
+    geoip: geoAvailability(),
     sources: g.sources,
     notices: [...notices, ...g.notices],
     asNames: namesFor(rows, [asn]),
