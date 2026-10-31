@@ -1,7 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useId, useMemo } from 'react'
 import { ROW_LIMIT } from '~/lib/analysis/sets'
-import type { SetExpansion } from '~/lib/analysis/types'
+import { Link } from '@tanstack/react-router'
+import type { PdbNetRef, SetExpansion } from '~/lib/analysis/types'
 import { setQuery } from '~/lib/queries'
 import { useRecordRecent } from '~/lib/recent'
 import { MemberOfSection } from './member-of-section'
@@ -90,7 +91,13 @@ export function SetPage({
           {category} was not found.
         </p>
       ) : (
-        <Expansion data={data.expansion} state={state} onChange={onChange} filterId={filterId} />
+        <Expansion
+          data={data.expansion}
+          listedBy={data.listedBy}
+          state={state}
+          onChange={onChange}
+          filterId={filterId}
+        />
       )}
       <MemberOfSection
         target={name}
@@ -101,13 +108,38 @@ export function SetPage({
   )
 }
 
+/** Networks naming this AS-set as theirs in PeeringDB, the set peers build filters from. */
+function listedByFact(listedBy: PdbNetRef[]) {
+  return {
+    label: 'Named in PeeringDB by',
+    value:
+      listedBy.length === 0 ? (
+        <span className="text-[var(--faint)]">no network</span>
+      ) : (
+        <span className="flex flex-col">
+          {listedBy.map((n) => (
+            <span key={n.id} className="flex flex-wrap gap-x-2">
+              <Link to="/asn/$asn" params={{ asn: `AS${n.asn}` }}>
+                AS{n.asn}
+              </Link>
+              <span className="text-[var(--muted)]">{n.name}</span>
+            </span>
+          ))}
+        </span>
+      ),
+    wide: true,
+  }
+}
+
 function Expansion({
   data,
+  listedBy,
   state,
   onChange,
   filterId,
 }: {
   data: SetExpansion
+  listedBy: PdbNetRef[] | null
   state: SetTableState
   onChange: (next: Partial<SetTableState>) => void
   filterId: string
@@ -132,6 +164,7 @@ function Expansion({
               label: 'Missing sets',
               value: <span className={missing ? 'text-[var(--warning-fg)]' : ''}>{missing}</span>,
             },
+            ...(listedBy ? [listedByFact(listedBy)] : []),
           ]}
         />
       </div>

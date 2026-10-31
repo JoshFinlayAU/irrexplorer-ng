@@ -34,7 +34,14 @@ same parts:
   host, IPv6 /48, 32-bit ASN, route-set) and `/` focuses it from anywhere.
 - **Fact strip.** The header of each report: size, RIR, origins with RPKI state, RIS visibility,
   location, covering route for a bare IP, special-use overlaps; for an ASN, announcement and ROA
-  counts, route objects per IRR and the countries it announces from; for a set, sets resolved, depth, ASNs, prefixes, loops, missing sets.
+  counts, route objects per IRR and the countries it announces from; for a set, sets resolved,
+  depth, ASNs, prefixes, loops, missing sets and the networks that name it in PeeringDB. A
+  prefix on an exchange peering LAN shows the exchange, and an exchange address shows the
+  network whose port uses it.
+- **PeeringDB** (ASN view). The network's own record: name, organisation, type, scope, traffic,
+  peering policy, max-prefix values set against what it actually announces, the IRR AS-set it
+  publishes (checked against IRR membership on the same page), public contacts, every exchange
+  port with speed, addresses and route server use, and its facilities.
 - **Findings.** Every advice message on the page grouped across prefixes, errors first, like a
   compiler's diagnostics, with a status bar of the whole result. Clicking a message or a prefix
   filters the records to it.
@@ -68,6 +75,7 @@ means the bulk datasets are downloaded again.
 | RIR per prefix                      | NRO delegated stats and Registro.BR | Downloaded daily                                  |
 | RIS visibility, BGP fallback        | RIPEstat Data API                   | Queried per request                               |
 | Geolocation                         | MaxMind GeoLite2 City               | Checked every 6 hours, downloaded when updated    |
+| Networks, exchanges, facilities     | PeeringDB API                       | Mirrored: changes hourly, full copy daily         |
 
 A few notes on these choices:
 
@@ -93,6 +101,14 @@ A few notes on these choices:
   sampled. City, coordinates and accuracy radius are shown only when one GeoLite2 network covers
   the whole query, and the registered country is shown when it differs from where the block is
   used. GeoLite2 is accurate at country level and rough below that.
+- PeeringDB is mirrored in memory from its API. The first load fetches networks, organisations,
+  exchanges, peering LANs, exchange ports, facilities and contacts (about 125 MB of JSON, kept
+  as a much smaller projection). After that only changes are fetched every hour with `since`,
+  the way `peeringdb-py` syncs, and the whole copy is replaced once a day. Requests are spaced
+  2.5 seconds apart. An API key (`PEERINGDB_API_KEY`) is optional but raises the query limit
+  from 20 to 40 a minute. Only contacts PeeringDB shows to everyone are kept, because this app
+  shows its data to anyone who can reach it. Max-prefix is flagged near (over 90%) or over the
+  value the network lists, since peers often configure their limits from it.
 - bgp.tools asks for an identifying User-Agent with a contact address and no more than one
   download every 30 minutes. Set `BGPTOOLS_USER_AGENT`; without it the table is not downloaded.
 
@@ -148,6 +164,9 @@ Every setting is documented in `.env.example`. The main ones:
 | `MAXMIND_LICENSE_KEY`          | empty                                       | MaxMind licence key, for GeoLite2          |
 | `GEOIP_EDITION`                | `GeoLite2-City`                             | Or `GeoLite2-Country` (no city detail)     |
 | `GEOIP_REFRESH_SECONDS`        | `21600`                                     | How often to check for a new release       |
+| `PEERINGDB_API_KEY`            | empty                                       | Optional, raises PeeringDB's query limit   |
+| `PEERINGDB_ENABLED`            | `true`                                      | Set to `false` to leave PeeringDB out      |
+| `PEERINGDB_REFRESH_SECONDS`    | `3600`                                      | How often to fetch PeeringDB changes       |
 | `PORT`                         | `3000`                                      | HTTP port                                  |
 | `CACHE_TTL_SECONDS`            | `600`                                       | In-process cache for upstream responses    |
 | `UPSTREAM_TIMEOUT_MS`          | `8000`                                      | Per-call timeout (IRRd gets at least 15 s) |
@@ -209,6 +228,9 @@ every request the suite makes and trims the bulk dumps down to the rows the test
 
 Based on [IRR explorer](https://github.com/nlnog/irrexplorer) by DashCare BV for Stichting
 NLNOG. Built by Athena Networks.
+
+Network, exchange and facility data from [PeeringDB](https://www.peeringdb.com), used under
+its [acceptable use policy](https://www.peeringdb.com/aup).
 
 This product includes GeoLite2 data created by MaxMind, available from
 [https://www.maxmind.com](https://www.maxmind.com).

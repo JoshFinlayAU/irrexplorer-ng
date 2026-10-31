@@ -7,6 +7,7 @@ import { ReportTables, useReportUpdate } from '~/components/report-tables'
 import { InvalidQuery, Pending } from '~/components/route-states'
 import { MemberOfSection } from '~/components/member-of-section'
 import { GeoShares, geoMissingText } from '~/components/geo'
+import { PeeringDbSection, pdbMissingText } from '~/components/peeringdb'
 import { FactStrip, PageTitle, type Fact } from '~/components/ui'
 import { classifyQuery, formatAsn } from '~/lib/parse'
 import { locationFor } from '~/lib/links'
@@ -84,6 +85,20 @@ function asnFacts(asn: number, rows: PrefixSummary[], data: AsnReport): Fact[] {
       wide: irr.size > 2,
     },
     {
+      label: 'PeeringDB',
+      value: data.peeringdb ? (
+        <a href="#pdb-title">
+          {[data.peeringdb.types.join(', '), data.peeringdb.policy.general.toLowerCase()]
+            .filter(Boolean)
+            .join(', ') || data.peeringdb.name}
+        </a>
+      ) : (
+        <span className="text-[var(--faint)]">
+          {data.pdb === 'ok' ? 'No record' : pdbMissingText(data.pdb)}
+        </span>
+      ),
+    },
+    {
       label: 'Announced from',
       value: data.geo ? (
         <GeoShares geo={data.geo} />
@@ -103,6 +118,8 @@ function AsnReportView({ asn }: { asn: number }) {
   const { data } = useSuspenseQuery(asnQuery(asn))
   const label = formatAsn(asn)
   useRecordRecent({ path: `/asn/${label}`, label, kind: 'asn' })
+  const announced = data.directOrigin.filter((r) => r.bgpOrigins.some((o) => o.asn === asn))
+  const v4 = announced.filter((r) => parsePrefix(r.prefix)?.version === 4).length
   return (
     <div>
       <PageTitle kind="ASN" sub={data.name ?? 'AS name unknown'}>
@@ -149,6 +166,12 @@ function AsnReportView({ asn }: { asn: number }) {
             jsonHref: `/api/prefixes/asn/${label}`,
           },
         ]}
+      />
+      <PeeringDbSection
+        asn={asn}
+        net={data.peeringdb}
+        state={data.pdb}
+        announced={{ v4, v6: announced.length - v4 }}
       />
       <div className="grid gap-x-8 lg:grid-cols-2">
         <MemberOfSection

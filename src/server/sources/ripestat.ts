@@ -49,23 +49,22 @@ const RelatedList = z.array(
   z.object({ prefix: z.string(), origin: z.union([z.number(), z.string()]) }),
 )
 
+// A resource RIS has never seen comes back as `first_seen: {}`.
+const SeenSchema = z.preprocess(
+  (v) => (v && typeof v === 'object' && Object.keys(v).length === 0 ? null : v),
+  z
+    .object({
+      prefix: z.string(),
+      origin: z.union([z.number(), z.string()]).nullable(),
+      time: z.string(),
+    })
+    .nullable()
+    .optional(),
+)
+
 export const RoutingStatusSchema = z.object({
-  first_seen: z
-    .object({
-      prefix: z.string(),
-      origin: z.union([z.number(), z.string()]).nullable(),
-      time: z.string(),
-    })
-    .nullable()
-    .optional(),
-  last_seen: z
-    .object({
-      prefix: z.string(),
-      origin: z.union([z.number(), z.string()]).nullable(),
-      time: z.string(),
-    })
-    .nullable()
-    .optional(),
+  first_seen: SeenSchema,
+  last_seen: SeenSchema,
   visibility: z
     .object({
       v4: z.object({ ris_peers_seeing: z.number(), total_ris_peers: z.number() }),

@@ -263,6 +263,26 @@ test.describe('prefix view', () => {
     await themes(page, 'prefix-rpki-invalid')
   })
 
+  test('exchange peering LAN and port from PeeringDB', async ({ page }) => {
+    await page.goto('/prefix/80.249.208.0/21')
+    await hydrated(page)
+    const facts = page.getByLabel('Prefix facts')
+    await expect(facts).toContainText('IX peering LAN')
+    await expect(facts.getByRole('link', { name: 'AMS-IX' })).toHaveAttribute(
+      'href',
+      'https://www.peeringdb.com/ix/26',
+    )
+    await expect(facts).toContainText('Amsterdam, NL')
+    await expect(facts).not.toContainText('Exchange port')
+    await page.goto('/prefix/80.249.208.68')
+    await hydrated(page)
+    const host = page.getByLabel('Prefix facts')
+    await expect(host).toContainText('IX peering LAN')
+    await expect(host.getByRole('link', { name: 'AS3333' })).toHaveAttribute('href', '/asn/AS3333')
+    await expect(host).toContainText('RIPE NCC')
+    await expect(host).toContainText('at AMS-IX, 10G, route server peer')
+  })
+
   test('special use space is flagged', async ({ page }) => {
     await page.goto('/prefix/10.10.0.0/16')
     await hydrated(page)
@@ -376,8 +396,57 @@ test.describe('ASN view', () => {
     await expect(
       page.getByRole('heading', { name: 'Included in the following route sets:' }),
     ).toBeVisible()
-    await expect(page.getByRole('link', { name: 'AS-RIPENCC' })).toBeVisible()
+    await expect(
+      page
+        .getByRole('region', { name: 'Included in the following AS sets:' })
+        .getByRole('link', { name: 'AS-RIPENCC' }),
+    ).toBeVisible()
     await themes(page, 'asn-AS3333')
+  })
+
+  test('AS3333 PeeringDB record, exchanges and contacts', async ({ page }) => {
+    await page.goto('/asn/AS3333')
+    await hydrated(page)
+    await expect(page.getByLabel('ASN facts')).toContainText('PeeringDB')
+    const pdb = page.getByRole('region', { name: 'PeeringDB' })
+    const facts = pdb.getByLabel('PeeringDB record')
+    // The network and its organisation share a name; each links to its own record.
+    const named = facts.getByRole('link', { name: 'RIPE NCC', exact: true })
+    await expect(named.first()).toHaveAttribute('href', 'https://www.peeringdb.com/net/5104')
+    await expect(named.nth(1)).toHaveAttribute('href', /\/org\/\d+$/)
+    await expect(facts).toContainText('Peering policy')
+    await expect(facts).toContainText(/v4 30 \(\d+ announced\)/)
+    await expect(facts).toContainText(/v6 20 \(\d+ announced\)/)
+    // The AS-set it names is checked against IRR membership on the same page.
+    await expect(facts.getByRole('link', { name: 'AS-RIPENCC' })).toHaveAttribute(
+      'href',
+      '/as-set/AS-RIPENCC',
+    )
+    await expect(facts).toContainText('lists AS3333')
+    await expect(facts).toContainText('2 IXs, 0 facilities')
+    await expect(pdb).toContainText('None public')
+    const ix = pdb.getByRole('table')
+    for (const col of ['Exchange', 'Location', 'Speed', 'IPv4', 'IPv6', 'Route server'])
+      await expect(ix.getByRole('columnheader', { name: col })).toBeVisible()
+    await expect(ix.getByRole('row')).toHaveCount(5)
+    await expect(ix.getByRole('row', { name: /80\.249\.208\.68/ })).toContainText('AMS-IX')
+    await expect(ix.getByRole('row', { name: /80\.249\.208\.68/ })).toContainText('10G')
+    await ix.getByRole('link', { name: '80.249.208.68' }).click()
+    await expect(page).toHaveURL('/prefix/80.249.208.68')
+    await expect(page.getByLabel('Prefix facts')).toContainText('Exchange port')
+    await themes(page, 'prefix-ix-port')
+  })
+
+  test('AS1136 public contacts', async ({ page }) => {
+    await page.goto('/asn/AS1136')
+    await hydrated(page)
+    const pdb = page.getByRole('region', { name: 'PeeringDB' })
+    await expect(pdb.getByRole('link', { name: 'fo-team-internet@kpn.com' })).toHaveAttribute(
+      'href',
+      'mailto:fo-team-internet@kpn.com',
+    )
+    await expect(pdb).not.toContainText('redacted@example.net')
+    await expect(pdb.getByLabel('PeeringDB record')).toContainText('AS1136:AS-KPNNL')
   })
 
   test('lower-case and bare ASNs redirect to the canonical URL', async ({ page }) => {
@@ -437,6 +506,9 @@ test.describe('set views', () => {
     await expect(
       page.getByRole('heading', { name: 'Included in the following sets:' }),
     ).toBeVisible()
+    const named = page.getByLabel('Expansion facts')
+    await expect(named).toContainText('Named in PeeringDB by')
+    await expect(named.getByRole('link', { name: 'AS3333' })).toHaveAttribute('href', '/asn/AS3333')
     await themes(page, 'as-set-AS-RIPENCC')
   })
 

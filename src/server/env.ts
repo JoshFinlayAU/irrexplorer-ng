@@ -29,6 +29,19 @@ const EnvSchema = z.object({
   GEOIP_EDITION: z.enum(['GeoLite2-City', 'GeoLite2-Country']).default('GeoLite2-City'),
   /** How often to check for a new release. Checks are HEAD requests and free. */
   GEOIP_REFRESH_SECONDS: z.coerce.number().int().min(3600).default(21600),
+  /** PeeringDB, mirrored in memory. The API key raises the rate limit and is optional. */
+  PEERINGDB_URL: z.url().default('https://www.peeringdb.com'),
+  PEERINGDB_API_KEY: z.string().default(''),
+  PEERINGDB_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((v) => v === 'true'),
+  /** Changes are fetched this often; PeeringDB suggests syncing between hourly and daily. */
+  PEERINGDB_REFRESH_SECONDS: z.coerce.number().int().min(900).default(3600),
+  /** A full download replaces the incremental copy this often, to drop anything missed. */
+  PEERINGDB_FULL_SYNC_SECONDS: z.coerce.number().int().min(3600).default(86400),
+  /** Pause between requests during a sync; PeeringDB asks for at least two seconds. */
+  PEERINGDB_REQUEST_GAP_MS: z.coerce.number().int().min(0).default(2500),
   /** Queries shorter than these lengths are refused as too large, like the original. */
   MIN_PREFIX_LENGTH_V4: z.coerce.number().int().min(0).max(32).default(9),
   MIN_PREFIX_LENGTH_V6: z.coerce.number().int().min(0).max(128).default(29),

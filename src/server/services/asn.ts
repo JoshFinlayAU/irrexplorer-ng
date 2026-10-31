@@ -8,12 +8,15 @@ import type {
   GeoAvailability,
   GeoBreakdown,
   Notice,
+  PdbAvailability,
+  PdbNetwork,
   PrefixSummary,
   SourceStates,
 } from '~/lib/analysis/types'
 import { env } from '../env'
 import { asName, bgpByOrigin } from '../sources/bgptools'
 import { geoAvailability, withGeo } from '../sources/geoip'
+import { pdbNetwork, peeringdbAvailability } from '../sources/peeringdb'
 import { routesByOrigin } from '../sources/irrd'
 import { originatedByAsn } from '../sources/ripestat'
 import { gather } from './gather'
@@ -28,6 +31,9 @@ export interface AsnReport {
   /** Where the prefixes this ASN announces in BGP are, by address share. */
   geo: GeoBreakdown | null
   geoip: GeoAvailability
+  /** The network's PeeringDB record, or null when it has none or PeeringDB is not loaded. */
+  peeringdb: PdbNetwork | null
+  pdb: PdbAvailability
   sources: SourceStates
   notices: Notice[]
   asNames: Record<string, string>
@@ -86,9 +92,10 @@ export async function asnReport(asn: number): Promise<AsnReport> {
     r.rpkiRoutes.some((o) => o.asn === asn) ||
     Object.values(r.irrRoutes).some((list) => list.some((o) => o.asn === asn))
 
+  const pdb = pdbNetwork(asn)
   return {
     asn,
-    name: asName(asn),
+    name: asName(asn) ?? pdb?.name ?? null,
     directOrigin: rows.filter(isDirect),
     overlaps: rows.filter((r) => !isDirect(r)),
     geo: mergeGeo(
@@ -98,6 +105,8 @@ export async function asnReport(asn: number): Promise<AsnReport> {
       }),
     ),
     geoip: geoAvailability(),
+    peeringdb: pdb,
+    pdb: peeringdbAvailability(),
     sources: g.sources,
     notices: [...notices, ...g.notices],
     asNames: namesFor(rows, [asn]),

@@ -5,12 +5,15 @@ import { collect } from '~/lib/analysis/collect'
 import type {
   GeoAvailability,
   Notice,
+  PdbAvailability,
+  PdbPrefixInfo,
   PrefixGeo,
   PrefixSummary,
   SourceStates,
 } from '~/lib/analysis/types'
 import { env } from '../env'
 import { geoAvailability, geoFor, withGeo } from '../sources/geoip'
+import { pdbPrefixInfo, peeringdbAvailability } from '../sources/peeringdb'
 import { visibilityFrom, type RisVisibility } from '../sources/ripestat'
 import { gather } from './gather'
 import { namesFor } from './names'
@@ -34,6 +37,9 @@ export interface PrefixReport {
   /** GeoLite2 location of the query itself, with city detail where it is one network. */
   geo: PrefixGeo | null
   geoip: GeoAvailability
+  /** Exchange peering LANs overlapping the query, and for a host the port using it. */
+  peeringdb: PdbPrefixInfo | null
+  pdb: PdbAvailability
   sources: SourceStates
   notices: Notice[]
   asNames: Record<string, string>
@@ -71,6 +77,8 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
       visibility: null,
       geo: null,
       geoip: geoAvailability(),
+      peeringdb: null,
+      pdb: peeringdbAvailability(),
       sources: { irr: ok, bgp: ok, rpki: ok, rir: ok },
       notices: [],
       asNames: {},
@@ -117,6 +125,8 @@ export async function prefixReport(cidr: string): Promise<PrefixReport> {
     visibility: g.routing ? visibilityFrom(prefix, g.routing) : null,
     geo: geoFor(prefix, { place: true, maxSteps: 512 }),
     geoip: geoAvailability(),
+    peeringdb: pdbPrefixInfo(prefix),
+    pdb: peeringdbAvailability(),
     sources: g.sources,
     notices: g.notices,
     asNames: namesFor([...overlaps, ...(leastSpecific?.rows ?? [])]),

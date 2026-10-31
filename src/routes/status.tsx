@@ -23,6 +23,10 @@ const DATASET_INFO: Record<string, { label: string; href: string }> = {
     label: 'Prefix geolocation from MaxMind GeoLite2',
     href: 'https://dev.maxmind.com/geoip/geolite2-free-geolocation-data',
   },
+  PeeringDB: {
+    label: 'Networks, exchanges, peering LANs and facilities from PeeringDB',
+    href: 'https://www.peeringdb.com/',
+  },
   'RIR delegations': {
     label: 'Prefix to RIR mapping from NRO delegated stats and Registro.BR',
     href: 'https://www.nro.net/about/rirs/statistics/',
@@ -35,6 +39,7 @@ const UPSTREAM_LABEL: Record<string, string> = {
   bgptools: 'bgp.tools',
   rirstats: 'RIR delegated stats',
   maxmind: 'MaxMind downloads',
+  peeringdb: 'PeeringDB API',
 }
 
 function StatusPage() {
@@ -70,7 +75,9 @@ function StatusPage() {
           <tbody>
             {data.datasets.map((d) => {
               const info = DATASET_INFO[d.name]
-              const off = d.name === 'MaxMind GeoLite2' && !data.geoip.configured
+              const off =
+                (d.name === 'MaxMind GeoLite2' && !data.geoip.configured) ||
+                (d.name === 'PeeringDB' && !data.peeringdb.enabled)
               return (
                 <tr key={d.name} className="border-b border-[var(--rule)] last:border-b-0">
                   <td className="px-3 py-2">
@@ -85,7 +92,9 @@ function StatusPage() {
                   <td className="px-3 py-2">
                     {off ? (
                       <span className="text-[var(--muted)]">
-                        Not configured: set MAXMIND_ACCOUNT_ID and MAXMIND_LICENSE_KEY
+                        {d.name === 'PeeringDB'
+                          ? 'Disabled: PEERINGDB_ENABLED is false'
+                          : 'Not configured: set MAXMIND_ACCOUNT_ID and MAXMIND_LICENSE_KEY'}
                       </span>
                     ) : d.lastError ? (
                       <span className="inline-flex items-baseline gap-2">
@@ -111,6 +120,14 @@ function StatusPage() {
         GeoLite2 is checked for a new release every few hours and downloaded only when MaxMind
         publishes one (usually Tuesdays and Fridays). This product includes GeoLite2 data created by
         MaxMind, available from <a href="https://www.maxmind.com">https://www.maxmind.com</a>.
+      </p>
+      <p className="-mt-7 mb-10 max-w-[75ch] text-sm text-[var(--muted)]">
+        PeeringDB is mirrored from its API: changes are fetched every hour and the whole copy is
+        replaced once a day.{' '}
+        {data.peeringdb.authenticated
+          ? 'Requests use an API key.'
+          : 'No API key is set, so the lower anonymous query limits apply.'}{' '}
+        Only contacts PeeringDB shows publicly are kept.
       </p>
 
       <SectionHead title="IRR sources" />

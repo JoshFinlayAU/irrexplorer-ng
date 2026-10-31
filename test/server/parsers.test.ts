@@ -3,7 +3,8 @@ import { fixtureText } from '../recorded'
 import { parseTableLine, splitCsvLine } from '~/server/sources/bgptools'
 import { roaMaxLength, splitRoutes } from '~/server/sources/irrd'
 import { parseDelegatedLine, parseRegistroBrLine, rangeToCidrs } from '~/server/sources/rirstats'
-import { parseIp } from '~/lib/ip'
+import { RoutingStatusSchema, visibilityFrom } from '~/server/sources/ripestat'
+import { parseIp, parsePrefix } from '~/lib/ip'
 
 describe('bgp.tools table lines', () => {
   it('parses and filters like the original importer', () => {
@@ -91,5 +92,21 @@ describe('RIR delegated stats', () => {
       .split('\n')
       .flatMap(parseDelegatedLine)
     expect(rows.length).toBeGreaterThan(50)
+  })
+})
+
+describe('RIPEstat routing-status', () => {
+  it('accepts a resource RIS has never seen (first_seen is {})', () => {
+    // Recorded for 80.249.208.68, an AMS-IX peering LAN address.
+    const rec = JSON.parse(fixtureText('ripestat/39ec2d77f01df2d8.json')) as {
+      response: { body: string }
+    }
+    const body = JSON.parse(rec.response.body) as { data: unknown }
+    const rs = RoutingStatusSchema.parse(body.data)
+    expect(rs.first_seen).toBeNull()
+    expect(visibilityFrom(parsePrefix('80.249.208.68/32')!, rs)).toMatchObject({
+      seeing: 0,
+      firstSeen: null,
+    })
   })
 })

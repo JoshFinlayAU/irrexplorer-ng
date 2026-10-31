@@ -6,6 +6,7 @@ import { asNames, bgpTable } from '../sources/bgptools'
 import { databaseStatus } from '../sources/irrd'
 import { env } from '../env'
 import { geoip, geoipConfigured } from '../sources/geoip'
+import { peeringdb } from '../sources/peeringdb'
 import { rirStats } from '../sources/rirstats'
 
 export interface StatusReport {
@@ -13,6 +14,7 @@ export interface StatusReport {
   irr: { source: string; lastUpdate: string | null; authoritative: boolean | null }[] | null
   irrError: string | null
   geoip: { configured: boolean; edition: string }
+  peeringdb: { enabled: boolean; authenticated: boolean }
   health: Record<SourceName, SourceHealth>
 }
 
@@ -23,14 +25,25 @@ export function startDatasets(): void {
   asNames.start()
   rirStats.start()
   geoip.start()
+  peeringdb.start()
 }
 
 export async function statusReport(): Promise<StatusReport> {
   startDatasets()
   const [irr] = await Promise.allSettled([databaseStatus()])
   return {
-    datasets: [bgpTable.status(), asNames.status(), rirStats.status(), geoip.status()],
+    datasets: [
+      bgpTable.status(),
+      asNames.status(),
+      rirStats.status(),
+      geoip.status(),
+      peeringdb.status(),
+    ],
     geoip: { configured: geoipConfigured(), edition: env().GEOIP_EDITION },
+    peeringdb: {
+      enabled: env().PEERINGDB_ENABLED,
+      authenticated: Boolean(env().PEERINGDB_API_KEY),
+    },
     irr:
       irr.status === 'fulfilled'
         ? irr.value

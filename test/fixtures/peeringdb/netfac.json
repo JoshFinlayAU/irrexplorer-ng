@@ -1,0 +1,77 @@
+{
+ "meta": {},
+ "data": [
+  {
+   "id": 647,
+   "name": "CoreSite - Los Angeles (LA1) One Wilshire",
+   "city": "Los Angeles",
+   "country": "US",
+   "net_id": 433,
+   "fac_id": 19,
+   "local_asn": 15169,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2016-03-14T20:34:28Z",
+   "status": "ok"
+  },
+  {
+   "id": 648,
+   "name": "Equinix DC1-DC15,DC21-DC22 - Ashburn",
+   "city": "Ashburn",
+   "country": "US",
+   "net_id": 433,
+   "fac_id": 1,
+   "local_asn": 15169,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2016-03-14T20:34:28Z",
+   "status": "ok"
+  },
+  {
+   "id": 649,
+   "name": "Equinix CH1/CH2/CH4 - Chicago",
+   "city": "Chicago",
+   "country": "US",
+   "net_id": 433,
+   "fac_id": 7,
+   "local_asn": 15169,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2016-03-14T20:34:28Z",
+   "status": "ok"
+  },
+  {
+   "id": 650,
+   "name": "Equinix SV1/SV5/SV10 - Silicon Valley, San Jose",
+   "city": "San Jose",
+   "country": "US",
+   "net_id": 433,
+   "fac_id": 6,
+   "local_asn": 15169,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2016-03-14T21:35:27Z",
+   "status": "ok"
+  },
+  {
+   "id": 652,
+   "name": "Equinix SV8 - Silicon Valley, Palo Alto",
+   "city": "Palo Alto",
+   "country": "US",
+   "net_id": 433,
+   "fac_id": 5,
+   "local_asn": 15169,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2016-03-14T21:35:27Z",
+   "status": "ok"
+  },
+  {
+   "id": 732,
+   "name": "Digital Realty Frankfurt FRA1-27",
+   "city": "Frankfurt",
+   "country": "DE",
+   "net_id": 433,
+   "fac_id": 58,
+   "local_asn": 15169,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2016-10-18T21:39:31Z",
+   "status": "ok"
+  }
+ ]
+}

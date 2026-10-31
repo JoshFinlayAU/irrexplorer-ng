@@ -16,10 +16,11 @@ test('healthz reports process and per-upstream state', async ({ request }) => {
     'bgptools',
     'irrd',
     'maxmind',
+    'peeringdb',
     'ripestat',
     'rirstats',
   ])
-  expect(body.datasets).toHaveLength(3)
+  expect(body.datasets).toHaveLength(5)
 })
 
 test('clean_query classifies like the original', async ({ request }) => {

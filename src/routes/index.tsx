@@ -63,7 +63,8 @@ function Sources() {
     return <p className="font-mono text-[0.78rem] text-[var(--danger-fg)]">status unavailable</p>
   const rows: { name: string; age: string; ok: boolean | null; detail?: string }[] = [
     ...data.datasets.map((d) =>
-      d.name === 'MaxMind GeoLite2' && !data.geoip.configured
+      (d.name === 'MaxMind GeoLite2' && !data.geoip.configured) ||
+      (d.name === 'PeeringDB' && !data.peeringdb.enabled)
         ? { name: d.name, age: '', ok: null, detail: 'not configured' }
         : {
             name: d.name,

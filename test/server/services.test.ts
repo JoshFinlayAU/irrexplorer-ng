@@ -9,12 +9,14 @@ import { asNames, bgpTable, parseTableLine } from '~/server/sources/bgptools'
 import { parseDelegatedLine, rirStats } from '~/server/sources/rirstats'
 import { prefixReport } from '~/server/services/prefix'
 import { asnReport } from '~/server/services/asn'
-import { memberOfReport, setExpansion } from '~/server/services/sets'
+import { memberOfReport, setExpansion, setListedBy } from '~/server/services/sets'
 import { statusReport } from '~/server/services/status'
 import { geoip } from '~/server/sources/geoip'
 import { Reader, type CityResponse } from 'mmdb-lib'
 import type { GeoRecord } from '~/lib/analysis/geo'
 import { geoFixtureDb } from '../geo-fixture'
+import { peeringdbFixture } from '../peeringdb-fixture'
+import { peeringdb } from '~/server/sources/peeringdb'
 
 const server = setupServer(...recordedHandlers)
 
@@ -180,8 +182,10 @@ describe('sets and status', () => {
       'bgp.tools AS names',
       'RIR delegations',
       'MaxMind GeoLite2',
+      'PeeringDB',
     ])
     expect(s.geoip).toEqual({ configured: false, edition: 'GeoLite2-City' })
+    expect(s.peeringdb).toEqual({ enabled: true, authenticated: false })
     expect(s.irr?.map((i) => i.source)).toContain('RIPE')
     expect(s.irr?.map((i) => i.source)).toContain('RPKI')
   })
@@ -231,5 +235,41 @@ describe('geolocation', () => {
     expect(r.geoip).toBe('unconfigured')
     expect(r.geo).toBeNull()
     expect(r.overlaps[0]?.geo).toBeUndefined()
+  })
+})
+
+describe('PeeringDB enrichment', () => {
+  beforeEach(() => peeringdb.set(peeringdbFixture()))
+  afterEach(() => peeringdb.set(null))
+
+  it('attaches the network record to an ASN report', async () => {
+    const r = await asnReport(3333)
+    expect(r.pdb).toBe('ok')
+    expect(r.peeringdb).toMatchObject({ asn: 3333, name: 'RIPE NCC', irrAsSet: 'AS-RIPENCC' })
+    expect(r.peeringdb?.exchanges).toHaveLength(4)
+  })
+
+  it('falls back to the PeeringDB name where bgp.tools has none', async () => {
+    const r = await asnReport(1136)
+    expect(r.name).toBe('KPN NL')
+  })
+
+  it('flags exchange LANs and the port behind an exchange address', async () => {
+    const r = await prefixReport('193.0.0.0/21')
+    expect(r.peeringdb).toEqual({ lans: [], ports: [] })
+    const host = await prefixReport('80.249.208.68')
+    expect(host.peeringdb?.lans.map((l) => l.prefix)).toEqual(['80.249.208.0/21'])
+    expect(host.peeringdb?.ports[0]).toMatchObject({ ix: 'AMS-IX', net: { asn: 3333 } })
+  })
+
+  it('lists the networks naming an AS-set', () => {
+    expect(setListedBy('AS-RIPENCC')).toEqual([{ id: 5104, asn: 3333, name: 'RIPE NCC' }])
+  })
+
+  it('marks reports when PeeringDB is not loaded', async () => {
+    peeringdb.set(null)
+    const r = await asnReport(3333)
+    expect(r.peeringdb).toBeNull()
+    expect(r.pdb).toBe('disabled')
   })
 })

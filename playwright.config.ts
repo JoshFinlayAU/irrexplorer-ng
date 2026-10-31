@@ -18,6 +18,8 @@ function appEnv(degraded: boolean): Record<string, string> {
     MAXMIND_DOWNLOAD_URL: degraded ? fail : `${MOCK}/maxmind`,
     MAXMIND_ACCOUNT_ID: 'e2e',
     MAXMIND_LICENSE_KEY: 'e2e-licence',
+    PEERINGDB_URL: degraded ? fail : `${MOCK}/peeringdb`,
+    PEERINGDB_REQUEST_GAP_MS: '0',
     BULK_DATASETS_ENABLED: 'true',
     BULK_CACHE_DIR: '',
     SET_SIZE_LIMIT: '50',

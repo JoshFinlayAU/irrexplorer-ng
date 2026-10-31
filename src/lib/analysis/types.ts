@@ -156,3 +156,99 @@ export interface PrefixGeo {
   estimated: boolean
   place: GeoPlace | null
 }
+
+/** Whether PeeringDB could be used: "disabled" means PEERINGDB_ENABLED=false. */
+export type PdbAvailability = 'ok' | 'unavailable' | 'disabled'
+
+export interface PdbContact {
+  role: string
+  name: string
+  email: string
+  phone: string
+  url: string
+}
+
+/** One port of a network on an exchange's peering LAN. */
+export interface PdbIxConnection {
+  ixId: number
+  ix: string
+  city: string
+  country: string
+  /** Mbit/s, as PeeringDB stores it. */
+  speed: number
+  ipv4: string | null
+  ipv6: string | null
+  routeServer: boolean
+  bfd: boolean
+  operational: boolean
+}
+
+export interface PdbFacility {
+  facId: number
+  name: string
+  city: string
+  country: string
+  /** ASN used at the facility, when it differs from the network's own. */
+  localAsn: number | null
+}
+
+export interface PdbNetwork {
+  id: number
+  asn: number
+  name: string
+  aka: string
+  nameLong: string
+  website: string
+  org: { id: number; name: string; website: string; city: string; country: string } | null
+  types: string[]
+  scope: string
+  traffic: string
+  ratio: string
+  /** Prefix counts the network asks peers to allow, used for max-prefix limits. */
+  prefixes4: number | null
+  prefixes6: number | null
+  unicast: boolean
+  multicast: boolean
+  ipv6: boolean
+  neverViaRouteServers: boolean
+  /** As written in PeeringDB, for example "RIPE::AS-FOO AS-BAR". */
+  irrAsSet: string
+  lookingGlass: string
+  routeServer: string
+  statusDashboard: string
+  policy: { general: string; url: string; locations: string; ratio: boolean; contracts: string }
+  notes: string
+  created: string
+  updated: string
+  contacts: PdbContact[]
+  exchanges: PdbIxConnection[]
+  facilities: PdbFacility[]
+}
+
+/** A network named in PeeringDB, for "listed by" and port lookups. */
+export interface PdbNetRef {
+  id: number
+  asn: number
+  name: string
+}
+
+/** An exchange peering LAN that overlaps a queried prefix. */
+export interface PdbIxLan {
+  ixId: number
+  ix: string
+  city: string
+  country: string
+  prefix: string
+  /** PeeringDB's flag for whether the LAN is meant to be announced in the DFZ. */
+  inDfz: boolean
+}
+
+/** The network whose exchange port uses a queried address. */
+export interface PdbIxPort extends PdbIxConnection {
+  net: PdbNetRef
+}
+
+export interface PdbPrefixInfo {
+  lans: PdbIxLan[]
+  ports: PdbIxPort[]
+}

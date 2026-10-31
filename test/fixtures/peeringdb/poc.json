@@ -1,0 +1,83 @@
+{
+ "meta": {},
+ "data": [
+  {
+   "id": 421,
+   "net_id": 433,
+   "role": "NOC",
+   "visible": "Users",
+   "name": "Redacted",
+   "phone": "",
+   "email": "redacted@example.net",
+   "url": "",
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2023-08-21T21:24:28Z",
+   "status": "ok"
+  },
+  {
+   "id": 4441,
+   "net_id": 433,
+   "role": "Policy",
+   "visible": "Users",
+   "name": "Redacted",
+   "phone": "",
+   "email": "redacted@example.net",
+   "url": "",
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2017-07-11T16:22:42Z",
+   "status": "ok"
+  },
+  {
+   "id": 7681,
+   "net_id": 5098,
+   "role": "NOC",
+   "visible": "Public",
+   "name": "Front Office Team Internet",
+   "phone": "",
+   "email": "fo-team-internet@kpn.com",
+   "url": "",
+   "created": "2012-12-19T00:00:00Z",
+   "updated": "2022-01-20T13:07:11Z",
+   "status": "ok"
+  },
+  {
+   "id": 9531,
+   "net_id": 5104,
+   "role": "NOC",
+   "visible": "Users",
+   "name": "Redacted",
+   "phone": "",
+   "email": "redacted@example.net",
+   "url": "",
+   "created": "2014-02-17T00:00:00Z",
+   "updated": "2016-03-14T21:46:47Z",
+   "status": "ok"
+  },
+  {
+   "id": 22897,
+   "net_id": 5098,
+   "role": "Technical",
+   "visible": "Public",
+   "name": "Joris de Mooij",
+   "phone": "",
+   "email": "peering-office@kpn.com",
+   "url": "",
+   "created": "2018-01-15T12:38:46Z",
+   "updated": "2018-02-13T12:56:47Z",
+   "status": "ok"
+  },
+  {
+   "id": 30321,
+   "net_id": 5098,
+   "role": "Technical",
+   "visible": "Public",
+   "name": "Wouter Prins",
+   "phone": "",
+   "email": "peering-office@kpn.com",
+   "url": "",
+   "created": "2019-04-26T10:11:01Z",
+   "updated": "2019-04-26T10:11:01Z",
+   "status": "ok"
+  }
+ ]
+}

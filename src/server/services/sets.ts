@@ -1,9 +1,10 @@
 import '@tanstack/react-start/server-only'
 
 import { expandSet } from '~/lib/analysis/sets'
-import type { MemberOf, SetExpansion } from '~/lib/analysis/types'
+import type { MemberOf, PdbNetRef, SetExpansion } from '~/lib/analysis/types'
 import { env } from '../env'
 import { memberOf, setLevel } from '../sources/irrd'
+import { pdbSetUsers } from '../sources/peeringdb'
 
 export async function setExpansion(
   name: string,
@@ -21,4 +22,9 @@ export async function memberOfReport(
   for (const r of rows) (setsPerIrr[r.source] ??= []).push(r.name)
   for (const list of Object.values(setsPerIrr)) list.sort()
   return { irrsSeen: Object.keys(setsPerIrr).sort(), setsPerIrr }
+}
+
+/** Networks that list this AS-set in PeeringDB, or null when PeeringDB is not loaded. */
+export function setListedBy(name: string): PdbNetRef[] | null {
+  return pdbSetUsers(name)
 }

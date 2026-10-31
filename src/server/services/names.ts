@@ -2,8 +2,9 @@ import '@tanstack/react-start/server-only'
 
 import type { PrefixSummary } from '~/lib/analysis/types'
 import { asName } from '../sources/bgptools'
+import { pdbName } from '../sources/peeringdb'
 
-/** AS names for every ASN that appears in the rows, for tooltips. */
+/** AS names for every ASN in the rows, for tooltips: bgp.tools first, then PeeringDB. */
 export function namesFor(
   rows: readonly PrefixSummary[],
   extra: number[] = [],
@@ -16,7 +17,7 @@ export function namesFor(
   }
   const out: Record<string, string> = {}
   for (const asn of asns) {
-    const name = asName(asn)
+    const name = asName(asn) ?? pdbName(asn)
     if (name) out[asn] = name
   }
   return out

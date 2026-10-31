@@ -1,0 +1,304 @@
+{
+ "meta": {},
+ "data": [
+  {
+   "id": 2,
+   "name": "Equinix, Inc.",
+   "aka": "",
+   "name_long": "",
+   "website": "http://www.equinix.com",
+   "social_media": [
+    {
+     "service": "website",
+     "identifier": "http://www.equinix.com"
+    }
+   ],
+   "notes": "",
+   "logo": "https://peeringdb-media-prod.s3.amazonaws.com/media/logos_user_supplied/org-2-d63d8a1c.png",
+   "address1": "1 Lagoon Dr",
+   "address2": "",
+   "city": "Redwood City",
+   "country": "US",
+   "state": "CA",
+   "zipcode": "94065-1562",
+   "floor": "",
+   "suite": "",
+   "latitude": 37.527344,
+   "longitude": -122.261179,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2023-10-30T09:54:43Z",
+   "status": "ok"
+  },
+  {
+   "id": 29,
+   "name": "Seattle Internet Exchange",
+   "aka": "",
+   "name_long": "",
+   "website": "https://www.seattleix.net/",
+   "social_media": [
+    {
+     "service": "website",
+     "identifier": "https://www.seattleix.net/"
+    }
+   ],
+   "notes": "",
+   "logo": null,
+   "address1": "1700 7th Ave Ste 116 PMB #400",
+   "address2": "",
+   "city": "Seattle",
+   "country": "US",
+   "state": "WA",
+   "zipcode": "98101-1323",
+   "floor": "",
+   "suite": "",
+   "latitude": null,
+   "longitude": null,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2021-10-20T05:26:34Z",
+   "status": "ok"
+  },
+  {
+   "id": 34,
+   "name": "CoreSite",
+   "aka": "",
+   "name_long": "",
+   "website": "http://www.coresite.com",
+   "social_media": [
+    {
+     "service": "x",
+     "identifier": "coresite"
+    },
+    {
+     "service": "facebook",
+     "identifier": "coresite"
+    },
+    {
+     "service": "linkedin",
+     "identifier": "coresite"
+    },
+    {
+     "service": "website",
+     "identifier": "http://www.coresite.com"
+    }
+   ],
+   "notes": "",
+   "logo": "https://peeringdb-media-prod.s3.amazonaws.com/media/logos_user_supplied/org-34-96d013d5.png",
+   "address1": "1001 17th Street",
+   "address2": "",
+   "city": "Denver",
+   "country": "US",
+   "state": "CO",
+   "zipcode": "80202",
+   "floor": "",
+   "suite": "Suit 500",
+   "latitude": null,
+   "longitude": null,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2025-01-08T22:08:40Z",
+   "status": "ok"
+  },
+  {
+   "id": 138,
+   "name": "NL-ix",
+   "aka": "Broadband Hosting B.V. dba NL-IX",
+   "name_long": "Broadband Hosting B.V.",
+   "website": "https://www.nl-ix.net",
+   "social_media": [
+    {
+     "service": "website",
+     "identifier": "https://www.nl-ix.net"
+    }
+   ],
+   "notes": "",
+   "logo": "https://peeringdb-media-prod.s3.amazonaws.com/media/logos_user_supplied/org-138-4c7dc9b5.png",
+   "address1": "Wilhelminakade 123",
+   "address2": "",
+   "city": "Rotterdam",
+   "country": "NL",
+   "state": "Zuid-Holland",
+   "zipcode": "3072 AP",
+   "floor": "",
+   "suite": "",
+   "latitude": 51.907061,
+   "longitude": 4.488998,
+   "created": "2010-07-29T00:00:00Z",
+   "updated": "2025-05-16T10:59:03Z",
+   "status": "ok"
+  },
+  {
+   "id": 574,
+   "name": "Google LLC",
+   "aka": "",
+   "name_long": "",
+   "website": "http://www.google.com",
+   "social_media": [
+    {
+     "service": "website",
+     "identifier": "http://www.google.com"
+    }
+   ],
+   "notes": "",
+   "logo": null,
+   "address1": "1600 Amphiteathre Parkway",
+   "address2": "",
+   "city": "Mountain View",
+   "country": "US",
+   "state": "California",
+   "zipcode": "94043",
+   "floor": "",
+   "suite": "",
+   "latitude": null,
+   "longitude": null,
+   "created": "2005-02-06T06:41:04Z",
+   "updated": "2023-03-03T21:25:07Z",
+   "status": "ok"
+  },
+  {
+   "id": 1901,
+   "name": "Lidén Data Gruppen AB",
+   "aka": "",
+   "name_long": "",
+   "website": "",
+   "social_media": [],
+   "notes": "",
+   "logo": null,
+   "address1": "Skogsvägen 2",
+   "address2": "",
+   "city": "Enköping",
+   "country": "SE",
+   "state": "Uppsala Län",
+   "zipcode": "749 41",
+   "floor": "",
+   "suite": "",
+   "latitude": 59.642301,
+   "longitude": 17.103995,
+   "created": "2008-11-10T14:06:24Z",
+   "updated": "2022-01-17T00:20:55Z",
+   "status": "ok"
+  },
+  {
+   "id": 2634,
+   "name": "Amsterdam Internet Exchange B.V.",
+   "aka": "AMS-IX",
+   "name_long": "Amsterdam Internet Exchange",
+   "website": "http://www.ams-ix.net/",
+   "social_media": [
+    {
+     "service": "website",
+     "identifier": "http://www.ams-ix.net/"
+    }
+   ],
+   "notes": "",
+   "logo": "https://peeringdb-media-prod.s3.amazonaws.com/media/logos_user_supplied/org-2634-1c67b462.png",
+   "address1": "Vijzelstraat 70",
+   "address2": "",
+   "city": "Amsterdam",
+   "country": "NL",
+   "state": "Noord Holland",
+   "zipcode": "1017 HL",
+   "floor": "",
+   "suite": "",
+   "latitude": 52.363099,
+   "longitude": 4.891896,
+   "created": "2010-08-11T15:40:42Z",
+   "updated": "2026-03-30T21:40:10Z",
+   "status": "ok"
+  },
+  {
+   "id": 7196,
+   "name": "KPN NL",
+   "aka": "KPN B.V.",
+   "name_long": "KPN National",
+   "website": "http://wwww.kpn.com",
+   "social_media": [
+    {
+     "service": "website",
+     "identifier": "http://wwww.kpn.com"
+    }
+   ],
+   "notes": "",
+   "logo": "https://peeringdb-media-prod.s3.amazonaws.com/media/logos_user_supplied/org-7196-b0b0b78d.png",
+   "address1": "",
+   "address2": "",
+   "city": "",
+   "country": "",
+   "state": "",
+   "zipcode": "",
+   "floor": "",
+   "suite": "",
+   "latitude": null,
+   "longitude": null,
+   "created": "2012-11-07T07:58:02Z",
+   "updated": "2024-07-30T15:35:30Z",
+   "status": "ok"
+  },
+  {
+   "id": 8592,
+   "name": "Digital Realty",
+   "aka": "",
+   "name_long": "",
+   "website": "https://www.digitalrealty.com",
+   "social_media": [
+    {
+     "service": "linkedin",
+     "identifier": "digitalrealty"
+    },
+    {
+     "service": "facebook",
+     "identifier": "digitalrealty"
+    },
+    {
+     "service": "x",
+     "identifier": "digitalrealty"
+    },
+    {
+     "service": "website",
+     "identifier": "https://www.digitalrealty.com"
+    }
+   ],
+   "notes": "",
+   "logo": "https://peeringdb-media-prod.s3.amazonaws.com/media/logos_user_supplied/org-8592-c558293c.jpg",
+   "address1": "2323 Bryan St",
+   "address2": "",
+   "city": "Dallas",
+   "country": "US",
+   "state": "TX",
+   "zipcode": "75201",
+   "floor": "",
+   "suite": "",
+   "latitude": 32.787232,
+   "longitude": -96.794157,
+   "created": "2013-11-26T00:00:00Z",
+   "updated": "2026-04-14T17:16:57Z",
+   "status": "ok"
+  },
+  {
+   "id": 8829,
+   "name": "RIPE NCC",
+   "aka": "",
+   "name_long": "",
+   "website": "https://www.ripe.net",
+   "social_media": [
+    {
+     "service": "website",
+     "identifier": "https://www.ripe.net"
+    }
+   ],
+   "notes": "",
+   "logo": null,
+   "address1": "Stationsplein 11",
+   "address2": "",
+   "city": "Amsterdam",
+   "country": "NL",
+   "state": "Noord-Holland",
+   "zipcode": "1012AB",
+   "floor": "",
+   "suite": "",
+   "latitude": null,
+   "longitude": null,
+   "created": "2012-11-09T06:06:08Z",
+   "updated": "2023-11-20T19:23:37Z",
+   "status": "ok"
+  }
+ ]
+}

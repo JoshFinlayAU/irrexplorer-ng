@@ -32,6 +32,9 @@ test('ASN page renders from RIS only', async ({ page }) => {
     '193.0.0.0/21',
   )
   await expect(page.getByText('IRRd unavailable').first()).toBeVisible()
+  await expect(page.getByRole('region', { name: 'PeeringDB' })).toContainText(
+    'PeeringDB unavailable.',
+  )
   await checkA11y(page)
   await shot(page, 'degraded-asn')
 })

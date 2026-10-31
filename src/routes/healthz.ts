@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { json } from '~/server/api/compat'
 import { healthSnapshot } from '~/server/health'
 import { asNames, bgpTable } from '~/server/sources/bgptools'
+import { geoip } from '~/server/sources/geoip'
+import { peeringdb } from '~/server/sources/peeringdb'
 import { rirStats } from '~/server/sources/rirstats'
 import { startDatasets } from '~/server/services/status'
 
@@ -20,7 +22,13 @@ export const Route = createFileRoute('/healthz')({
           uptimeSeconds: Math.round(process.uptime()),
           memoryMB: Math.round(process.memoryUsage().rss / 1048576),
           upstreams: healthSnapshot(),
-          datasets: [bgpTable.status(), asNames.status(), rirStats.status()],
+          datasets: [
+            bgpTable.status(),
+            asNames.status(),
+            rirStats.status(),
+            geoip.status(),
+            peeringdb.status(),
+          ],
         })
       },
     },

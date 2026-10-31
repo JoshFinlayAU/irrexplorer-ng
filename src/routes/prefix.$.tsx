@@ -7,6 +7,7 @@ import { SourceNotices } from '~/components/notices'
 import { ReportTables, useReportUpdate, type TableSpec } from '~/components/report-tables'
 import { InvalidQuery, Pending } from '~/components/route-states'
 import { GeoPlaceView, GeoShares, geoMissingText } from '~/components/geo'
+import { PDB, place } from '~/components/peeringdb'
 import { RpkiWord } from '~/components/status'
 import { FactStrip, Meter, PageTitle, type Fact } from '~/components/ui'
 import { classifyQuery } from '~/lib/parse'
@@ -15,6 +16,7 @@ import { prefixQuery } from '~/lib/queries'
 import { useRecordRecent } from '~/lib/recent'
 import { reportSearchSchema } from '~/lib/search'
 import { covers, parsePrefix, prefixSize, type Prefix } from '~/lib/ip'
+import { speedText } from '~/lib/analysis/peeringdb'
 import { specialUseOverlaps } from '~/lib/analysis/special-use'
 import type { PrefixSummary } from '~/lib/analysis/types'
 import type { PrefixReport } from '~/server/services/prefix'
@@ -189,6 +191,7 @@ function facts(data: PrefixReport, prefix: Prefix): Fact[] {
     })
   }
   if (!data.tooLarge) out.push(locationFact(data))
+  out.push(...peeringFacts(data))
   const v = data.visibility
   if (v && v.total > 0) {
     out.push({
@@ -235,4 +238,75 @@ function locationFact(data: PrefixReport): Fact {
       value: <span className="text-[var(--faint)]">No GeoLite2 data</span>,
     }
   return { label: 'Location', value: <GeoShares geo={geo} />, wide: geo.countries.length > 1 }
+}
+
+/** Exchange peering LANs the query overlaps, and for an address the port using it. */
+function peeringFacts(data: PrefixReport): Fact[] {
+  const info = data.peeringdb
+  if (!info) return []
+  const out: Fact[] = []
+  if (info.lans.length > 0) {
+    const announced = data.overlaps
+      .filter((r) => r.bgpOrigins.length > 0)
+      .map((r) => parsePrefix(r.prefix)!)
+    out.push({
+      label: 'IX peering LAN',
+      value: (
+        <span className="flex flex-col gap-1">
+          {info.lans.map((l) => {
+            const lan = parsePrefix(l.prefix)!
+            // A LAN not meant for the DFZ should not be visible in it.
+            const leaked = !l.inDfz && announced.some((p) => covers(p, lan) || covers(lan, p))
+            return (
+              <span key={`${l.ixId}-${l.prefix}`} className="flex flex-col">
+                <span className="flex flex-wrap gap-x-3">
+                  <a href={`${PDB}/ix/${l.ixId}`} target="_blank" rel="noreferrer">
+                    {l.ix}
+                  </a>
+                  <Link to="/prefix/$" params={{ _splat: l.prefix }}>
+                    {l.prefix}
+                  </Link>
+                  <span className="text-[var(--muted)]">{place(l.city, l.country)}</span>
+                </span>
+                {leaked ? (
+                  <span className="text-[var(--warning-fg)]">
+                    Announced in BGP, but PeeringDB says this LAN is not in the DFZ
+                  </span>
+                ) : (
+                  <span className="text-[var(--muted)]">
+                    {l.inDfz ? 'announced in the DFZ per PeeringDB' : 'not in the DFZ'}
+                  </span>
+                )}
+              </span>
+            )
+          })}
+        </span>
+      ),
+      wide: true,
+    })
+  }
+  if (info.ports.length > 0) {
+    out.push({
+      label: 'Exchange port',
+      value: (
+        <span className="flex flex-col gap-1">
+          {info.ports.map((p) => (
+            <span key={`${p.net.id}-${p.ixId}`} className="flex flex-wrap gap-x-3">
+              <Link to="/asn/$asn" params={{ asn: `AS${p.net.asn}` }}>
+                AS{p.net.asn}
+              </Link>
+              <span>{p.net.name}</span>
+              <span className="text-[var(--muted)]">
+                at {p.ix}, {speedText(p.speed)}
+                {p.routeServer ? ', route server peer' : ''}
+                {p.operational ? '' : ', not operational'}
+              </span>
+            </span>
+          ))}
+        </span>
+      ),
+      wide: true,
+    })
+  }
+  return out
 }

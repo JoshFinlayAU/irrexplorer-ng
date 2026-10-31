@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/irrd/graphql/",
+    "body": {
+      "query": "query($p0: IP!) { q0: rpslObjects(ipAny: $p0, objectClass: [\"route\"], rpkiStatus: [valid, invalid, not_found]) { rpslPk source ... on RPSLRoute { prefix asn } ... on RPSLRoute6 { prefix asn } } }",
+      "variables": {
+        "p0": "80.249.208.0/21"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "contentType": "application/json",
+    "body": "{\"data\":{\"q0\":[{\"rpslPk\":\"80.249.208.0/21AS0/ML21\",\"source\":\"RPKI\",\"prefix\":\"80.249.208.0/21\",\"asn\":0},{\"rpslPk\":\"80.249.208.0/21AS1200\",\"source\":\"RIPE\",\"prefix\":\"80.249.208.0/21\",\"asn\":1200}]},\"extensions\":{\"execution\":0.031545291989459656}}"
+  }
+}

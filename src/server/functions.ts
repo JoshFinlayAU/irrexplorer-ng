@@ -3,7 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { asnReport } from './services/asn'
 import { prefixReport } from './services/prefix'
-import { memberOfReport, setExpansion } from './services/sets'
+import { memberOfReport, setExpansion, setListedBy } from './services/sets'
 import { statusReport } from './services/status'
 import { objectText } from './sources/irrd'
 
@@ -22,10 +22,16 @@ const SetClass = z.enum(['as-set', 'route-set'])
 export const fetchSetExpansion = createServerFn({ method: 'GET' })
   .validator(z.object({ name: z.string().min(1).max(256), category: SetClass }))
   .handler(async ({ data }) => {
+    // AS-sets are named in PeeringDB by networks that use them as their filter source.
+    const listedBy = data.category === 'as-set' ? setListedBy(data.name) : null
     try {
-      return { ok: true as const, expansion: await setExpansion(data.name, data.category) }
+      return {
+        ok: true as const,
+        expansion: await setExpansion(data.name, data.category),
+        listedBy,
+      }
     } catch (err) {
-      return { ok: false as const, error: reason(err) }
+      return { ok: false as const, error: reason(err), listedBy }
     }
   })
 

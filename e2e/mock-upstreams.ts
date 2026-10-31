@@ -10,6 +10,7 @@
 //         /bgptools/...       table.jsonl, asns.csv
 //         /rir/nro, /rir/registrobr
 //         /maxmind/geoip/databases/GeoLite2-City/download   generated GeoLite2 stand-in
+//         /peeringdb/api/<type>  trimmed PeeringDB export (scripts/peeringdb-fixtures.ts)
 //         /fail/...           always 503, for partial-failure tests
 
 import { createHash } from 'node:crypto'
@@ -122,6 +123,16 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     const headers = { 'content-type': 'application/gzip', 'last-modified': GEO_LAST_MODIFIED }
     res.writeHead(200, headers)
     return res.end(method === 'HEAD' ? undefined : geoFixtureTarball())
+  }
+
+  const pdb = /^\/peeringdb\/api\/([a-z]+)$/.exec(p)
+  if (pdb) {
+    // A `since` sync gets no changes; the fixtures are a fixed snapshot.
+    if (url.searchParams.has('since'))
+      return send(res, 200, 'application/json', '{"meta":{},"data":[]}')
+    const file = path.join(ROOT, 'peeringdb', `${pdb[1]}.json`)
+    if (!existsSync(file)) return send(res, 404, 'text/plain', `no PeeringDB fixture ${pdb[1]}`)
+    return send(res, 200, 'application/json', await readFile(file, 'utf8'))
   }
 
   const bulk = BULK[p]
