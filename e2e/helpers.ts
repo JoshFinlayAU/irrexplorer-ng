@@ -52,8 +52,12 @@ export async function checkA11y(page: Page) {
   expect(summary, 'axe violations').toEqual([])
 }
 
+/** Applies a theme to the loaded page the way the toggle does, stored choice included. */
 export async function setTheme(page: Page, theme: 'light' | 'dark') {
-  await page.emulateMedia({ colorScheme: theme })
+  await page.evaluate((t) => {
+    localStorage.setItem('theme', t)
+    document.documentElement.classList.toggle('dark', t === 'dark')
+  }, theme)
 }
 
 export async function shot(page: Page, name: string) {
