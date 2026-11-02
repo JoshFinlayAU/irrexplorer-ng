@@ -155,25 +155,25 @@ IRRd overlap lookup. The original IRR Explorer has the same cost.
 
 Every setting is documented in `.env.example`. The main ones:
 
-| Variable                       | Default                                     | Purpose                                    |
-| ------------------------------ | ------------------------------------------- | ------------------------------------------ |
+| Variable                       | Default                               | Purpose                                    |
+| ------------------------------ | ------------------------------------- | ------------------------------------------ |
 | `IRRD_GRAPHQL_URL`             | `https://rr.ntt.net/graphql/` | IRRd GraphQL endpoint                      |
-| `RIPESTAT_SOURCEAPP`           | `irrexplorer-ng`                            | Sent on every RIPEstat call                |
-| `BGPTOOLS_USER_AGENT`          | empty                                       | Required for the bgp.tools download        |
-| `MAXMIND_ACCOUNT_ID`           | empty                                       | MaxMind account, for GeoLite2              |
-| `MAXMIND_LICENSE_KEY`          | empty                                       | MaxMind licence key, for GeoLite2          |
-| `GEOIP_EDITION`                | `GeoLite2-City`                             | Or `GeoLite2-Country` (no city detail)     |
-| `GEOIP_REFRESH_SECONDS`        | `21600`                                     | How often to check for a new release       |
-| `PEERINGDB_API_KEY`            | empty                                       | Optional, raises PeeringDB's query limit   |
-| `PEERINGDB_ENABLED`            | `true`                                      | Set to `false` to leave PeeringDB out      |
-| `PEERINGDB_REFRESH_SECONDS`    | `3600`                                      | How often to fetch PeeringDB changes       |
-| `PORT`                         | `3000`                                      | HTTP port                                  |
-| `CACHE_TTL_SECONDS`            | `600`                                       | In-process cache for upstream responses    |
-| `UPSTREAM_TIMEOUT_MS`          | `8000`                                      | Per-call timeout (IRRd gets at least 15 s) |
-| `IRRD_BULK_TIMEOUT_MS`         | `60000`                                     | Large IRRd lookups (big ASNs and sets)     |
-| `CACHE_MAX_MB`                 | `256`                                       | Size cap for the response cache            |
-| `SET_SIZE_LIMIT`               | `1000`                                      | Stop set expansion beyond this many sets   |
-| `MIN_PREFIX_LENGTH_V4` / `_V6` | `9` / `29`                                  | Shorter queries are refused as too large   |
+| `RIPESTAT_SOURCEAPP`           | `irrexplorer-ng`                      | Sent on every RIPEstat call                |
+| `BGPTOOLS_USER_AGENT`          | empty                                 | Required for the bgp.tools download        |
+| `MAXMIND_ACCOUNT_ID`           | empty                                 | MaxMind account, for GeoLite2              |
+| `MAXMIND_LICENSE_KEY`          | empty                                 | MaxMind licence key, for GeoLite2          |
+| `GEOIP_EDITION`                | `GeoLite2-City`                       | Or `GeoLite2-Country` (no city detail)     |
+| `GEOIP_REFRESH_SECONDS`        | `21600`                               | How often to check for a new release       |
+| `PEERINGDB_API_KEY`            | empty                                 | Optional, raises PeeringDB's query limit   |
+| `PEERINGDB_ENABLED`            | `true`                                | Set to `false` to leave PeeringDB out      |
+| `PEERINGDB_REFRESH_SECONDS`    | `3600`                                | How often to fetch PeeringDB changes       |
+| `PORT`                         | `3000`                                | HTTP port                                  |
+| `CACHE_TTL_SECONDS`            | `600`                                 | In-process cache for upstream responses    |
+| `UPSTREAM_TIMEOUT_MS`          | `8000`                                | Per-call timeout (IRRd gets at least 15 s) |
+| `IRRD_BULK_TIMEOUT_MS`         | `60000`                               | Large IRRd lookups (big ASNs and sets)     |
+| `CACHE_MAX_MB`                 | `256`                                 | Size cap for the response cache            |
+| `SET_SIZE_LIMIT`               | `1000`                                | Stop set expansion beyond this many sets   |
+| `MIN_PREFIX_LENGTH_V4` / `_V6` | `9` / `29`                            | Shorter queries are refused as too large   |
 
 ## JSON API
 
