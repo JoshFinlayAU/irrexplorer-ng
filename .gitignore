@@ -19,3 +19,18 @@ skills-lock.json
 .DS_Store
 .cache/
 e2e/zz-*
+
+# AI assistant instructions, memory and workspace files
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+GEMINI.md
+.cursorrules
+.cursor/
+.windsurfrules
+.clinerules
+.aider*
+.github/copilot-instructions.md
+memory/
+skills/
+.sandbox.toml
